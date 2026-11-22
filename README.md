@@ -7,7 +7,7 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 **App:** https://edioilha.github.io/biblia-app/
 
-> 🚧 Em desenvolvimento — documentação e setup concluídos; funcionalidades do MVP em implementação.
+> 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos e ida direta a uma referência (`jo 3:16`), offline.
 
 ## Stats
 
@@ -35,7 +35,7 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 ## Stack
 
-TypeScript · React · Vite · Tailwind CSS · PWA (Workbox) · Vitest · Testing Library · Playwright · ESLint · Prettier
+TypeScript · React · React Router · Vite · Tailwind CSS · Dexie (IndexedDB) · PWA (Workbox) · Vitest · Testing Library · Playwright · ESLint · Prettier
 
 ## Desenvolvimento
 
@@ -52,6 +52,7 @@ npm run test:e2e                # testes E2E (build + preview + Playwright)
 npm run lint                    # ESLint (inclui regra de dependência entre camadas)
 npm run typecheck               # TypeScript
 npm run build                   # build de produção em dist/
+npm run dados:blivre            # regenera public/dados/BLIVRE a partir do biblia.data
 ```
 
 - Commits seguem **Conventional Commits** (validados pelo commitlint); o hook de pre-commit roda lint e Prettier nos arquivos alterados.
@@ -61,6 +62,8 @@ npm run build                   # build de produção em dist/
 ## Dados bíblicos
 
 Textos de [Projeto-Euaggelion/biblia.data](https://github.com/Projeto-Euaggelion/biblia.data) (MIT). Apenas traduções em domínio público: Bíblia Livre, Almeida 1911, Tradução Brasileira.
+
+A Bíblia Livre vem embarcada em `public/dados/BLIVRE/`, normalizada pelo script `npm run dados:blivre` (detalhes e limitações conhecidas em [docs/06 §7](docs/06-arquitetura.md#7-importação-e-normalização-dos-dados)).
 
 ## Licença
 

@@ -618,11 +618,19 @@ classDiagram
     ImportarDados ..> InscricaoRepository
 ```
 
+**Notas de implementação (fase 7.1)**
+- `AbrirCapitulo` retorna, por ora, `CapituloAberto` (capítulo, livro, `anterior`/`proximo` e `versiculoEmFoco`); favoritos, destaques e anotações são acrescentados nas fases seguintes, compondo o `CapituloComMarcacoes`.
+- `TextoBiblicoRepository` ganhou `possuiVersao()`; `importar()` é atômico.
+- Porta adicional `FonteVersaoEmbarcada` (lê a BLIVRE de `public/dados`) e caso de uso `PrepararVersaoPadrao` (importação na primeira execução) e `ObterPosicaoInicial`.
+- `Versao` ainda sem `StatusInstalacao` (entra com UC09); `Preferencias` só com `versaoAtiva` e `ultimaPosicao` (tema/fonte com UC12).
+- `Referencia.deChave()` é o inverso de `chave()`; `Referencia.doCapitulo()` descarta o versículo.
+
 ### Adapters (infraestrutura) previstos
 
 | Porta | Implementação |
 |---|---|
 | `*Repository` | `Dexie*Repository` (IndexedDB) |
+| `FonteVersaoEmbarcada` | `FonteEstatica` (`public/dados/<SIGLA>/<LIVRO>.json`, em precache) |
 | `ServicoBusca` | `MiniSearchServicoBusca` (executa em Web Worker; índice persistido no IndexedDB) |
 | `FonteVersoes` | `GitHubBibliaDataFonte` (baixa `data/canonical/<SIGLA>/<LIVRO>.json`) |
 | `PlanoRepository` | `PlanosEstaticosRepository` (JSON empacotado no build) |
