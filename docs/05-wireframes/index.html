@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bíblia App — Wireframes v0.1</title>
+<style>
+  :root {
+    --ink: #2b2b2b;
+    --ink-2: #5c5c5c;
+    --ink-3: #8a8a8a;
+    --line: #c9c9c9;
+    --line-2: #e2e2e2;
+    --fill: #f1f1f1;
+    --fill-2: #f7f7f7;
+    --bg: #e9e9e6;
+    --white: #ffffff;
+    --paper: #fbf8f0;
+    --paper-edge: #ece6d6;
+    --note: #2f6fd6;          /* cor só para anotações de wireframe (callouts) */
+    --marker: 255, 214, 0;    /* marca-texto */
+    --radius: 8px;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 var(--sans); color: var(--ink); background: var(--bg); }
+  a { color: inherit; }
+
+  /* ---------- documento ---------- */
+  .doc { max-width: 1360px; margin: 0 auto; padding: 32px 24px 80px; }
+  .doc > header h1 { margin: 0 0 4px; font-size: 28px; }
+  .doc > header p { margin: 0; color: var(--ink-2); }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; font-size: 13px; color: var(--ink-2); }
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 8px; }
+  .toc a { text-decoration: none; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--white); font-size: 13px; }
+  .toc a:hover { border-color: var(--ink-2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 13px; color: var(--ink-2); align-items: center; }
+  .legend span { display: inline-flex; gap: 6px; align-items: center; }
+
+  section.screen { margin-top: 56px; }
+  section.screen > h2 { font-size: 20px; margin: 0 0 4px; }
+  section.screen > .sub { color: var(--ink-2); margin: 0 0 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .notes { flex: 1 1 280px; min-width: 260px; max-width: 420px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; font-size: 13px; }
+  .notes h3 { margin: 0 0 8px; font-size: 14px; }
+  .notes ol { margin: 0; padding-left: 0; list-style: none; counter-reset: n; }
+  .notes li { margin: 0 0 8px; padding-left: 28px; position: relative; }
+  .notes li::before { counter-increment: n; content: counter(n); position: absolute; left: 0; top: 0; }
+  .notes li::before, .c { width: 20px; height: 20px; border-radius: 50%; background: var(--note); color: #fff; font: 600 11px/20px var(--sans); text-align: center; }
+  .notes .rf { color: var(--ink-3); font-size: 12px; }
+  .c { display: inline-block; position: absolute; z-index: 5; box-shadow: 0 0 0 2px #fff; }
+
+  /* ---------- molduras ---------- */
+  .frame { position: relative; background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.06); }
+  .frame.desktop { flex: 1 1 820px; max-width: 900px; min-width: 0; }
+  .frame.mobile { width: 360px; flex: 0 0 360px; border-radius: 28px; border-width: 8px; border-color: #3a3a3a; }
+  .frame .label { position: absolute; bottom: 0; right: 12px; background: var(--ink); color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 6px 6px 0 0; z-index: 6; }
+  .scroll-x { overflow-x: auto; }
+
+  /* ---------- elementos genéricos de wireframe ---------- */
+  .appbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line-2); background: var(--white); }
+  .logo { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .logo i { width: 18px; height: 18px; border-radius: 4px; background: var(--ink-2); display: inline-block; }
+  .nav { display: flex; gap: 4px; margin-left: 12px; }
+  .nav a { text-decoration: none; padding: 6px 10px; border-radius: 6px; color: var(--ink-2); font-size: 13px; }
+  .nav a.on { background: var(--fill); color: var(--ink); font-weight: 600; }
+  .spacer { flex: 1; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--white); border-radius: 6px; padding: 5px 10px; font-size: 13px; white-space: nowrap; }
+  .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn.ghost { border-color: transparent; background: transparent; }
+  .btn.sm { padding: 3px 8px; font-size: 12px; }
+  .icon { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; color: var(--ink-2); background: var(--white); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; background: var(--white); white-space: nowrap; }
+  .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .input { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--white); color: var(--ink); }
+  .input .ph { color: var(--ink-3); }
+  .select { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font-size: 13px; background: var(--white); white-space: nowrap; }
+  .select::after { content: "▾"; color: var(--ink-3); font-size: 11px; }
+  .bar { height: 8px; border-radius: 999px; background: var(--fill); overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: var(--ink-2); }
+  .muted { color: var(--ink-2); }
+  .tiny { font-size: 12px; color: var(--ink-3); }
+  .box { border: 1px dashed var(--line); border-radius: 8px; padding: 12px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--white); }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line-2); }
+  .tabs a { text-decoration: none; padding: 10px 14px; font-size: 13px; color: var(--ink-2); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tabs a.on { color: var(--ink); font-weight: 600; border-color: var(--ink); }
+  .tabs .n { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--fill); font-size: 11px; text-align: center; color: var(--ink-2); }
+  .pager { display: flex; gap: 4px; align-items: center; justify-content: center; padding: 12px; }
+  .pager span { min-width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; background: var(--white); }
+  .pager span.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .pager span.gap { border: 0; background: transparent; }
+
+  /* ---------- página de papel ---------- */
+  .desk { background: #dcdcd8; padding: 24px 56px; position: relative; }
+  .paper {
+    position: relative; max-width: 640px; margin: 0 auto; padding: 40px 56px 28px;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.7), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(120,100,60,.018) 0 2px, transparent 2px 4px),
+      var(--paper);
+    border: 1px solid var(--paper-edge);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05), 0 6px 18px rgba(0,0,0,.12), inset 0 0 60px rgba(160,130,70,.08);
+    font-family: var(--serif); color: #2a2622;
+  }
+  .paper .running { display: flex; justify-content: space-between; font: 11px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: #9a8f7c; margin-bottom: 18px; }
+  .paper h3 { font-family: var(--serif); text-align: center; font-weight: 400; font-size: 26px; margin: 0; letter-spacing: .04em; }
+  .paper .chap { text-align: center; font: 12px var(--sans); letter-spacing: .2em; color: #9a8f7c; margin: 4px 0 18px; text-transform: uppercase; }
+  .paper p.txt { font-size: 17px; line-height: 1.75; text-align: justify; hyphens: auto; margin: 0; }
+  .paper sup.v { font: 600 10px var(--sans); color: #a08f70; margin-right: 2px; vertical-align: super; }
+  .paper .fav { font: 13px var(--sans); color: #b8902c; margin-right: 1px; }
+  .paper .fn { font: 600 11px var(--sans); color: var(--ink); vertical-align: super; margin-left: 1px; border-bottom: 1px solid var(--ink-3); }
+  .paper .inline-note { margin: 10px 0 12px; padding: 8px 12px; border-left: 3px solid #b9a988; background: rgba(185,169,136,.12); font: 13px/1.5 var(--sans); color: #4a443b; border-radius: 0 6px 6px 0; }
+  .paper .inline-note b { font-weight: 600; }
+  .paper footer { margin-top: 22px; padding-top: 10px; border-top: 1px solid #d9cfba; font: 12.5px/1.5 var(--sans); color: #4a443b; }
+  .paper footer .pg { text-align: center; color: #9a8f7c; font-size: 11px; margin-top: 12px; letter-spacing: .1em; }
+  .page-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; background: var(--white); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--ink-2); }
+  .page-arrow.l { left: 12px; } .page-arrow.r { right: 12px; }
+
+  /* marca-texto amarelo translúcido (efeito caneta real) */
+  mark.hl {
+    color: inherit; padding: .05em .2em; margin: 0 -.2em; border-radius: .8em .3em .9em .4em;
+    background: linear-gradient(100deg, rgba(var(--marker),0) .8%, rgba(var(--marker),.55) 2.5%, rgba(var(--marker),.42) 6%, rgba(var(--marker),.34) 93%, rgba(var(--marker),.6) 96.5%, rgba(var(--marker),0) 99%);
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  }
+  /* seleção ativa do usuário */
+  .sel { background: rgba(70,110,200,.22); border-radius: 2px; }
+  .toolbar { position: absolute; display: flex; gap: 2px; padding: 4px; background: #2b2b2b; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.25); z-index: 4; font: 12px var(--sans); }
+  .toolbar span { color: #fff; padding: 5px 9px; border-radius: 5px; display: inline-flex; gap: 5px; align-items: center; white-space: nowrap; }
+  .toolbar span:first-child { background: rgba(255,255,255,.12); }
+  .toolbar .sw { width: 10px; height: 10px; border-radius: 50%; background: rgb(var(--marker)); display: inline-block; }
+  .toolbar::after { content: ""; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: #2b2b2b; }
+
+  .planbar { display: flex; gap: 10px; align-items: center; padding: 8px 16px; background: var(--fill-2); border-bottom: 1px solid var(--line-2); font-size: 12.5px; }
+  .planbar .bar { width: 120px; }
+
+  /* ---------- mobile ---------- */
+  .m-status { height: 22px; display: flex; justify-content: space-between; padding: 4px 18px 0; font: 600 11px var(--sans); }
+  .m-top { display: flex; align-items: center; gap: 8px; padding: 6px 12px 8px; border-bottom: 1px solid var(--line-2); }
+  .m-body { height: 600px; overflow: hidden; position: relative; background: var(--paper); }
+  .m-tabbar { display: flex; justify-content: space-around; border-top: 1px solid var(--line-2); padding: 6px 4px 14px; background: var(--white); }
+  .m-tabbar span { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--ink-3); }
+  .m-tabbar span i { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid currentColor; display: block; }
+  .m-tabbar span.on { color: var(--ink); font-weight: 600; }
+  .m-body .paper { margin: 0; padding: 22px 20px 16px; border-left: 0; border-right: 0; box-shadow: inset 0 0 40px rgba(160,130,70,.08); max-width: none; }
+  .m-body .paper p.txt { font-size: 15.5px; line-height: 1.7; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--white); border-radius: 16px 16px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.18); padding: 8px 14px 14px; z-index: 4; }
+  .sheet .grab { width: 36px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto 10px; }
+  .sheet .acts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; font-size: 11px; color: var(--ink-2); }
+  .sheet .acts div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .sheet .acts i { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 15px; color: var(--ink); }
+  .colors { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+  .colors i { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); display: block; }
+
+  /* ---------- listas ---------- */
+  .list { display: flex; flex-direction: column; }
+  .item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 16px; border-bottom: 1px solid var(--line-2); }
+  .item .ref { font-weight: 600; font-size: 13px; }
+  .item .ref small { font-weight: 400; color: var(--ink-3); margin-left: 6px; }
+  .item .t { font-family: var(--serif); font-size: 14.5px; color: #3a3631; grid-column: 1 / 2; }
+  .item .t b { font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; text-decoration-color: var(--ink-2); }
+  .item .kebab { grid-row: 1 / 3; grid-column: 2; align-self: center; color: var(--ink-3); font-size: 18px; }
+  .item .n { grid-column: 1 / 2; font-size: 13px; background: var(--fill-2); border-left: 3px solid var(--line); padding: 6px 10px; border-radius: 0 6px 6px 0; color: var(--ink-2); }
+
+  /* ---------- seletor de livros ---------- */
+  .books { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; }
+  .books span { border: 1px solid var(--line); border-radius: 6px; padding: 6px 0; text-align: center; font-size: 12px; background: var(--white); }
+  .books span.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .grp { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 14px 0 8px; }
+  .grp:first-child { margin-top: 0; }
+
+  @media (max-width: 700px) {
+    .doc { padding: 20px 16px 60px; }
+    .desk { padding: 16px 12px; }
+    .paper { padding: 28px 22px 20px; }
+    .page-arrow { display: none; }
+    .nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<header>
+  <h1>Bíblia App — Wireframes</h1>
+  <p>Fase 4 · Baixa/média fidelidade · Estrutura, hierarquia e comportamento das telas do MVP</p>
+  <div class="meta">
+    <span><b>Versão:</b> 0.1 (rascunho)</span>
+    <span><b>Data:</b> 2026-11-22</span>
+    <span><b>Status:</b> Em revisão</span>
+    <span><b>Rastreabilidade:</b> docs/02-requisitos.md · docs/03-casos-de-uso.md</span>
+  </div>
+  <nav class="toc">
+    <a href="#leitura">1. Leitura (desktop)</a>
+    <a href="#leitura-m">1b. Leitura (celular)</a>
+    <a href="#busca">2. Busca</a>
+    <a href="#estudos">3. Meus Estudos</a>
+    <a href="#planos">4. Planos</a>
+    <a href="#versoes">5. Versões</a>
+    <a href="#navegacao">6. Navegação</a>
+  </nav>
+  <div class="legend">
+    <span><i class="c" style="position:static">1</i> Ponto de atenção (ver notas ao lado)</span>
+    <span><mark class="hl" style="font-family:var(--serif)">Marca-texto</mark> Destaque do usuário</span>
+    <span><span class="sel" style="padding:0 4px">seleção</span> Texto selecionado</span>
+    <span>Tons de cinza = wireframe; cores finais serão definidas no design visual.</span>
+  </div>
+</header>
+
+<!-- =========================================================== 1. LEITURA -->
+<section class="screen" id="leitura">
+  <h2>1. Leitura — desktop</h2>
+  <p class="sub">UC01 Ler capítulo · UC05 Marcar texto · UC06 Anotações · UC04 Favoritos</p>
+  <div class="row">
+    <div class="frame desktop">
+      <span class="label">1280 px</span>
+      <div class="appbar">
+        <span class="logo"><i></i> Bíblia</span>
+        <nav class="nav">
+          <a class="on" href="#leitura">Ler</a><a href="#busca">Buscar</a><a href="#planos">Planos</a><a href="#estudos">Meus Estudos</a><a href="#versoes">Versões</a>
+        </nav>
+        <span class="spacer"></span>
+        <span class="select" style="position:relative"><i class="c" style="left:-10px;top:-10px">1</i>João 3</span>
+        <span class="select">BLIVRE</span>
+        <span class="icon" title="Ir para referência">⌕</span>
+        <span class="icon" title="Aparência" style="position:relative">Aa<i class="c" style="right:-10px;top:-10px">8</i></span>
+      </div>
+      <div class="planbar" style="position:relative">
+        <i class="c" style="left:4px;top:4px">7</i>
+        <span style="margin-left:18px"><b>Bíblia em 1 ano</b> · Dia 45 · Jo 3–4</span>
+        <span class="bar"><i style="width:12%"></i></span><span class="tiny">12%</span>
+        <span class="spacer"></span>
+        <span class="btn sm">✓ Concluir leitura do dia</span>
+      </div>
+      <div class="desk">
+        <span class="page-arrow l" style="position:absolute">‹</span>
+        <span class="page-arrow r" style="position:absolute">›<i class="c" style="right:-12px;top:-12px">2</i></span>
+        <article class="paper">
+          <i class="c" style="left:-10px;top:-10px">3</i>
+          <i class="c" style="right:-10px;top:268px">5</i>
+          <i class="c" style="left:-10px;top:208px">4</i>
+          <div class="running"><span>Evangelho de João</span><span>Bíblia Livre</span></div>
+          <h3>JOÃO</h3>
+          <div class="chap">Capítulo 3</div>
+          <p class="txt">
+            <sup class="v">14</sup>E como Moisés levantou a serpente no deserto, assim deve o Filho do homem ser levantado,
+            <sup class="v">15</sup>Para que todo aquele que nele crer tenha a vida eterna.
+            <span class="fav" title="Favorito">★</span><sup class="v">16</sup><mark class="hl">Porque Deus amou ao mundo de tal maneira, que deu o seu Filho unigênito</mark>; para que todo aquele que nele crê não pereça, mas tenha a vida eterna.<span class="fn">1</span>
+            <sup class="v">17</sup>Porque Deus não mandou seu Filho ao mundo para que condenasse ao mundo; <mark class="hl">mas sim para que o mundo por ele fosse salvo; <sup class="v">18</sup>Quem nele crer não é condenado</mark>; mas quem não crê já está condenado; pois não tem crido no nome do unigênito Filho de Deus.
+          </p>
+          <p class="txt" style="position:relative">
+            <span class="toolbar" style="left:120px;top:-36px">
+              <span><i class="sw"></i> Marcar</span><span>✎ Anotar</span><span>☆ Favoritar</span><span>⧉ Copiar</span>
+            </span>
+            <i class="c" style="left:440px;top:-34px">6</i>
+            <sup class="v">19</sup>E esta é a condenação: <span class="sel">que a luz veio ao mundo, e as pessoas amaram mais as trevas que a luz</span>, porque suas obras eram más.
+          </p>
+          <div class="inline-note"><b>Nota (inline):</b> Contraste luz × trevas — comparar com Jo 1:4-5 e 1Jo 1:5.</div>
+          <p class="txt">
+            <sup class="v">20</sup>Porque todo aquele que faz o mal odeia a luz e não vem à luz, para que suas obras não sejam reprovadas.
+            <sup class="v">21</sup>Mas quem pratica a verdade vem à luz, para que suas obras sejam manifestas, que são feitas em Deus.
+          </p>
+          <footer>
+            <div><b>1</b> &nbsp;<b>Jo 3:16</b> — O versículo-síntese do Evangelho. “Unigênito” (gr. <i>monogenēs</i>): único em sua espécie.</div>
+            <div class="pg">— 1042 —</div>
+          </footer>
+        </article>
+      </div>
+    </div>
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Seletor de referência abre o <a href="#navegacao">seletor de livro/capítulo</a>; aceita digitação (<code>jo 3:16</code>). <span class="rf">RF01.2 · RF01.4</span></li>
+        <li>Capítulo anterior/próximo: botões, teclas ← → e swipe no celular. Desabilita em Gn 1 / Ap 22. <span class="rf">RF01.3</span></li>
+        <li><b>Página de papel</b>: fundo creme com textura sutil, sombra de folha, cabeçalho corrente, título do livro, tipografia serifada, texto justificado, número de versículo sobrescrito, nº de página no rodapé. <span class="rf">RF01.6</span></li>
+        <li>Favorito: ícone ★ antes do número do versículo. <span class="rf">RF03.1</span></li>
+        <li><b>Marca-texto</b> amarelo translúcido com bordas irregulares (efeito caneta). Cobre parte de um versículo (v.16) ou atravessa versículos (v.17→18). <span class="rf">RF04.1–04.3</span></li>
+        <li>Ao selecionar texto surge a <b>barra flutuante</b>: Marcar · Anotar · Favoritar · Copiar. <span class="rf">UC05</span></li>
+        <li>Faixa do plano de leitura ativo (só aparece quando o capítulo faz parte da leitura do dia). <span class="rf">RF06.3–06.4</span></li>
+        <li>Aparência: tamanho da fonte e tema claro/sépia/escuro. <span class="rf">RF01.7</span></li>
+      </ol>
+      <p class="tiny" style="margin-top:12px">Anotações: <b>rodapé</b> (marcador ¹ no texto + nota no pé da página) ou <b>inline</b> (bloco abaixo do versículo). Sempre visíveis. RF05.2–05.3</p>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== 1b. LEITURA MOBILE -->
+<section class="screen" id="leitura-m">
+  <h2>1b. Leitura — celular</h2>
+  <p class="sub">Mesma página adaptada; seleção abre uma <i>bottom sheet</i> em vez da barra flutuante</p>
+  <div class="row">
+    <div class="frame mobile">
+      <div class="m-status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="m-top">
+        <span class="select" style="font-weight:600">João 3</span>
+        <span class="select">BLIVRE</span>
+        <span class="spacer"></span>
+        <span class="icon">⌕</span><span class="icon">Aa</span>
+      </div>
+      <div class="m-body">
+        <article class="paper">
+          <h3 style="font-size:22px">JOÃO</h3>
+          <div class="chap">Capítulo 3</div>
+          <p class="txt">
+            <sup class="v">16</sup><mark class="hl">Porque Deus amou ao mundo de tal maneira, que deu o seu Filho unigênito</mark>; para que todo aquele que nele crê não pereça, mas tenha a vida eterna.<span class="fn">1</span>
+            <sup class="v">17</sup>Porque Deus não mandou seu Filho ao mundo para que condenasse ao mundo; <span class="sel">mas sim para que o mundo por ele fosse salvo;</span>
+            <sup class="v">18</sup>Quem nele crer não é condenado; mas quem não crê já está condenado…
+          </p>
+        </article>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="tiny" style="text-align:center;margin-bottom:10px">Jo 3:17 · trecho selecionado</div>
+          <div class="acts">
+            <div><i>🖍</i>Marcar</div><div><i>✎</i>Anotar</div><div><i>☆</i>Favoritar</div><div><i>⧉</i>Copiar</div>
+          </div>
+          <div class="colors">
+            <i style="background:rgb(var(--marker))"></i><i style="background:#9ad59a"></i><i style="background:#f2a7c3"></i><i style="background:#9cc3f0"></i>
+          </div>
+        </div>
+      </div>
+      <div class="m-tabbar">
+        <span class="on"><i></i>Ler</span><span><i></i>Buscar</span><span><i></i>Planos</span><span><i></i>Estudos</span><span><i></i>Versões</span>
+      </div>
+    </div>
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Navegação principal vira <b>tab bar inferior</b> (alcance do polegar). <span class="rf">RNF03</span></li>
+        <li>Swipe horizontal na página = capítulo anterior/próximo. <span class="rf">RF01.3</span></li>
+        <li>Seleção abre <b>bottom sheet</b> com ações e cores do marca-texto (amarelo padrão; demais cores são “Could”). <span class="rf">RF04.5</span></li>
+        <li>Notas de rodapé ficam ao final do capítulo; tocar no marcador ¹ rola até a nota.</li>
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== 2. BUSCA -->
+<section class="screen" id="busca">
+  <h2>2. Busca</h2>
+  <p class="sub">UC03 Buscar texto · resultados dinâmicos e paginados</p>
+  <div class="row">
+    <div class="frame desktop">
+      <span class="label">1280 px</span>
+      <div class="appbar">
+        <span class="logo"><i></i> Bíblia</span>
+        <nav class="nav"><a href="#leitura">Ler</a><a class="on" href="#busca">Buscar</a><a href="#planos">Planos</a><a href="#estudos">Meus Estudos</a><a href="#versoes">Versões</a></nav>
+        <span class="spacer"></span><span class="select">BLIVRE</span>
+      </div>
+      <div style="padding:20px 24px 8px; position:relative">
+        <i class="c" style="left:8px;top:14px">1</i>
+        <div class="input" style="font-size:16px"><span>⌕</span><span>amor de deus</span><span class="spacer"></span><span class="tiny">✕</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center;position:relative">
+          <i class="c" style="left:-16px;top:2px">2</i>
+          <span class="chip on">Todas as palavras</span><span class="chip">Qualquer palavra</span><span class="chip">Frase exata “ ”</span>
+          <span style="width:12px"></span>
+          <span class="chip on">Toda a Bíblia</span><span class="chip">AT</span><span class="chip">NT</span>
+          <span class="select">Livros: todos</span>
+          <span class="chip">≈ Aproximada</span>
+          <span class="chip">Incluir minhas notas</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 24px;border-bottom:1px solid var(--line-2);position:relative">
+        <i class="c" style="left:0;top:10px">3</i>
+        <span class="muted"><b>152</b> versículos encontrados · página 1 de 8</span>
+        <span class="spacer"></span>
+        <span class="select">Ordenar: Relevância</span><span class="select">20 por página</span>
+      </div>
+      <div class="list" style="position:relative">
+        <i class="c" style="right:40px;top:14px">4</i>
+        <div class="item"><span class="ref">1 João 4:16</span><span class="kebab">›</span><span class="t">E nós conhecemos e cremos no <b>amor</b> que <b>Deus</b> tem por nós. <b>Deus</b> é <b>amor</b>, e quem está no <b>amor</b> está em <b>Deus</b>, e <b>Deus</b> habita nele.</span></div>
+        <div class="item"><span class="ref">Romanos 5:5</span><span class="kebab">›</span><span class="t">E a esperança não frustra, porque o <b>amor</b> de <b>Deus</b> está derramado em nossos corações pelo Espírito Santo que nos foi dado.</span></div>
+        <div class="item"><span class="ref">Romanos 8:39</span><span class="kebab">›</span><span class="t">nem altura, nem profundeza, nem qualquer outra criatura poderá nos separar do <b>amor</b> de <b>Deus</b>, que está em Cristo Jesus, nosso Senhor.</span></div>
+        <div class="item"><span class="ref">João 3:16</span><span class="kebab">›</span><span class="t">Porque <b>Deus</b> <b>amou</b> ao mundo de tal maneira, que deu o seu Filho unigênito…</span></div>
+        <div class="item" style="opacity:.55"><span class="ref">…</span><span></span><span class="t">mais 16 resultados nesta página</span></div>
+      </div>
+      <div class="pager" style="position:relative">
+        <i class="c" style="left:calc(50% - 170px);top:16px">5</i>
+        <span>‹</span><span class="on">1</span><span>2</span><span>3</span><span class="gap">…</span><span>8</span><span>›</span>
+      </div>
+    </div>
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Busca <b>enquanto digita</b> (debounce 250 ms), ignora acentos e maiúsculas. Aspas = frase exata. <span class="rf">RF02.1–02.3 · RF02.6</span></li>
+        <li>Modo, testamento, livros, aproximação (fuzzy) e busca nas anotações. Qualquer mudança volta para a página 1. <span class="rf">RF02.4–02.5 · RF02.9</span></li>
+        <li>Total de ocorrências, página atual, ordenação (relevância/bíblica) e tamanho da página. <span class="rf">RF02.7</span></li>
+        <li>Termos encontrados em destaque; clicar abre o capítulo rolando até o versículo (que pisca). <span class="rf">RF02.8</span></li>
+        <li>Paginação numérica com primeira/última página e reticências. <span class="rf">RF02.7</span></li>
+      </ol>
+      <p class="tiny" style="margin-top:12px">Estado vazio: “Nenhum resultado para …” + sugestões (remover filtros, ativar aproximada). Histórico de buscas (Could) aparece sob o campo quando vazio.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== 3. MEUS ESTUDOS -->
+<section class="screen" id="estudos">
+  <h2>3. Meus Estudos</h2>
+  <p class="sub">UC13 · Abas Favoritos / Destaques / Anotações com filtro, ordenação e paginação</p>
+  <div class="row">
+    <div class="frame desktop">
+      <span class="label">1280 px</span>
+      <div class="appbar">
+        <span class="logo"><i></i> Bíblia</span>
+        <nav class="nav"><a href="#leitura">Ler</a><a href="#busca">Buscar</a><a href="#planos">Planos</a><a class="on" href="#estudos">Meus Estudos</a><a href="#versoes">Versões</a></nav>
+        <span class="spacer"></span><span class="btn sm" style="position:relative">⇩ Exportar backup<i class="c" style="right:-10px;top:-10px">5</i></span>
+      </div>
+      <div style="padding:0 24px;position:relative">
+        <i class="c" style="left:4px;top:10px">1</i>
+        <div class="tabs"><a href="#estudos">Favoritos <span class="n">12</span></a><a href="#estudos">Destaques <span class="n">34</span></a><a class="on" href="#estudos">Anotações <span class="n">8</span></a></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;padding:14px 24px;align-items:center;position:relative">
+        <i class="c" style="left:4px;top:18px">2</i>
+        <div class="input" style="flex:1 1 240px;padding:6px 10px"><span>⌕</span><span class="ph">Filtrar no texto ou na nota…</span></div>
+        <span class="select">Livro: todos</span>
+        <span class="select">Ordenar: Bíblica</span>
+      </div>
+      <div class="list" style="position:relative">
+        <i class="c" style="right:40px;top:14px">3</i>
+        <div class="item"><span class="ref">Gênesis 1:1 <small>editada em 18/11/2026 · rodapé</small></span><span class="kebab">⋮</span><span class="t">No princípio criou Deus os céus e a terra.</span><span class="n">Comparar com João 1:1 — “No princípio era a Palavra”.</span></div>
+        <div class="item"><span class="ref">Salmos 23:1 <small>02/11/2026 · inline</small></span><span class="kebab">⋮</span><span class="t">O SENHOR é meu pastor, nada me faltará.</span><span class="n">Ler o salmo inteiro em voz alta; memorizar até o v.4.</span></div>
+        <div class="item"><span class="ref">João 3:16 <small>21/11/2026 · rodapé</small></span><span class="kebab">⋮</span><span class="t">Porque Deus amou ao mundo de tal maneira, que deu o seu Filho unigênito…</span><span class="n">O versículo-síntese do Evangelho. “Unigênito”: único em sua espécie.</span></div>
+        <div class="item"><span class="ref">João 3:19 <small>21/11/2026 · inline</small></span><span class="kebab">⋮</span><span class="t">E esta é a condenação: que a luz veio ao mundo…</span><span class="n">Contraste luz × trevas — comparar com Jo 1:4-5 e 1Jo 1:5.</span></div>
+      </div>
+      <div class="pager"><span>‹</span><span class="on">1</span><span>›</span></div>
+      <div style="padding:0 24px 20px;position:relative">
+        <i class="c" style="left:4px;top:-4px">4</i>
+        <div class="tiny" style="margin:0 0 8px 18px">Como fica cada item nas outras abas:</div>
+        <div class="box" style="display:grid;gap:10px">
+          <div><span class="ref" style="font-weight:600;font-size:13px">Favoritos ·</span> <span class="muted">Romanos 8:28</span> — <span style="font-family:var(--serif)">E sabemos que todas as coisas juntamente contribuem para o bem daqueles que amam a Deus…</span> <span class="tiny">☆ remover</span></div>
+          <div><span class="ref" style="font-weight:600;font-size:13px">Destaques ·</span> <span class="muted">João 3:17–18</span> — <span style="font-family:var(--serif)"><mark class="hl">mas sim para que o mundo por ele fosse salvo; Quem nele crer não é condenado</mark></span> <span class="tiny">● cor · remover</span></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Abas com contador. Trocar de aba mantém o filtro e volta à página 1. <span class="rf">RF09.1</span></li>
+        <li>Filtro por texto (versículo ou nota), por livro e ordenação bíblica / mais recentes. <span class="rf">RF09.2–09.3</span></li>
+        <li>Clicar no item abre o capítulo no versículo. Menu ⋮: editar nota, mudar exibição (inline/rodapé), remover. Paginação de 20 itens. <span class="rf">RF09.4–09.6</span></li>
+        <li>Formato do item em <b>Favoritos</b> (referência + texto) e <b>Destaques</b> (só o trecho marcado, com a cor). <span class="rf">RF03.2 · RF04.6</span></li>
+        <li>Exportar/importar backup (JSON) — acesso rápido a partir desta tela. <span class="rf">RF08</span></li>
+      </ol>
+      <p class="tiny" style="margin-top:12px">Estado vazio: “Selecione um texto na leitura para marcar, anotar ou favoritar.”</p>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== 4. PLANOS -->
+<section class="screen" id="planos">
+  <h2>4. Planos de leitura</h2>
+  <p class="sub">UC07 Iniciar plano · UC08 Acompanhar plano</p>
+  <div class="row">
+    <div class="frame desktop">
+      <span class="label">1280 px</span>
+      <div class="appbar">
+        <span class="logo"><i></i> Bíblia</span>
+        <nav class="nav"><a href="#leitura">Ler</a><a href="#busca">Buscar</a><a class="on" href="#planos">Planos</a><a href="#estudos">Meus Estudos</a><a href="#versoes">Versões</a></nav>
+      </div>
+      <div style="padding:20px 24px;display:grid;gap:16px">
+        <div class="card" style="position:relative">
+          <i class="c" style="left:-10px;top:-10px">1</i>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline">
+            <b style="font-size:16px">Bíblia em 1 ano</b><span class="tiny">iniciado em 01/10/2026</span>
+            <span class="spacer"></span><span class="btn sm ghost">⋯</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin:12px 0 4px">
+            <div class="bar" style="flex:1"><i style="width:12%"></i></div><b>12%</b>
+          </div>
+          <div class="tiny">42 de 365 dias concluídos · hoje é o dia 53</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px">
+            <div class="box" style="position:relative">
+              <i class="c" style="left:-10px;top:-10px">2</i>
+              <div class="tiny">LEITURA DE HOJE · DIA 53</div>
+              <div style="font-family:var(--serif);font-size:18px;margin:6px 0 10px">Juízes 4 – 6</div>
+              <span class="btn primary sm">Ler agora</span> <span class="btn sm">✓ Concluir</span>
+            </div>
+            <div class="box" style="position:relative">
+              <i class="c" style="left:-10px;top:-10px">3</i>
+              <div class="tiny">EM ATRASO · 3 DIAS</div>
+              <div style="display:grid;gap:6px;margin-top:6px;font-size:13px">
+                <div style="display:flex;gap:8px"><span>☐</span><span>Dia 50 · Juízes 1</span></div>
+                <div style="display:flex;gap:8px"><span>☐</span><span>Dia 51 · Juízes 2</span></div>
+                <div style="display:flex;gap:8px"><span>☐</span><span>Dia 52 · Juízes 3</span></div>
+              </div>
+              <span class="btn sm" style="margin-top:10px">↻ Reagendar plano</span>
+            </div>
+          </div>
+          <div style="margin-top:16px;position:relative">
+            <i class="c" style="left:-10px;top:-4px">4</i>
+            <div class="tiny" style="margin:0 0 6px 16px">ÚLTIMOS 14 DIAS</div>
+            <div style="display:grid;grid-template-columns:repeat(14,1fr);gap:4px">
+              <span class="chip on" style="justify-content:center;padding:4px 0">40</span><span class="chip on" style="justify-content:center;padding:4px 0">41</span><span class="chip on" style="justify-content:center;padding:4px 0">42</span><span class="chip on" style="justify-content:center;padding:4px 0">43</span><span class="chip on" style="justify-content:center;padding:4px 0">44</span><span class="chip on" style="justify-content:center;padding:4px 0">45</span><span class="chip on" style="justify-content:center;padding:4px 0">46</span><span class="chip on" style="justify-content:center;padding:4px 0">47</span><span class="chip on" style="justify-content:center;padding:4px 0">48</span><span class="chip on" style="justify-content:center;padding:4px 0">49</span><span class="chip" style="justify-content:center;padding:4px 0">50</span><span class="chip" style="justify-content:center;padding:4px 0">51</span><span class="chip" style="justify-content:center;padding:4px 0">52</span><span class="chip" style="justify-content:center;padding:4px 0;border-width:2px;border-color:var(--ink)">53</span>
+            </div>
+          </div>
+        </div>
+        <div style="position:relative">
+          <i class="c" style="left:-10px;top:-4px">5</i>
+          <div class="tiny" style="margin:0 0 8px 16px">OUTROS PLANOS</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+            <div class="card"><b>Novo Testamento em 90 dias</b><div class="tiny" style="margin:4px 0 10px">~3 capítulos por dia</div><span class="btn sm">Iniciar</span></div>
+            <div class="card"><b>Salmos e Provérbios em 60 dias</b><div class="tiny" style="margin:4px 0 10px">~3 capítulos por dia</div><span class="btn sm">Iniciar</span></div>
+            <div class="card"><b>Evangelhos em 30 dias</b><div class="tiny" style="margin:4px 0 10px">~3 capítulos por dia</div><span class="btn sm">Iniciar</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Plano em andamento: progresso (%), dias concluídos e dia atual. <span class="rf">RF06.4</span></li>
+        <li>Leitura do dia: “Ler agora” abre o capítulo com a faixa do plano (ver tela 1). <span class="rf">RF06.3</span></li>
+        <li>Dias em atraso, que podem ser concluídos em qualquer ordem; “Reagendar” recalcula a data de início. <span class="rf">RF06.4–06.5</span></li>
+        <li>Linha do tempo dos últimos dias (preenchido = concluído; contorno = hoje).</li>
+        <li>Catálogo de planos pré-definidos; “Iniciar” pergunta a data de início (padrão hoje). <span class="rf">RF06.1–06.2</span></li>
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== 5. VERSÕES -->
+<section class="screen" id="versoes">
+  <h2>5. Versões</h2>
+  <p class="sub">UC09 Instalar versão · UC10 Trocar versão</p>
+  <div class="row">
+    <div class="frame desktop">
+      <span class="label">1280 px</span>
+      <div class="appbar">
+        <span class="logo"><i></i> Bíblia</span>
+        <nav class="nav"><a href="#leitura">Ler</a><a href="#busca">Buscar</a><a href="#planos">Planos</a><a href="#estudos">Meus Estudos</a><a class="on" href="#versoes">Versões</a></nav>
+      </div>
+      <div style="padding:20px 24px;display:grid;gap:18px">
+        <div style="position:relative">
+          <i class="c" style="left:-10px;top:-4px">1</i>
+          <div class="tiny" style="margin:0 0 8px 16px">INSTALADAS</div>
+          <div class="card" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+            <span style="font-size:18px">◉</span>
+            <div style="flex:1;min-width:180px"><b>BLIVRE · Bíblia Livre</b> <span class="chip" style="margin-left:6px">Padrão</span> <span class="chip on">Ativa</span><div class="tiny">2018 · Domínio público · 4,6 MB · indexada</div></div>
+            <span class="btn sm" style="opacity:.45">Remover</span>
+          </div>
+        </div>
+        <div style="position:relative">
+          <i class="c" style="left:-10px;top:-4px">2</i>
+          <div class="tiny" style="margin:0 0 8px 16px">DISPONÍVEIS PARA INSTALAR</div>
+          <div style="display:grid;gap:10px">
+            <div class="card" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+              <span style="font-size:18px">○</span>
+              <div style="flex:1;min-width:180px"><b>TB · Tradução Brasileira</b><div class="tiny">Domínio público · ~4,5 MB</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;position:relative">
+                  <i class="c" style="left:-28px;top:-4px">3</i>
+                  <div class="bar" style="flex:1;max-width:320px"><i style="width:64%"></i></div><span class="tiny">Indexando… 64% (2/3)</span>
+                </div>
+              </div>
+              <span class="btn sm">Cancelar</span>
+            </div>
+            <div class="card" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+              <span style="font-size:18px">○</span>
+              <div style="flex:1;min-width:180px"><b>ALM1911 · Almeida 1911</b><div class="tiny">Domínio público · ~4,4 MB · ortografia antiga</div></div>
+              <span class="btn primary sm">⇩ Instalar</span>
+            </div>
+          </div>
+        </div>
+        <div class="box tiny" style="position:relative">
+          <i class="c" style="left:-10px;top:-10px">4</i>
+          Apenas traduções em domínio público são distribuídas. Fonte: Projeto-Euaggelion/biblia.data · Armazenamento usado: 9,1 MB de ~2 GB disponíveis · Armazenamento persistente: ativado.
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Versões instaladas; escolher a ativa (mantém o capítulo atual). A última versão instalada não pode ser removida. <span class="rf">RF07.2 · RF07.4–07.5</span></li>
+        <li>Catálogo de versões disponíveis. <span class="rf">RF07.2</span></li>
+        <li>Instalação em etapas: (1) download, (2) validação/importação, (3) indexação — com progresso e cancelamento. Em erro: “Tentar novamente”. <span class="rf">RF07.3 · UC09</span></li>
+        <li>Aviso legal e uso de armazenamento local. <span class="rf">RNF10 · RNF01</span></li>
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<!-- =========================================================== 6. NAVEGAÇÃO -->
+<section class="screen" id="navegacao">
+  <h2>6. Navegação — seletor de livro e capítulo</h2>
+  <p class="sub">UC01 (A1) · UC02 Ir para referência</p>
+  <div class="row">
+    <div class="frame desktop">
+      <span class="label">1280 px · popover sobre a leitura</span>
+      <div class="appbar">
+        <span class="logo"><i></i> Bíblia</span>
+        <nav class="nav"><a class="on" href="#leitura">Ler</a><a href="#busca">Buscar</a><a href="#planos">Planos</a><a href="#estudos">Meus Estudos</a><a href="#versoes">Versões</a></nav>
+        <span class="spacer"></span><span class="select" style="border-color:var(--ink)">João 3</span><span class="select">BLIVRE</span>
+      </div>
+      <div style="background:#dcdcd8;padding:16px">
+        <div class="card" style="box-shadow:0 12px 32px rgba(0,0,0,.18);padding:16px">
+          <div class="input" style="position:relative"><i class="c" style="left:-12px;top:-12px">1</i><span>⌕</span><span>jo 3:16</span><span class="spacer"></span><span class="tiny">↵ Ir para João 3:16</span></div>
+          <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:20px;margin-top:14px">
+            <div style="position:relative">
+              <i class="c" style="left:-12px;top:-6px">2</i>
+              <div class="grp">Antigo Testamento</div>
+              <div class="books">
+                <span>Gn</span><span>Êx</span><span>Lv</span><span>Nm</span><span>Dt</span><span>Js</span><span>Jz</span><span>Rt</span><span>1Sm</span><span>2Sm</span><span>1Rs</span><span>2Rs</span><span>1Cr</span><span>2Cr</span><span>Ed</span><span>Ne</span><span>Et</span><span>Jó</span><span>Sl</span><span>Pv</span><span>Ec</span><span>Ct</span><span>Is</span><span>Jr</span><span>Lm</span><span>Ez</span><span>Dn</span><span>Os</span><span>Jl</span><span>Am</span><span>Ob</span><span>Jn</span><span>Mq</span><span>Na</span><span>Hc</span><span>Sf</span><span>Ag</span><span>Zc</span><span>Ml</span>
+              </div>
+              <div class="grp">Novo Testamento</div>
+              <div class="books">
+                <span>Mt</span><span>Mc</span><span>Lc</span><span class="on">Jo</span><span>At</span><span>Rm</span><span>1Co</span><span>2Co</span><span>Gl</span><span>Ef</span><span>Fp</span><span>Cl</span><span>1Ts</span><span>2Ts</span><span>1Tm</span><span>2Tm</span><span>Tt</span><span>Fm</span><span>Hb</span><span>Tg</span><span>1Pe</span><span>2Pe</span><span>1Jo</span><span>2Jo</span><span>3Jo</span><span>Jd</span><span>Ap</span>
+              </div>
+            </div>
+            <div style="position:relative">
+              <i class="c" style="left:-12px;top:-6px">3</i>
+              <div class="grp">João · 21 capítulos</div>
+              <div class="books" style="grid-template-columns:repeat(auto-fill,minmax(38px,1fr))">
+                <span>1</span><span>2</span><span class="on">3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+              </div>
+              <div class="grp" style="position:relative"><i class="c" style="left:-12px;top:-4px">4</i>&nbsp;&nbsp;&nbsp;Recentes</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px"><span class="chip">Sl 23</span><span class="chip">Rm 8</span><span class="chip">Gn 1</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame mobile">
+      <div class="m-status"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="m-top"><span class="btn ghost sm">✕</span><b>Escolher livro</b><span class="spacer"></span></div>
+      <div class="m-body" style="height:560px;background:var(--white)">
+        <div style="padding:10px 12px"><div class="input" style="padding:6px 10px"><span>⌕</span><span class="ph">Livro ou referência (ex.: jo 3:16)</span></div></div>
+        <div class="tabs" style="padding:0 12px"><a href="#navegacao">Antigo</a><a class="on" href="#navegacao">Novo</a></div>
+        <div class="list">
+          <div class="item"><span>Mateus</span><span class="tiny">28 ›</span></div>
+          <div class="item"><span>Marcos</span><span class="tiny">16 ›</span></div>
+          <div class="item"><span>Lucas</span><span class="tiny">24 ›</span></div>
+          <div class="item" style="background:var(--fill-2);border-bottom:0"><b>João</b><span class="tiny">21 ⌄</span></div>
+          <div style="padding:4px 16px 12px;background:var(--fill-2);border-bottom:1px solid var(--line-2)">
+            <div class="books" style="grid-template-columns:repeat(6,1fr)">
+              <span>1</span><span>2</span><span class="on">3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span>
+            </div>
+          </div>
+          <div class="item"><span>Atos</span><span class="tiny">28 ›</span></div>
+          <div class="item"><span>Romanos</span><span class="tiny">16 ›</span></div>
+        </div>
+      </div>
+      <div class="m-tabbar"><span class="on"><i></i>Ler</span><span><i></i>Buscar</span><span><i></i>Planos</span><span><i></i>Estudos</span><span><i></i>Versões</span></div>
+    </div>
+
+    <aside class="notes">
+      <h3>Notas</h3>
+      <ol>
+        <li>Campo único: filtra livros e aceita referência completa (<code>jo 3:16</code>, <code>joão 3.16</code>, <code>1 co 13</code>); Enter navega. <span class="rf">RF01.4</span></li>
+        <li>Livros em grade por testamento, em ordem canônica (abreviações). <span class="rf">RF01.1</span></li>
+        <li>Ao escolher o livro, aparece a grade de capítulos; clique abre o capítulo. <span class="rf">RF01.2</span></li>
+        <li>Referências recentes para retorno rápido.</li>
+      </ol>
+      <p class="tiny" style="margin-top:12px">No celular: tela cheia, lista de livros com abas AT/NT; tocar no livro expande os capítulos (acordeão).</p>
+    </aside>
+  </div>
+</section>
+
+</div>
+</body>
+</html>
