@@ -13,7 +13,9 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 | 03 | [Casos de uso](docs/03-casos-de-uso.md) | Em revisão |
 | 04 | [Modelo de domínio (diagrama de classes)](docs/04-modelo-dominio.md) | Em revisão |
 | 05 | [Wireframes](docs/05-wireframes/README.md) | Em revisão |
-| 06 | Arquitetura (C4, ADRs, sequência) | Pendente |
+| 06 | [Arquitetura (C4, sequência, persistência, pastas)](docs/06-arquitetura.md) | Em revisão |
+| 07 | [Padrões de desenvolvimento](docs/07-padroes-desenvolvimento.md) | Em revisão |
+| — | [Decisões de arquitetura (ADRs)](docs/adr/README.md) | Em revisão |
 
 ## Stack
 
