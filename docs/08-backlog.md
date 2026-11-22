@@ -1,6 +1,6 @@
 # 08 — Backlog
 
-Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item sai daqui quando é discutido e entra numa fase (vira requisito/caso de uso, PR e, se for o caso, ADR).
+Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item sai daqui quando é discutido e entra numa fase do [Roadmap](09-roadmap.md) (vira requisito/caso de uso, PR e, se for o caso, ADR).
 
 | Campo | Significado |
 |---|---|

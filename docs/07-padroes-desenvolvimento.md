@@ -133,4 +133,5 @@ Uma história está pronta quando:
 - [ ] Acessível por teclado; sem violações `axe` críticas.
 - [ ] Funciona offline (quando aplicável).
 - [ ] Documentação atualizada (requisitos, diagramas, ADR se houve decisão nova).
+- [ ] Roadmap ([09](09-roadmap.md)) e progresso do README atualizados, se o PR entrega uma fase.
 - [ ] PR revisado e mergeado; CHANGELOG atualizado pela release.

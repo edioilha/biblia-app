@@ -14,3 +14,4 @@
 - [ ] Acessível por teclado; sem violações `axe`
 - [ ] Funciona offline (se aplicável)
 - [ ] Documentação atualizada (requisitos, diagramas, ADR)
+- [ ] Roadmap (docs/09) e progresso do README atualizados, se o PR entrega uma fase
