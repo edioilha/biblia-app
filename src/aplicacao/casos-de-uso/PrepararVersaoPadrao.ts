@@ -14,6 +14,8 @@ export interface ProgressoPreparacao {
  * importa a versão embarcada (RF07.1) para o IndexedDB. Idempotente.
  */
 export class PrepararVersaoPadrao {
+  private emAndamento: Promise<void> | null = null;
+
   constructor(
     private readonly canon: Canon,
     private readonly fonte: FonteVersaoEmbarcada,
@@ -26,7 +28,15 @@ export class PrepararVersaoPadrao {
     return !(await this.texto.possuiVersao(this.versaoPadrao));
   }
 
-  async executar(aoProgredir?: (p: ProgressoPreparacao) => void): Promise<void> {
+  /** Chamadas concorrentes compartilham a mesma importação (o progresso vai para a primeira). */
+  executar(aoProgredir?: (p: ProgressoPreparacao) => void): Promise<void> {
+    this.emAndamento ??= this.importar(aoProgredir).finally(() => {
+      this.emAndamento = null;
+    });
+    return this.emAndamento;
+  }
+
+  private async importar(aoProgredir?: (p: ProgressoPreparacao) => void): Promise<void> {
     if (!(await this.necessaria())) return;
 
     const livros = this.canon.livros();

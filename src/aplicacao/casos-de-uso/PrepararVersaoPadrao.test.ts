@@ -36,6 +36,13 @@ describe('PrepararVersaoPadrao', () => {
     expect(fonte.carregados).toBe(66);
   });
 
+  it('chamadas concorrentes compartilham a mesma importação', async () => {
+    const fonte = new FonteSintetica(canon);
+    const uc = new PrepararVersaoPadrao(canon, fonte, new TextoBiblicoEmMemoria(canon), blivre);
+    await Promise.all([uc.executar(), uc.executar()]);
+    expect(fonte.carregados).toBe(66);
+  });
+
   it('rejeita livro corrompido sem importar nada', async () => {
     const corrompida: FonteVersaoEmbarcada = {
       async carregarLivro(_v: VersaoId, livro: CodigoLivro): Promise<LivroImportado> {
