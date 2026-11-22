@@ -33,3 +33,6 @@ npm-debug.log*
 __pycache__/
 *.pyc
 .venv/
+
+# Testes / build
+dev-dist/
