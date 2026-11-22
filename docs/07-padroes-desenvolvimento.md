@@ -90,7 +90,7 @@ Validação automática: **commitlint** + **Husky** (hook `commit-msg`).
 |---|---|
 | TypeScript `strict` | `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` |
 | ESLint | `typescript-eslint` (strict), `react-hooks`, `jsx-a11y`, `boundaries` |
-| Prettier | Formatação única (sem discussões de estilo) |
+| Prettier | Formatação única (sem discussões de estilo). Markdown fica de fora: tabelas compactas evitam diffs enormes |
 | Husky + lint-staged | Lint/format nos arquivos alterados antes do commit |
 | EditorConfig | Indentação e fim de linha consistentes |
 

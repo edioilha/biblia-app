@@ -109,10 +109,10 @@ classDiagram
         <<ValueObject>>
         +livro: CodigoLivro
         +capitulo: number
-        +versiculo: number
+        +versiculo: number [0..1]
         +parse(texto: string, canon: Canon)$ Referencia
         +chave() string
-        +compararCom(outra: Referencia) number
+        +compararCom(outra: Referencia, canon: Canon) number
         +equals(outra: Referencia) boolean
         +formatar(livro: Livro) string
     }

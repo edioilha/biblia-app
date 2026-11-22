@@ -2,9 +2,14 @@
 
 Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: página de leitura com aparência de papel, marca-texto, anotações, busca ampla e planos de leitura.
 
-> 🚧 Em fase de análise e documentação.
+[![ci](https://github.com/edioilha/biblia-app/actions/workflows/ci.yml/badge.svg)](https://github.com/edioilha/biblia-app/actions/workflows/ci.yml)
+[![deploy](https://github.com/edioilha/biblia-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/edioilha/biblia-app/actions/workflows/deploy.yml)
 
-## Monitoramento
+**App:** https://edioilha.github.io/biblia-app/
+
+> 🚧 Em desenvolvimento — documentação e setup concluídos; funcionalidades do MVP em implementação.
+
+## Stats
 
 <table>
   <tr>
@@ -30,7 +35,28 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 ## Stack
 
-TypeScript · React · Vite · Dexie.js (IndexedDB) · MiniSearch · Tailwind CSS · Vitest · Playwright
+TypeScript · React · Vite · Tailwind CSS · PWA (Workbox) · Vitest · Testing Library · Playwright · ESLint · Prettier
+
+## Desenvolvimento
+
+Requisitos: Node.js 26 (ver `.nvmrc`).
+
+```bash
+npm install                     # dependências (+ hooks do Git via Husky)
+npx playwright install          # navegadores para os testes E2E (1ª vez)
+
+npm run dev                     # servidor local → http://localhost:5173/biblia-app/
+npm test                        # testes unitários
+npm run test:coverage           # testes + cobertura (mínimo 80% no domínio)
+npm run test:e2e                # testes E2E (build + preview + Playwright)
+npm run lint                    # ESLint (inclui regra de dependência entre camadas)
+npm run typecheck               # TypeScript
+npm run build                   # build de produção em dist/
+```
+
+- Commits seguem **Conventional Commits** (validados pelo commitlint); o hook de pre-commit roda lint e Prettier nos arquivos alterados.
+- No macOS 27 o Firefox do Playwright não inicia; localmente os testes E2E usam Chromium, WebKit e mobile — o Firefox roda no CI.
+- Padrões completos: [docs/07-padroes-desenvolvimento.md](docs/07-padroes-desenvolvimento.md).
 
 ## Dados bíblicos
 

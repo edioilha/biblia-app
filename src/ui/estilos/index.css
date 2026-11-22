@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+
+/* Tokens de tema (claro / sépia / escuro) — RF01.7 */
+@theme {
+  --color-papel: #fbf8f0;
+  --color-papel-borda: #ece6d6;
+  --color-tinta: #2a2622;
+  --color-tinta-suave: #6b6256;
+  --color-primaria: #2c5282;
+  --color-marca-texto: rgb(255 214 0 / 0.45);
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply text-tinta bg-stone-200 antialiased;
+}
