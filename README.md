@@ -8,6 +8,8 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 **App:** https://edioilha.github.io/biblia-app/
 
 > 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos e ida direta a uma referência (`jo 3:16`), offline.
+>
+> **Progresso:** fase 7.1 de 7.9 entregue · próxima: 7.2 favoritos · [roadmap completo](docs/09-roadmap.md)
 
 ## Stats
 
@@ -31,6 +33,8 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 | 05 | [Wireframes](docs/05-wireframes/README.md) | Em revisão |
 | 06 | [Arquitetura (C4, sequência, persistência, pastas)](docs/06-arquitetura.md) | Em revisão |
 | 07 | [Padrões de desenvolvimento](docs/07-padroes-desenvolvimento.md) | Em revisão |
+| 08 | [Backlog](docs/08-backlog.md) | Vivo |
+| 09 | [Roadmap](docs/09-roadmap.md) | Vivo |
 | — | [Decisões de arquitetura (ADRs)](docs/adr/README.md) | Em revisão |
 
 ## Stack
