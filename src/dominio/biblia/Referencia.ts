@@ -1,6 +1,6 @@
 import { ErroDominio } from '../compartilhado/ErroDominio';
 import type { Canon } from './Canon';
-import type { CodigoLivro } from './CodigoLivro';
+import { CodigoLivro } from './CodigoLivro';
 import type { Livro } from './Livro';
 
 export class ReferenciaInvalidaError extends ErroDominio {}
@@ -43,6 +43,20 @@ export class Referencia {
     const capitulo = m?.[2] ? Number(m[2]) : 1;
     const versiculo = m?.[3] ? Number(m[3]) : null;
     return Referencia.criar(livro, capitulo, versiculo);
+  }
+
+  /** Inverso de `chave()`: "JHN.3" ou "JHN.3.16". */
+  static deChave(chave: string, canon: Canon): Referencia {
+    const [codigo = '', capitulo, versiculo, ...resto] = chave.split('.');
+    if (capitulo === undefined || resto.length > 0) {
+      throw new ReferenciaInvalidaError(`Chave de referência inválida: "${chave}".`);
+    }
+    const livro = canon.livro(CodigoLivro.de(codigo));
+    return Referencia.criar(
+      livro,
+      Number(capitulo),
+      versiculo === undefined ? null : Number(versiculo),
+    );
   }
 
   private static criar(livro: Livro, capitulo: number, versiculo: number | null): Referencia {

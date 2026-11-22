@@ -72,3 +72,16 @@ describe('Referencia.doCapitulo', () => {
     expect(c.doCapitulo()).toBe(c);
   });
 });
+
+describe('Referencia.deChave', () => {
+  it.each(['JHN.3', 'JHN.3.16', 'GEN.1', 'REV.22.21'])(
+    'faz o caminho inverso de chave(): %s',
+    (chave) => {
+      expect(Referencia.deChave(chave, canon).chave()).toBe(chave);
+    },
+  );
+
+  it.each(['', 'JHN', 'JHN.3.16.1', 'JHN.x', 'JHN.22', 'JHN.3.0'])('rejeita %j', (chave) => {
+    expect(() => Referencia.deChave(chave, canon)).toThrow();
+  });
+});
