@@ -1,0 +1,77 @@
+name: ci
+
+# Verificação obrigatória de todo PR e push na main (docs/07 §6).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualidade:
+    name: lint · typecheck · testes · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Formatação
+        run: npm run format:check
+
+      - name: Lint (inclui regra de dependência entre camadas)
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Testes unitários + cobertura (mínimo 80%)
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: cobertura
+          path: coverage/
+          retention-days: 14
+
+  e2e:
+    name: testes E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: qualidade
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Instalar navegadores
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Testes E2E
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
