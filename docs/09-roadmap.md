@@ -21,8 +21,8 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | Fase | Entrega | Casos de uso | Funcionalidade | Status | PR | Entregue em |
 |---|---|---|---|---|---|---|
 | 7.1 | Leitura: versão BLIVRE embarcada, Dexie, página de papel, seletor de referência | UC01, UC02 | F01, F02, F09 | ✅ | #5 | 2026-11-22 |
-| 7.2 | Favoritos (+ TanStack Query) | UC04 | F04 | ⏭️ | — | — |
-| 7.3 | Marca-texto | UC05 | F05 | ⏳ | — | — |
+| 7.2 | Favoritos: marcar/desmarcar pelo número do versículo (+ TanStack Query) | UC04 | F04 | ✅ | #7 | 2026-11-22 |
+| 7.3 | Marca-texto | UC05 | F05 | ⏭️ | — | — |
 | 7.4 | Anotações | UC06 | F06 | ⏳ | — | — |
 | 7.5 | Busca (com indexação da versão) | UC03 | F03 | ⏳ | — | — |
 | 7.6 | Meus Estudos | UC13 | F10 | ⏳ | — | — |

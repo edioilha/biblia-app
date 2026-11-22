@@ -493,7 +493,8 @@ classDiagram
     }
     class FavoritoRepository {
         <<interface>>
-        +porCapitulo(l: CodigoLivro, n: number) Promise~Favorito[]~
+        +porCapitulo(capitulo: Referencia) Promise~Favorito[]~
+        +porReferencia(versiculo: Referencia) Promise~Favorito~
         +listar() Promise~Favorito[]~
         +salvar(f: Favorito) Promise~void~
         +remover(id: FavoritoId) Promise~void~
@@ -539,12 +540,17 @@ classDiagram
     }
     class Relogio {
         <<interface>>
-        +hoje() Date
+        +agora() Date
+    }
+
+    class GeradorId {
+        <<interface>>
+        +novo() string
     }
 
     class AbrirCapitulo {
         <<UseCase>>
-        +executar(ref: Referencia) Promise~CapituloComMarcacoes~
+        +executar(ref: Referencia) Promise~CapituloAberto~
     }
     class BuscarTexto {
         <<UseCase>>
@@ -552,7 +558,11 @@ classDiagram
     }
     class AlternarFavorito {
         <<UseCase>>
-        +executar(ref: Referencia) Promise~void~
+        +executar(ref: Referencia) Promise~boolean~
+    }
+    class ObterMarcacoesDoCapitulo {
+        <<UseCase>>
+        +executar(ref: Referencia) Promise~MarcacoesDoCapitulo~
     }
     class MarcarTexto {
         <<UseCase>>
@@ -588,12 +598,14 @@ classDiagram
     }
 
     AbrirCapitulo ..> TextoBiblicoRepository
-    AbrirCapitulo ..> FavoritoRepository
-    AbrirCapitulo ..> DestaqueRepository
-    AbrirCapitulo ..> AnotacaoRepository
     AbrirCapitulo ..> PreferenciasRepository
     BuscarTexto ..> ServicoBusca
     AlternarFavorito ..> FavoritoRepository
+    AlternarFavorito ..> Relogio
+    AlternarFavorito ..> GeradorId
+    ObterMarcacoesDoCapitulo ..> FavoritoRepository
+    ObterMarcacoesDoCapitulo ..> DestaqueRepository
+    ObterMarcacoesDoCapitulo ..> AnotacaoRepository
     MarcarTexto ..> DestaqueRepository
     SalvarAnotacao ..> AnotacaoRepository
     IniciarPlano ..> PlanoRepository
@@ -619,11 +631,18 @@ classDiagram
 ```
 
 **Notas de implementação (fase 7.1)**
-- `AbrirCapitulo` retorna, por ora, `CapituloAberto` (capítulo, livro, `anterior`/`proximo` e `versiculoEmFoco`); favoritos, destaques e anotações são acrescentados nas fases seguintes, compondo o `CapituloComMarcacoes`.
+- `AbrirCapitulo` retorna, por ora, `CapituloAberto` (capítulo, livro, `anterior`/`proximo` e `versiculoEmFoco`); favoritos, destaques e anotações ficam em um caso de uso separado (revisto na fase 7.2, abaixo).
 - `TextoBiblicoRepository` ganhou `possuiVersao()`; `importar()` é atômico.
 - Porta adicional `FonteVersaoEmbarcada` (lê a BLIVRE de `public/dados`) e caso de uso `PrepararVersaoPadrao` (importação na primeira execução) e `ObterPosicaoInicial`.
 - `Versao` ainda sem `StatusInstalacao` (entra com UC09); `Preferencias` só com `versaoAtiva` e `ultimaPosicao` (tema/fonte com UC12).
 - `Referencia.deChave()` é o inverso de `chave()`; `Referencia.doCapitulo()` descarta o versículo.
+
+**Notas de implementação (fase 7.2)**
+- **Marcações separadas do texto:** `AbrirCapitulo` continua devolvendo `CapituloAberto` (texto + navegação) e salvando a posição; as marcações vêm de `ObterMarcacoesDoCapitulo` → `MarcacoesDoCapitulo`. Assim, favoritar recarrega só as marcações, sem reler o texto nem regravar a posição (ver docs/06 §5.1). Nesta fase `MarcacoesDoCapitulo` tem só `favoritos` e `favoritado(n)`; destaques e anotações entram em 7.3/7.4.
+- `FavoritoRepository` recebe `Referencia` (como `TextoBiblicoRepository`) e ganhou `porReferencia()` para o `AlternarFavorito`; `listar()` entra com UC13 (fase 7.6).
+- `AlternarFavorito` devolve o novo estado (`true` = favoritado), usado no aviso ao leitor de tela.
+- `Favorito.criar()` exige referência de **versículo**; `FavoritoId` valida o formato UUID.
+- `Relogio` expõe `agora()` (o "hoje" dos planos deriva dele); nova porta `GeradorId` (UUID v7 gerado fora do domínio, que não usa bibliotecas externas — ADR 0006).
 
 ### Adapters (infraestrutura) previstos
 
@@ -635,6 +654,7 @@ classDiagram
 | `FonteVersoes` | `GitHubBibliaDataFonte` (baixa `data/canonical/<SIGLA>/<LIVRO>.json`) |
 | `PlanoRepository` | `PlanosEstaticosRepository` (JSON empacotado no build) |
 | `Relogio` | `RelogioSistema` (testes usam `RelogioFixo`) |
+| `GeradorId` | `GeradorUuidV7` (biblioteca `uuid`; testes usam `GeradorIdSequencial`) |
 
 ## 8. Mapeamento com a fonte de dados
 

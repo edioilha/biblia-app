@@ -91,7 +91,7 @@ flowchart LR
     subgraph app["Aplicação — src/aplicacao"]
         direction TB
         uc["Casos de uso<br/><i>AbrirCapitulo, BuscarTexto,<br/>MarcarTexto, SalvarAnotacao,<br/>InstalarVersao…</i>"]
-        portas["Portas (interfaces)<br/><i>*Repository, ServicoBusca,<br/>FonteVersoes, Relogio</i>"]
+        portas["Portas (interfaces)<br/><i>*Repository, ServicoBusca,<br/>FonteVersoes, Relogio, GeradorId</i>"]
     end
 
     subgraph dom["Domínio — src/dominio"]
@@ -105,7 +105,7 @@ flowchart LR
         dexie["Dexie*Repository"]
         busca["MiniSearchServicoBusca<br/><i>(proxy p/ Search Worker)</i>"]
         fonte["GitHubBibliaDataFonte"]
-        relogio["RelogioSistema"]
+        relogio["RelogioSistema<br/>GeradorUuidV7"]
     end
 
     comp_root["Composition Root<br/><i>src/main.tsx · container.ts</i>"]
@@ -141,39 +141,52 @@ infraestrutura ┘   (implementa as portas da aplicação)
 
 ## 5. Diagramas de sequência
 
-### 5.1 Abrir capítulo (UC01)
+### 5.1 Abrir capítulo (UC01) e favoritar (UC04)
+
+Texto e marcações são **duas leituras independentes** (decisão da fase 7.2): `AbrirCapitulo` lê o texto e salva a posição; `ObterMarcacoesDoCapitulo` lê favoritos, destaques e anotações. Uma alteração de marcação invalida só a consulta de marcações no cache do TanStack Query, sem reler o texto nem regravar a posição.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor L as Leitor
     participant P as LeituraPage
+    participant Q as TanStack Query
     participant UC as AbrirCapitulo
+    participant M as ObterMarcacoesDoCapitulo
+    participant AF as AlternarFavorito
     participant T as TextoBiblicoRepository
     participant F as FavoritoRepository
-    participant D as DestaqueRepository
-    participant A as AnotacaoRepository
     participant PR as PreferenciasRepository
 
     L->>P: navega para João 3
-    P->>UC: executar(Referencia JHN.3)
-    par em paralelo
-        UC->>T: obterCapitulo(BLIVRE, JHN, 3)
-        T-->>UC: Capitulo
-    and
-        UC->>F: porCapitulo(JHN, 3)
-        F-->>UC: Favorito[]
-    and
-        UC->>D: porCapitulo(BLIVRE, JHN, 3)
-        D-->>UC: Destaque[]
-    and
-        UC->>A: porCapitulo(JHN, 3)
-        A-->>UC: Anotacao[]
-    end
+    P->>Q: ['capitulo', 'JHN.3']
+    Q->>UC: executar(Referencia JHN.3)
+    UC->>T: obterCapitulo(BLIVRE, JHN.3)
+    T-->>UC: Capitulo
     UC->>PR: salvar(ultimaPosicao = JHN.3)
-    UC-->>P: CapituloComMarcacoes
-    P-->>L: página de papel com destaques e notas
+    UC-->>P: CapituloAberto
+    P->>Q: ['marcacoes', 'JHN.3']
+    Q->>M: executar(JHN.3)
+    M->>F: porCapitulo(JHN.3)
+    F-->>M: Favorito[]
+    Note over M: destaques e anotações<br/>entram em 7.3/7.4
+    M-->>P: MarcacoesDoCapitulo
+    P-->>L: página de papel com ★
+
+    L->>P: número 16 → Favoritar
+    P-->>L: ★ imediata (otimista)
+    P->>AF: executar(JHN.3.16)
+    AF->>F: porReferencia(JHN.3.16)
+    F-->>AF: null
+    AF->>F: salvar(Favorito)
+    AF-->>P: true
+    P->>Q: invalidar ['marcacoes', 'JHN.3']
+    Q->>M: executar(JHN.3)
+    M-->>P: MarcacoesDoCapitulo
+    P-->>L: "João 3:16 adicionado aos favoritos"
 ```
+
+**TanStack Query** (`src/ui/consultas/clienteConsultas.ts`): `networkMode: 'always'` (os dados são locais; o padrão pausaria consultas offline), `staleTime: Infinity` (só mudam pelas mutações, que invalidam o cache), sem *retry*. A consulta do capítulo usa `staleTime: 0`: ao voltar a um capítulo em cache, a página aparece na hora e `AbrirCapitulo` roda em segundo plano para registrar a posição.
 
 ### 5.2 Marcar texto (UC05)
 
@@ -286,6 +299,7 @@ sequenceDiagram
 - **Migrações** versionadas com `db.version(n).stores(...).upgrade(...)`.
 - **Persistência durável**: `navigator.storage.persist()` na primeira execução (previsto para a fase de backup).
 - **Schema v1** (fase 7.1): `capitulos`, `versoes` (presença = versão importada por completo) e `preferencias`. Os demais stores entram em novas versões do schema.
+- **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
 ## 7. Importação e normalização dos dados

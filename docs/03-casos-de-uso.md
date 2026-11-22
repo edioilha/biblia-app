@@ -117,6 +117,31 @@ flowchart LR
 
 ---
 
+### UC04 — Gerenciar favoritos
+
+| Campo | Descrição |
+|---|---|
+| Ator | Leitor |
+| Pré-condição | UC01 em execução |
+| Pós-condição | Versículo marcado (ou desmarcado) como favorito; ★ atualizada na página |
+
+**Fluxo principal**
+1. Leitor toca/clica no **número do versículo** (ou o aciona pelo teclado).
+2. Sistema abre a **barra de ações do versículo** (rodapé da tela), com o foco na primeira ação.
+3. Leitor escolhe **☆ Favoritar**.
+4. Sistema exibe a ★ antes do número na hora (atualização otimista), fecha a barra, devolve o foco ao número do versículo e anuncia "João 3:16 adicionado aos favoritos".
+5. Sistema grava o favorito.
+
+**Fluxos alternativos**
+- **A1 — Desfavoritar:** no passo 3, se o versículo já é favorito, a ação é **★ Remover favorito**; sistema remove a ★ e o favorito.
+- **A2 — Fechar sem ação:** leitor toca em ✕, pressiona Esc ou toca de novo no número; a barra fecha e o foco volta ao número. Trocar de capítulo também fecha a barra.
+- **A3 — Falha ao gravar:** sistema desfaz a ★ e exibe aviso de erro.
+- **A4 — Listar favoritos (RF03.2):** pela tela Meus Estudos (UC13, fase 7.6).
+
+**Regras:** no máximo um favorito por versículo; favoritos valem para qualquer versão (pertencem à referência, não ao texto).
+
+---
+
 ### UC05 — Marcar texto
 
 | Campo | Descrição |
