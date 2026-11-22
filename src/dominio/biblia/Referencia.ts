@@ -57,6 +57,11 @@ export class Referencia {
     return new Referencia(livro.codigo, capitulo, versiculo);
   }
 
+  /** A referência do capítulo, sem versículo ("Jo 3:16" → "Jo 3"). */
+  doCapitulo(): Referencia {
+    return this.versiculo === null ? this : new Referencia(this.livro, this.capitulo, null);
+  }
+
   /** Chave de persistência: "JHN.3" ou "JHN.3.16". */
   chave(): string {
     const base = `${this.livro.valor}.${this.capitulo}`;
