@@ -1,11 +1,15 @@
 /** Implementações em memória das portas, para testes da aplicação e da UI. */
 import type {
+  FavoritoRepository,
   FonteVersaoEmbarcada,
+  GeradorId,
   LivroImportado,
   PreferenciasRepository,
+  Relogio,
   TextoBiblicoRepository,
 } from '../aplicacao/portas';
 import { Canon, Capitulo, CodigoLivro, type Referencia, type VersaoId } from '../dominio/biblia';
+import type { Favorito, FavoritoId } from '../dominio/estudo';
 import type { Preferencias } from '../dominio/preferencias';
 
 export class TextoBiblicoEmMemoria implements TextoBiblicoRepository {
@@ -59,5 +63,41 @@ export class FonteSintetica implements FonteVersaoEmbarcada {
   async carregarLivro(_versao: VersaoId, livro: CodigoLivro): Promise<LivroImportado> {
     this.carregados++;
     return livroSintetico(this.canon, livro.valor);
+  }
+}
+
+export class FavoritosEmMemoria implements FavoritoRepository {
+  readonly itens = new Map<FavoritoId, Favorito>();
+
+  async porCapitulo(capitulo: Referencia): Promise<Favorito[]> {
+    const chave = capitulo.doCapitulo().chave();
+    return [...this.itens.values()].filter((f) => f.referencia.doCapitulo().chave() === chave);
+  }
+
+  async porReferencia(versiculo: Referencia): Promise<Favorito | null> {
+    return [...this.itens.values()].find((f) => f.referencia.equals(versiculo)) ?? null;
+  }
+
+  async salvar(favorito: Favorito): Promise<void> {
+    this.itens.set(favorito.id, favorito);
+  }
+
+  async remover(id: FavoritoId): Promise<void> {
+    this.itens.delete(id);
+  }
+}
+
+export class RelogioFixo implements Relogio {
+  constructor(public instante = new Date('2026-11-22T10:00:00Z')) {}
+  agora(): Date {
+    return new Date(this.instante);
+  }
+}
+
+/** Gera UUIDs sequenciais previsíveis: ...0001, ...0002. */
+export class GeradorIdSequencial implements GeradorId {
+  private proximo = 1;
+  novo(): string {
+    return `00000000-0000-7000-8000-${String(this.proximo++).padStart(12, '0')}`;
   }
 }
