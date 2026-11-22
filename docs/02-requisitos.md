@@ -36,7 +36,7 @@
 | ID | Requisito | Prior. |
 |---|---|---|
 | RF03.1 | Marcar/desmarcar versículo como favorito | M |
-| RF03.2 | Listar favoritos, abrir no contexto, remover | M |
+| RF03.2 | Listar favoritos, abrir no contexto, remover (ver RF09) | M |
 
 ### RF04 — Marca-texto (Destaque)
 
@@ -47,7 +47,7 @@
 | RF04.3 | Aparência de **marca-texto amarelo translúcido** (efeito de caneta real) | M |
 | RF04.4 | Remover destaque | M |
 | RF04.5 | Outras cores (verde, rosa, azul) | C |
-| RF04.6 | Listar todos os destaques | S |
+| RF04.6 | Listar todos os destaques (ver RF09) | M |
 
 ### RF05 — Anotações
 
@@ -58,7 +58,7 @@
 | RF05.3 | Anotações **sempre visíveis** na página de leitura (marcador numerado no texto ↔ nota) | M |
 | RF05.4 | Editar e excluir anotação | M |
 | RF05.5 | Formatação básica (negrito, itálico, listas — Markdown) | S |
-| RF05.6 | Listar todas as anotações | S |
+| RF05.6 | Listar todas as anotações (ver RF09) | M |
 
 ### RF06 — Planos de leitura
 
@@ -87,6 +87,17 @@
 |---|---|---|
 | RF08.1 | Exportar favoritos, destaques, anotações e planos em JSON | M |
 | RF08.2 | Importar backup JSON | M |
+
+### RF09 — Meus Estudos
+
+| ID | Requisito | Prior. |
+|---|---|---|
+| RF09.1 | Tela única com abas **Favoritos**, **Destaques** e **Anotações** | M |
+| RF09.2 | Filtrar por texto (no versículo ou na nota) e por livro | M |
+| RF09.3 | Ordenar por ordem bíblica ou por data (mais recente) | M |
+| RF09.4 | Lista paginada (padrão 20 itens) com total por aba | M |
+| RF09.5 | Clicar no item abre o versículo no contexto do capítulo | M |
+| RF09.6 | Ações por item: remover; editar (anotação); alterar cor (destaque) | M |
 
 > **Nota de domínio:** favoritos, destaques e anotações referenciam o versículo por **referência canônica** (`livro + capítulo + versículo`), independente da versão; assim permanecem válidos ao trocar de tradução. Destaques guardam também a versão e os offsets de caractere, pois o texto difere entre traduções.
 
@@ -152,3 +163,4 @@ Como leitor, quero instalar a Almeida 1911 e alternar entre versões.
 | F07 | RF06.x |
 | F08 | RF07.x, RNF09, RNF10 |
 | F09 | RNF01 |
+| F10 | RF09.x, RF03.2, RF04.6, RF05.6 |

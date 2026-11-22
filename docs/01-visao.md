@@ -45,6 +45,7 @@ Para **leitores e estudantes da Bíblia** que querem **ler e estudar de forma fo
 | F07 | **Planos de leitura** (ex.: Bíblia em 1 ano) com acompanhamento de progresso |
 | F08 | **Gestão de versões (traduções)**: versão padrão embarcada + instalação de outras |
 | F09 | Funcionamento **100% offline** após a primeira carga (PWA instalável) |
+| F10 | **Meus Estudos**: tela única com abas Favoritos, Destaques e Anotações (filtro, ordenação, paginação) |
 
 ### 5.2 Fora do escopo (v1.0)
 

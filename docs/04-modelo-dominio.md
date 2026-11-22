@@ -279,6 +279,54 @@ classDiagram
 - `Destaque` pertence a uma versão (offsets dependem do texto); `Favorito` e `Anotacao` são **independentes de versão**.
 - `MarcacoesDoCapitulo` é um *read model* montado para a renderização de um capítulo (não é persistido).
 
+### 4.1 Consulta "Meus Estudos"
+
+```mermaid
+classDiagram
+    direction LR
+
+    class TipoEstudo {
+        <<enumeration>>
+        FAVORITO
+        DESTAQUE
+        ANOTACAO
+    }
+
+    class OrdenacaoEstudos {
+        <<enumeration>>
+        BIBLICA
+        DATA_DESC
+    }
+
+    class FiltroEstudos {
+        <<ValueObject>>
+        +tipo: TipoEstudo
+        +texto: string
+        +livro: CodigoLivro [0..1]
+        +ordenacao: OrdenacaoEstudos
+        +pagina: number
+        +tamanhoPagina: number
+    }
+
+    class ItemEstudo {
+        <<ReadModel>>
+        +tipo: TipoEstudo
+        +id: string
+        +referencia: Referencia
+        +trechoTexto: string
+        +nota: string [0..1]
+        +cor: CorDestaque [0..1]
+        +criadoEm: Date
+    }
+
+    FiltroEstudos --> TipoEstudo
+    FiltroEstudos --> OrdenacaoEstudos
+    ItemEstudo --> TipoEstudo
+    ItemEstudo --> Referencia
+```
+
+- `ConsultarMeusEstudos` retorna `Pagina<ItemEstudo>`; filtro e ordenação são feitos em memória (volume de dados do usuário é pequeno e local).
+
 ## 5. Módulo `planos`
 
 ```mermaid
@@ -439,6 +487,7 @@ classDiagram
     class TextoBiblicoRepository {
         <<interface>>
         +obterCapitulo(v: VersaoId, l: CodigoLivro, n: number) Promise~Capitulo~
+        +obterVersiculos(v: VersaoId, refs: Referencia[]) Promise~Versiculo[]~
         +importar(v: VersaoId, livros: LivroImportado[]) Promise~void~
         +removerVersao(v: VersaoId) Promise~void~
     }
@@ -452,6 +501,7 @@ classDiagram
     class DestaqueRepository {
         <<interface>>
         +porCapitulo(v: VersaoId, l: CodigoLivro, n: number) Promise~Destaque[]~
+        +listar() Promise~Destaque[]~
         +salvar(d: Destaque) Promise~void~
         +remover(id: DestaqueId) Promise~void~
     }
@@ -524,6 +574,10 @@ classDiagram
         <<UseCase>>
         +executar(v: VersaoId) Promise~void~
     }
+    class ConsultarMeusEstudos {
+        <<UseCase>>
+        +executar(f: FiltroEstudos) Promise~Pagina~
+    }
     class ExportarDados {
         <<UseCase>>
         +executar() Promise~Backup~
@@ -550,6 +604,10 @@ classDiagram
     InstalarVersao ..> VersaoRepository
     InstalarVersao ..> TextoBiblicoRepository
     InstalarVersao ..> ServicoBusca
+    ConsultarMeusEstudos ..> FavoritoRepository
+    ConsultarMeusEstudos ..> DestaqueRepository
+    ConsultarMeusEstudos ..> AnotacaoRepository
+    ConsultarMeusEstudos ..> TextoBiblicoRepository
     ExportarDados ..> FavoritoRepository
     ExportarDados ..> DestaqueRepository
     ExportarDados ..> AnotacaoRepository

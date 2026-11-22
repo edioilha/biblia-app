@@ -32,17 +32,20 @@ flowchart LR
         UC10(("UC10<br/>Trocar versão"))
         UC11(("UC11<br/>Exportar / importar backup"))
         UC12(("UC12<br/>Configurar leitura"))
+        UC13(("UC13<br/>Consultar Meus Estudos"))
         UCI(("Indexar versão"))
     end
 
     leitor --- UC01 & UC02 & UC03 & UC04 & UC05 & UC06
-    leitor --- UC07 & UC08 & UC09 & UC10 & UC11 & UC12
+    leitor --- UC07 & UC08 & UC09 & UC10 & UC11 & UC12 & UC13
 
     UC02 -. "«extend»" .-> UC01
     UC05 -. "«extend»" .-> UC01
     UC06 -. "«extend»" .-> UC01
     UC09 -. "«include»" .-> UCI
     UC03 -. "«include»" .-> UCI
+    UC04 -. "«extend»" .-> UC13
+    UC06 -. "«extend»" .-> UC13
 
     UC09 --- repo
     UC08 --- relogio
@@ -64,6 +67,7 @@ flowchart LR
 | UC10 | Trocar versão | RF07.4 | M |
 | UC11 | Exportar / importar backup | RF08.x | M |
 | UC12 | Configurar leitura | RF01.7 | S |
+| UC13 | Consultar Meus Estudos | RF09.x, RF03.2, RF04.6, RF05.6 | M |
 
 ## 4. Especificações
 
@@ -198,3 +202,26 @@ flowchart LR
 **Fluxos alternativos**
 - **A1 — Falha de rede:** sistema mantém status `ERRO`, descarta dados parciais e permite tentar novamente.
 - **A2 — Dados inválidos:** sistema aborta e registra o erro.
+
+---
+
+### UC13 — Consultar Meus Estudos
+
+| Campo | Descrição |
+|---|---|
+| Ator | Leitor |
+| Pré-condição | — |
+| Pós-condição | Lista exibida; eventuais remoções/edições persistidas |
+
+**Fluxo principal**
+1. Leitor abre **Meus Estudos**.
+2. Sistema exibe as abas **Favoritos**, **Destaques** e **Anotações** com o total de cada uma; a aba **Favoritos** vem selecionada.
+3. Sistema lista os itens da aba (20 por página) em ordem bíblica, cada um com referência e trecho do texto (e a nota, na aba Anotações).
+4. Leitor clica em um item; sistema abre UC01 no capítulo, rolando até o versículo.
+
+**Fluxos alternativos**
+- **A1 — Trocar aba:** sistema mantém filtro de texto/livro e volta à página 1.
+- **A2 — Filtrar:** leitor digita texto ou escolhe livro → sistema refaz a lista a partir da página 1.
+- **A3 — Ordenar por data:** sistema ordena do mais recente para o mais antigo.
+- **A4 — Ações do item (⋮):** remover (com confirmação); editar nota (UC06); alterar cor do destaque (UC05).
+- **A5 — Lista vazia:** sistema exibe orientação ("Selecione um texto na leitura para marcar…").
