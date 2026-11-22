@@ -1,0 +1,46 @@
+name: stats
+
+# Gera os gráficos de monitoramento do README (estrelas e atividade do projeto)
+# e publica os SVGs na branch órfã `stats`, sem poluir o histórico da `main`
+# e sem conflitar com a proteção de branch.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * *" # diariamente às 06:17 UTC (03:17 em Brasília)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stats
+  cancel-in-progress: true
+
+jobs:
+  graficos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar matplotlib
+        run: pip install --quiet matplotlib
+
+      - name: Gerar gráficos
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/stats/gerar_graficos.py "$RUNNER_TEMP/stats"
+
+      - name: Publicar na branch stats
+        run: |
+          cd "$RUNNER_TEMP/stats"
+          git init -q -b stats
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stars.svg atividade.svg
+          git commit -q -m "chore(stats): atualiza gráficos $(date -u +%Y-%m-%d)"
+          git push -q --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" stats

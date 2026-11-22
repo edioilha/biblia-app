@@ -4,6 +4,17 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 > 🚧 Em fase de análise e documentação.
 
+## Monitoramento
+
+<table>
+  <tr>
+    <td width="50%"><img src="https://raw.githubusercontent.com/edioilha/biblia-app/stats/stars.svg" alt="Histórico de estrelas" width="100%"></td>
+    <td width="50%"><img src="https://raw.githubusercontent.com/edioilha/biblia-app/stats/atividade.svg" alt="Atividade do projeto: commits e PRs mergeados" width="100%"></td>
+  </tr>
+</table>
+
+<sub>Atualizado automaticamente a cada push na <code>main</code> e diariamente pelo workflow <a href=".github/workflows/stats.yml"><code>stats</code></a>.</sub>
+
 ## Documentação
 
 | # | Documento | Status |
