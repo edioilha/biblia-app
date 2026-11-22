@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+
+# Testes E2E
+playwright-report/
+test-results/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Editores / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# Claude Code (local)
+.claude/settings.local.json

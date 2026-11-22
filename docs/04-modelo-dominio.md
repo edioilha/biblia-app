@@ -1,0 +1,582 @@
+# 04 — Modelo de Domínio (Diagrama de Classes)
+
+## 1. Abordagem
+
+- **DDD tático:** *Entities*, *Value Objects*, *Aggregates* e *Repositories*.
+- **Linguagem ubíqua em português** nos conceitos de domínio.
+- O domínio **não depende** de React, Dexie ou MiniSearch; estes ficam na infraestrutura e implementam as **portas** (interfaces).
+- Identificadores: `UUID v7` gerados no cliente (ordenáveis por tempo), tipados como *branded types* (`FavoritoId`, `DestaqueId`…).
+
+### Módulos (bounded contexts)
+
+| Módulo | Responsabilidade |
+|---|---|
+| `biblia` | Cânon, versões, texto bíblico, referências |
+| `estudo` | Favoritos, destaques, anotações |
+| `planos` | Planos de leitura e progresso |
+| `busca` | Consulta e resultados paginados |
+| `preferencias` | Posição de leitura, versão ativa, tema |
+
+## 2. Visão geral
+
+```mermaid
+classDiagram
+    direction LR
+    class Referencia
+    <<value object>> Referencia
+    class Versao
+    <<aggregate root>> Versao
+    class Livro
+    <<entity>> Livro
+    class Capitulo
+    <<entity>> Capitulo
+    class Versiculo
+    <<value object>> Versiculo
+    class Favorito
+    <<aggregate root>> Favorito
+    class Destaque
+    <<aggregate root>> Destaque
+    class Anotacao
+    <<aggregate root>> Anotacao
+    class PlanoLeitura
+    <<aggregate root>> PlanoLeitura
+    class InscricaoPlano
+    <<aggregate root>> InscricaoPlano
+    class Preferencias
+    <<aggregate root>> Preferencias
+
+    Versao "1" o-- "1..*" Capitulo
+    Capitulo "*" --> "1" Livro
+    Capitulo "1" *-- "1..*" Versiculo
+    Versiculo --> Referencia
+    Favorito --> Referencia
+    Destaque --> Versao
+    Destaque ..> Referencia
+    Anotacao --> Referencia
+    Anotacao "0..*" --> "0..1" Destaque
+    InscricaoPlano "*" --> "1" PlanoLeitura
+    PlanoLeitura ..> Referencia
+    Preferencias --> Versao
+    Preferencias --> Referencia
+```
+
+## 3. Módulo `biblia`
+
+```mermaid
+classDiagram
+    direction TB
+
+    class Testamento {
+        <<enumeration>>
+        ANTIGO
+        NOVO
+    }
+
+    class StatusInstalacao {
+        <<enumeration>>
+        DISPONIVEL
+        INSTALANDO
+        INSTALADA
+        ERRO
+    }
+
+    class CodigoLivro {
+        <<value object>>
+        +valor: string
+        +de(codigo: string)$ CodigoLivro
+    }
+
+    class Livro {
+        <<entity>>
+        +codigo: CodigoLivro
+        +ordem: number
+        +nome: string
+        +abreviacao: string
+        +testamento: Testamento
+        +totalCapitulos: number
+    }
+
+    class Canon {
+        <<domain service>>
+        +livros() Livro[]
+        +livro(codigo: CodigoLivro) Livro
+        +porNomeOuAbreviacao(texto: string) Livro
+        +proximo(ref: Referencia) Referencia
+        +anterior(ref: Referencia) Referencia
+    }
+
+    class Referencia {
+        <<value object>>
+        +livro: CodigoLivro
+        +capitulo: number
+        +versiculo: number
+        +parse(texto: string, canon: Canon)$ Referencia
+        +chave() string
+        +compararCom(outra: Referencia) number
+        +equals(outra: Referencia) boolean
+        +formatar(livro: Livro) string
+    }
+
+    class IntervaloReferencia {
+        <<value object>>
+        +inicio: Referencia
+        +fim: Referencia
+        +contem(ref: Referencia) boolean
+        +capitulos() Referencia[]
+    }
+
+    class Versao {
+        <<aggregate root>>
+        +id: VersaoId
+        +sigla: string
+        +nome: string
+        +idioma: string
+        +ano: number
+        +licenca: string
+        +urlOrigem: string
+        +padrao: boolean
+        +status: StatusInstalacao
+        +iniciarInstalacao() void
+        +concluirInstalacao() void
+        +falharInstalacao(motivo: string) void
+    }
+
+    class Capitulo {
+        <<entity>>
+        +versaoId: VersaoId
+        +livro: CodigoLivro
+        +numero: number
+        +versiculos: Versiculo[]
+        +versiculo(n: number) Versiculo
+    }
+
+    class Versiculo {
+        <<value object>>
+        +referencia: Referencia
+        +texto: string
+    }
+
+    Livro --> Testamento
+    Livro --> CodigoLivro
+    Canon "1" *-- "66" Livro
+    Referencia --> CodigoLivro
+    IntervaloReferencia "1" *-- "2" Referencia
+    Versao --> StatusInstalacao
+    Versao "1" o-- "1..*" Capitulo
+    Capitulo "1" *-- "1..*" Versiculo
+    Capitulo ..> Livro
+    Versiculo --> Referencia
+```
+
+**Notas**
+- `Livro` é **canônico** (66 livros, mesmos códigos USFM do `biblia.data`: `GEN`, `JHN`…) e independe da versão.
+- `Referencia.chave()` gera a chave de persistência, ex.: `JHN.3.16`.
+- `Referencia.parse()` aceita `Jo 3:16`, `João 3.16`, `jo 3`, `1 Co 13` etc.
+
+## 4. Módulo `estudo`
+
+```mermaid
+classDiagram
+    direction TB
+
+    class CorDestaque {
+        <<enumeration>>
+        AMARELO
+        VERDE
+        ROSA
+        AZUL
+    }
+
+    class ModoExibicao {
+        <<enumeration>>
+        INLINE
+        RODAPE
+    }
+
+    class PosicaoTexto {
+        <<value object>>
+        +referencia: Referencia
+        +offset: number
+        +compararCom(outra: PosicaoTexto) number
+    }
+
+    class IntervaloTexto {
+        <<value object>>
+        +inicio: PosicaoTexto
+        +fim: PosicaoTexto
+        +sobrepoe(outro: IntervaloTexto) boolean
+        +unir(outro: IntervaloTexto) IntervaloTexto
+        +referencias() Referencia[]
+        +trechoNoVersiculo(ref: Referencia, tamanho: number) Faixa
+    }
+
+    class Faixa {
+        <<value object>>
+        +de: number
+        +ate: number
+    }
+
+    class Favorito {
+        <<aggregate root>>
+        +id: FavoritoId
+        +referencia: Referencia
+        +criadoEm: Date
+    }
+
+    class Destaque {
+        <<aggregate root>>
+        +id: DestaqueId
+        +versaoId: VersaoId
+        +intervalo: IntervaloTexto
+        +cor: CorDestaque
+        +criadoEm: Date
+        +fundirCom(outro: Destaque) Destaque
+        +alterarCor(cor: CorDestaque) void
+    }
+
+    class Anotacao {
+        <<aggregate root>>
+        +id: AnotacaoId
+        +referencia: Referencia
+        +destaqueId: DestaqueId [0..1]
+        +conteudo: string
+        +exibicao: ModoExibicao
+        +criadoEm: Date
+        +atualizadoEm: Date
+        +editar(conteudo: string) void
+        +alterarExibicao(modo: ModoExibicao) void
+        +desvincularDestaque() void
+    }
+
+    class MarcacoesDoCapitulo {
+        <<read model>>
+        +favoritos: Favorito[]
+        +destaques: Destaque[]
+        +anotacoes: Anotacao[]
+        +notasDeRodape() Anotacao[]
+        +notasInline(ref: Referencia) Anotacao[]
+        +faixasDestacadas(ref: Referencia) Faixa[]
+    }
+
+    PosicaoTexto --> Referencia
+    IntervaloTexto "1" *-- "2" PosicaoTexto
+    IntervaloTexto ..> Faixa
+    Favorito --> Referencia
+    Destaque *-- IntervaloTexto
+    Destaque --> CorDestaque
+    Anotacao --> ModoExibicao
+    Anotacao --> Referencia
+    Anotacao "0..*" --> "0..1" Destaque
+    MarcacoesDoCapitulo o-- Favorito
+    MarcacoesDoCapitulo o-- Destaque
+    MarcacoesDoCapitulo o-- Anotacao
+```
+
+**Invariantes**
+- `IntervaloTexto`: `inicio ≤ fim`; offsets ≥ 0 e dentro do tamanho do versículo.
+- `Anotacao.conteudo` não pode ser vazio.
+- Um versículo tem **no máximo um** `Favorito`.
+- `Destaque` pertence a uma versão (offsets dependem do texto); `Favorito` e `Anotacao` são **independentes de versão**.
+- `MarcacoesDoCapitulo` é um *read model* montado para a renderização de um capítulo (não é persistido).
+
+## 5. Módulo `planos`
+
+```mermaid
+classDiagram
+    direction TB
+
+    class StatusInscricao {
+        <<enumeration>>
+        EM_ANDAMENTO
+        CONCLUIDO
+        ABANDONADO
+    }
+
+    class PlanoLeitura {
+        <<aggregate root>>
+        +id: PlanoId
+        +nome: string
+        +descricao: string
+        +duracaoDias: number
+        +dias: DiaPlano[]
+        +dia(numero: number) DiaPlano
+    }
+
+    class DiaPlano {
+        <<entity>>
+        +numero: number
+        +leituras: IntervaloReferencia[]
+    }
+
+    class InscricaoPlano {
+        <<aggregate root>>
+        +id: InscricaoId
+        +planoId: PlanoId
+        +dataInicio: Date
+        +diasConcluidos: Set~number~
+        +status: StatusInscricao
+        +diaAtual(hoje: Date) number
+        +diasAtrasados(hoje: Date) number[]
+        +concluirDia(numero: number) void
+        +desfazerDia(numero: number) void
+        +reagendar(hoje: Date) void
+        +progresso() Progresso
+    }
+
+    class Progresso {
+        <<value object>>
+        +concluidos: number
+        +total: number
+        +percentual() number
+    }
+
+    PlanoLeitura "1" *-- "1..*" DiaPlano
+    DiaPlano "1" *-- "1..*" IntervaloReferencia
+    InscricaoPlano "*" --> "1" PlanoLeitura
+    InscricaoPlano --> StatusInscricao
+    InscricaoPlano ..> Progresso
+```
+
+**Invariantes**
+- `concluirDia(n)`: `1 ≤ n ≤ duracaoDias`; ao concluir todos → `status = CONCLUIDO`.
+- `diaAtual(hoje)` é limitado a `[1, duracaoDias]`.
+- Planos pré-definidos são dados estáticos (JSON versionado no repositório).
+
+## 6. Módulos `busca` e `preferencias`
+
+```mermaid
+classDiagram
+    direction TB
+
+    class ModoBusca {
+        <<enumeration>>
+        TODAS_PALAVRAS
+        QUALQUER_PALAVRA
+        FRASE_EXATA
+    }
+
+    class Ordenacao {
+        <<enumeration>>
+        RELEVANCIA
+        CANONICA
+    }
+
+    class FiltroBusca {
+        <<value object>>
+        +testamento: Testamento [0..1]
+        +livros: CodigoLivro[]
+    }
+
+    class ConsultaBusca {
+        <<value object>>
+        +termo: string
+        +modo: ModoBusca
+        +filtro: FiltroBusca
+        +fuzzy: boolean
+        +ordenacao: Ordenacao
+        +pagina: number
+        +tamanhoPagina: number
+        +interpretar(entrada: string)$ ConsultaBusca
+    }
+
+    class ResultadoBusca {
+        <<value object>>
+        +referencia: Referencia
+        +texto: string
+        +ocorrencias: Faixa[]
+        +pontuacao: number
+    }
+
+    class Pagina~T~ {
+        <<value object>>
+        +itens: T[]
+        +pagina: number
+        +tamanhoPagina: number
+        +total: number
+        +totalPaginas() number
+        +temProxima() boolean
+        +temAnterior() boolean
+    }
+
+    class Tema {
+        <<enumeration>>
+        CLARO
+        SEPIA
+        ESCURO
+    }
+
+    class Preferencias {
+        <<aggregate root>>
+        +versaoAtiva: VersaoId
+        +ultimaPosicao: Referencia
+        +tema: Tema
+        +tamanhoFonte: number
+        +exibicaoPadraoNotas: ModoExibicao
+    }
+
+    ConsultaBusca --> ModoBusca
+    ConsultaBusca --> Ordenacao
+    ConsultaBusca *-- FiltroBusca
+    Pagina~T~ o-- ResultadoBusca
+    Preferencias --> Tema
+```
+
+- `ConsultaBusca.interpretar('"amor de Deus"')` → `FRASE_EXATA`; sem aspas → `TODAS_PALAVRAS`.
+
+## 7. Portas (interfaces) e Casos de Uso — camada de aplicação
+
+```mermaid
+classDiagram
+    direction LR
+
+    class VersaoRepository {
+        <<interface>>
+        +listar() Promise~Versao[]~
+        +obter(id: VersaoId) Promise~Versao~
+        +salvar(v: Versao) Promise~void~
+        +remover(id: VersaoId) Promise~void~
+    }
+    class TextoBiblicoRepository {
+        <<interface>>
+        +obterCapitulo(v: VersaoId, l: CodigoLivro, n: number) Promise~Capitulo~
+        +importar(v: VersaoId, livros: LivroImportado[]) Promise~void~
+        +removerVersao(v: VersaoId) Promise~void~
+    }
+    class FavoritoRepository {
+        <<interface>>
+        +porCapitulo(l: CodigoLivro, n: number) Promise~Favorito[]~
+        +listar() Promise~Favorito[]~
+        +salvar(f: Favorito) Promise~void~
+        +remover(id: FavoritoId) Promise~void~
+    }
+    class DestaqueRepository {
+        <<interface>>
+        +porCapitulo(v: VersaoId, l: CodigoLivro, n: number) Promise~Destaque[]~
+        +salvar(d: Destaque) Promise~void~
+        +remover(id: DestaqueId) Promise~void~
+    }
+    class AnotacaoRepository {
+        <<interface>>
+        +porCapitulo(l: CodigoLivro, n: number) Promise~Anotacao[]~
+        +listar() Promise~Anotacao[]~
+        +salvar(a: Anotacao) Promise~void~
+        +remover(id: AnotacaoId) Promise~void~
+    }
+    class PlanoRepository {
+        <<interface>>
+        +listar() Promise~PlanoLeitura[]~
+        +obter(id: PlanoId) Promise~PlanoLeitura~
+    }
+    class InscricaoRepository {
+        <<interface>>
+        +ativas() Promise~InscricaoPlano[]~
+        +salvar(i: InscricaoPlano) Promise~void~
+    }
+    class PreferenciasRepository {
+        <<interface>>
+        +obter() Promise~Preferencias~
+        +salvar(p: Preferencias) Promise~void~
+    }
+    class ServicoBusca {
+        <<interface>>
+        +indexar(v: VersaoId, progresso: Callback) Promise~void~
+        +buscar(v: VersaoId, c: ConsultaBusca) Promise~Pagina~
+    }
+    class FonteVersoes {
+        <<interface>>
+        +catalogo() Promise~Versao[]~
+        +baixar(v: VersaoId, progresso: Callback) Promise~LivroImportado[]~
+    }
+    class Relogio {
+        <<interface>>
+        +hoje() Date
+    }
+
+    class AbrirCapitulo {
+        <<use case>>
+        +executar(ref: Referencia) Promise~CapituloComMarcacoes~
+    }
+    class BuscarTexto {
+        <<use case>>
+        +executar(c: ConsultaBusca) Promise~Pagina~
+    }
+    class AlternarFavorito {
+        <<use case>>
+        +executar(ref: Referencia) Promise~void~
+    }
+    class MarcarTexto {
+        <<use case>>
+        +executar(i: IntervaloTexto, cor: CorDestaque) Promise~Destaque~
+    }
+    class SalvarAnotacao {
+        <<use case>>
+        +executar(dados: AnotacaoDTO) Promise~Anotacao~
+    }
+    class IniciarPlano {
+        <<use case>>
+        +executar(p: PlanoId) Promise~InscricaoPlano~
+    }
+    class ConcluirDiaPlano {
+        <<use case>>
+        +executar(i: InscricaoId, dia: number) Promise~void~
+    }
+    class InstalarVersao {
+        <<use case>>
+        +executar(v: VersaoId) Promise~void~
+    }
+    class ExportarDados {
+        <<use case>>
+        +executar() Promise~Backup~
+    }
+    class ImportarDados {
+        <<use case>>
+        +executar(b: Backup) Promise~void~
+    }
+
+    AbrirCapitulo ..> TextoBiblicoRepository
+    AbrirCapitulo ..> FavoritoRepository
+    AbrirCapitulo ..> DestaqueRepository
+    AbrirCapitulo ..> AnotacaoRepository
+    AbrirCapitulo ..> PreferenciasRepository
+    BuscarTexto ..> ServicoBusca
+    AlternarFavorito ..> FavoritoRepository
+    MarcarTexto ..> DestaqueRepository
+    SalvarAnotacao ..> AnotacaoRepository
+    IniciarPlano ..> PlanoRepository
+    IniciarPlano ..> InscricaoRepository
+    IniciarPlano ..> Relogio
+    ConcluirDiaPlano ..> InscricaoRepository
+    InstalarVersao ..> FonteVersoes
+    InstalarVersao ..> VersaoRepository
+    InstalarVersao ..> TextoBiblicoRepository
+    InstalarVersao ..> ServicoBusca
+    ExportarDados ..> FavoritoRepository
+    ExportarDados ..> DestaqueRepository
+    ExportarDados ..> AnotacaoRepository
+    ExportarDados ..> InscricaoRepository
+    ImportarDados ..> FavoritoRepository
+    ImportarDados ..> DestaqueRepository
+    ImportarDados ..> AnotacaoRepository
+    ImportarDados ..> InscricaoRepository
+```
+
+### Adapters (infraestrutura) previstos
+
+| Porta | Implementação |
+|---|---|
+| `*Repository` | `Dexie*Repository` (IndexedDB) |
+| `ServicoBusca` | `MiniSearchServicoBusca` (executa em Web Worker; índice persistido no IndexedDB) |
+| `FonteVersoes` | `GitHubBibliaDataFonte` (baixa `data/canonical/<SIGLA>/<LIVRO>.json`) |
+| `PlanoRepository` | `PlanosEstaticosRepository` (JSON empacotado no build) |
+| `Relogio` | `RelogioSistema` (testes usam `RelogioFixo`) |
+
+## 8. Mapeamento com a fonte de dados
+
+| `biblia.data` (JSON) | Domínio |
+|---|---|
+| arquivo `data/canonical/BLIVRE/JHN.json` | `Versao(sigla=BLIVRE)` + `Livro(codigo=JHN)` |
+| `id` | `Livro.ordem` |
+| `code` | `Livro.codigo` |
+| `name`, `abbrev` | `Livro.nome`, `Livro.abreviacao` |
+| `chapters[].number` | `Capitulo.numero` |
+| `chapters[].verses[].number`, `.text` | `Versiculo.referencia.versiculo`, `Versiculo.texto` |
