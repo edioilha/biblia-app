@@ -30,9 +30,9 @@ export default tseslint.config(
     },
   },
 
-  // React (camada de UI)
+  // React (camada de UI) — inclui hooks escritos em .ts
   {
-    files: ['src/**/*.tsx'],
+    files: ['src/**/*.tsx', 'src/ui/**/*.ts'],
     plugins: { 'react-hooks': reactHooks, 'react-refresh': reactRefresh },
     extends: [jsxA11y.flatConfigs.recommended],
     rules: {
