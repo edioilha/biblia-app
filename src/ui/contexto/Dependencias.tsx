@@ -1,9 +1,18 @@
 import { createContext, useContext, type ReactNode } from 'react';
-import type { Canon } from '../../dominio/biblia';
+import type {
+  AbrirCapitulo,
+  ObterPosicaoInicial,
+  PrepararVersaoPadrao,
+} from '../../aplicacao/casos-de-uso';
+import type { Canon, Versao } from '../../dominio/biblia';
 
 /** Dependências que a UI recebe do Composition Root (src/container.ts). */
 export interface Dependencias {
   readonly canon: Canon;
+  readonly versaoPadrao: Versao;
+  readonly abrirCapitulo: AbrirCapitulo;
+  readonly obterPosicaoInicial: ObterPosicaoInicial;
+  readonly prepararVersaoPadrao: PrepararVersaoPadrao;
 }
 
 const DependenciasContext = createContext<Dependencias | null>(null);

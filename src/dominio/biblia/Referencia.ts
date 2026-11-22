@@ -1,6 +1,6 @@
 import { ErroDominio } from '../compartilhado/ErroDominio';
 import type { Canon } from './Canon';
-import type { CodigoLivro } from './CodigoLivro';
+import { CodigoLivro } from './CodigoLivro';
 import type { Livro } from './Livro';
 
 export class ReferenciaInvalidaError extends ErroDominio {}
@@ -45,6 +45,20 @@ export class Referencia {
     return Referencia.criar(livro, capitulo, versiculo);
   }
 
+  /** Inverso de `chave()`: "JHN.3" ou "JHN.3.16". */
+  static deChave(chave: string, canon: Canon): Referencia {
+    const [codigo = '', capitulo, versiculo, ...resto] = chave.split('.');
+    if (capitulo === undefined || resto.length > 0) {
+      throw new ReferenciaInvalidaError(`Chave de referência inválida: "${chave}".`);
+    }
+    const livro = canon.livro(CodigoLivro.de(codigo));
+    return Referencia.criar(
+      livro,
+      Number(capitulo),
+      versiculo === undefined ? null : Number(versiculo),
+    );
+  }
+
   private static criar(livro: Livro, capitulo: number, versiculo: number | null): Referencia {
     if (!livro.possuiCapitulo(capitulo)) {
       throw new ReferenciaInvalidaError(
@@ -55,6 +69,11 @@ export class Referencia {
       throw new ReferenciaInvalidaError(`Versículo inválido: ${versiculo}.`);
     }
     return new Referencia(livro.codigo, capitulo, versiculo);
+  }
+
+  /** A referência do capítulo, sem versículo ("Jo 3:16" → "Jo 3"). */
+  doCapitulo(): Referencia {
+    return this.versiculo === null ? this : new Referencia(this.livro, this.capitulo, null);
   }
 
   /** Chave de persistência: "JHN.3" ou "JHN.3.16". */

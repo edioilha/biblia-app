@@ -284,18 +284,46 @@ sequenceDiagram
 
 - **Granularidade por capítulo**: abrir um capítulo = 1 leitura (atende RNF02 < 300 ms).
 - **Migrações** versionadas com `db.version(n).stores(...).upgrade(...)`.
-- **Persistência durável**: `navigator.storage.persist()` na primeira execução.
+- **Persistência durável**: `navigator.storage.persist()` na primeira execução (previsto para a fase de backup).
+- **Schema v1** (fase 7.1): `capitulos`, `versoes` (presença = versão importada por completo) e `preferencias`. Os demais stores entram em novas versões do schema.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
 ## 7. Importação e normalização dos dados
 
-O JSON do `biblia.data` contém espaços duplicados e espaços no fim de alguns versículos (ex.: BLIVRE Jo 3:15 `"nele crer  tenha"`). O adapter `GitHubBibliaDataFonte` aplica, antes de entregar ao domínio:
+### Versão embarcada (BLIVRE)
 
-1. `trim()` e colapso de espaços múltiplos (`/\s+/g → ' '`);
-2. normalização Unicode **NFC**;
-3. validação de schema (Zod): `code` ∈ códigos USFM conhecidos, `chapters[].number` sequencial, `verses[].text` não vazio.
+A BLIVRE é **pré-processada por script** e os arquivos gerados ficam **versionados** em `public/dados/BLIVRE/<LIVRO>.json` (entram no precache do PWA). O script roda manualmente, só quando a fonte muda — build e CI não dependem de rede:
 
-A versão padrão (BLIVRE) é **pré-processada no build** (script `scripts/preparar-dados.ts`) e embarcada no app; as demais são baixadas sob demanda.
+```bash
+npm run dados:blivre             # baixa do GitHub
+npm run dados:blivre -- <dir>    # usa uma cópia local de data/canonical/BLIVRE
+```
+
+`scripts/dados/normalizar.ts` (funções puras, testadas) aplica a cada versículo:
+
+1. normalização Unicode **NFC**;
+2. remoção de markup de nota vazado (`/fn/…/*fn`, ex.: Dt 32:5);
+3. `´` → `’` (`d´água`);
+4. espaço após `, ; : . ! ? )` colado em letra (`destruição,diz`, `(Selá)Porque` — ~600 ocorrências);
+5. `trim()` e colapso de espaços múltiplos (31 mil versículos tinham espaço final; 1,4 mil, espaço duplo).
+
+E valida contra o cânon: código do livro, total de capítulos, capítulos sequenciais, versículos em ordem crescente e não vazios. A numeração dos versículos é **explícita** porque há lacunas (Sl 46 não tem o v. 3).
+
+Formato embarcado (compacto, `capitulos[i]` = capítulo `i + 1`):
+
+```json
+{ "formato": 1, "livro": "JHN", "capitulos": [[[1, "No princípio era a Palavra, …"], [2, "…"]], …] }
+```
+
+Na primeira execução, `PrepararVersaoPadrao` carrega os 66 arquivos (`FonteEstatica`), valida e importa tudo numa **única transação** Dexie (tudo ou nada), com tela de progresso.
+
+**Limitações conhecidas da fonte** (não corrigidas para não alterar o texto por heurística):
+- algumas notas de tradução aparecem no corpo do versículo (ex.: 1Co 13:10 "…completo, Ou: perfeito…");
+- Sl 46:3 está fundido ao v. 2.
+
+### Versões instaláveis (UC09)
+
+As demais versões serão baixadas sob demanda pelo adapter `GitHubBibliaDataFonte`, reutilizando a mesma normalização.
 
 ## 8. Estrutura de pastas
 
@@ -306,9 +334,10 @@ biblia-app/
 │   ├── workflows/deploy.yml      # GitHub Pages
 │   └── pull_request_template.md
 ├── docs/                         # documentação (este diretório)
-├── public/                       # ícones PWA, manifest
+├── public/
+│   └── dados/BLIVRE/             # versão embarcada (gerada por scripts/dados)
 ├── scripts/
-│   └── preparar-dados.ts         # baixa/normaliza a BLIVRE no build
+│   └── dados/                    # preparar-blivre.ts, normalizar.ts
 ├── src/
 │   ├── dominio/
 │   │   ├── biblia/               # Versao, Livro, Capitulo, Referencia, Canon…
@@ -321,15 +350,16 @@ biblia-app/
 │   │   ├── portas/               # *Repository, ServicoBusca, FonteVersoes, Relogio
 │   │   └── casos-de-uso/         # AbrirCapitulo, BuscarTexto, …
 │   ├── infraestrutura/
-│   │   ├── dexie/                # BibliaDb, Dexie*Repository, mappers
+│   │   ├── dexie/                # BancoApp, Dexie*Repository
 │   │   ├── busca/                # MiniSearchServicoBusca, busca.worker.ts
-│   │   ├── fontes/               # GitHubBibliaDataFonte
+│   │   ├── fontes/               # FonteEstatica (embarcada), GitHubBibliaDataFonte
 │   │   └── sistema/              # RelogioSistema
 │   ├── ui/
 │   │   ├── paginas/              # LeituraPage, BuscaPage, …
 │   │   ├── componentes/          # PaginaPapel, MarcaTexto, …
 │   │   ├── hooks/
-│   │   └── estilos/
+│   │   ├── estilos/
+│   │   └── rotas.ts              # caminhos das rotas (ADR 0009)
 │   ├── container.ts              # Composition Root
 │   └── main.tsx
 ├── tests/

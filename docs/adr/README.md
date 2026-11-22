@@ -21,3 +21,4 @@ Registro das decisões arquiteturais relevantes, no formato [MADR](https://adr.g
 | [0006](0006-arquitetura-hexagonal.md) | Arquitetura Hexagonal + DDD tático | Aceita | 2026-11-22 |
 | [0007](0007-traducoes-dominio-publico.md) | Somente traduções em domínio público | Aceita | 2026-11-22 |
 | [0008](0008-hospedagem-github-pages.md) | Hospedagem no GitHub Pages | Aceita | 2026-11-22 |
+| [0009](0009-roteamento-react-router-hash.md) | Roteamento com React Router em modo hash | Aceita | 2026-11-22 |

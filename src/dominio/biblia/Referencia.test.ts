@@ -63,3 +63,25 @@ describe('Referencia', () => {
     expect(CodigoLivro.de(' jhn ').valor).toBe('JHN');
   });
 });
+
+describe('Referencia.doCapitulo', () => {
+  it('remove o versículo e mantém referências de capítulo', () => {
+    const r = Referencia.parse('Jo 3:16', canon);
+    expect(r.doCapitulo().chave()).toBe('JHN.3');
+    const c = Referencia.parse('Jo 3', canon);
+    expect(c.doCapitulo()).toBe(c);
+  });
+});
+
+describe('Referencia.deChave', () => {
+  it.each(['JHN.3', 'JHN.3.16', 'GEN.1', 'REV.22.21'])(
+    'faz o caminho inverso de chave(): %s',
+    (chave) => {
+      expect(Referencia.deChave(chave, canon).chave()).toBe(chave);
+    },
+  );
+
+  it.each(['', 'JHN', 'JHN.3.16.1', 'JHN.x', 'JHN.22', 'JHN.3.0'])('rejeita %j', (chave) => {
+    expect(() => Referencia.deChave(chave, canon)).toThrow();
+  });
+});
