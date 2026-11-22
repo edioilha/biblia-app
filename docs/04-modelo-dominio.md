@@ -23,27 +23,27 @@
 classDiagram
     direction LR
     class Referencia
-    <<value object>> Referencia
+    <<ValueObject>> Referencia
     class Versao
-    <<aggregate root>> Versao
+    <<AggregateRoot>> Versao
     class Livro
     <<entity>> Livro
     class Capitulo
     <<entity>> Capitulo
     class Versiculo
-    <<value object>> Versiculo
+    <<ValueObject>> Versiculo
     class Favorito
-    <<aggregate root>> Favorito
+    <<AggregateRoot>> Favorito
     class Destaque
-    <<aggregate root>> Destaque
+    <<AggregateRoot>> Destaque
     class Anotacao
-    <<aggregate root>> Anotacao
+    <<AggregateRoot>> Anotacao
     class PlanoLeitura
-    <<aggregate root>> PlanoLeitura
+    <<AggregateRoot>> PlanoLeitura
     class InscricaoPlano
-    <<aggregate root>> InscricaoPlano
+    <<AggregateRoot>> InscricaoPlano
     class Preferencias
-    <<aggregate root>> Preferencias
+    <<AggregateRoot>> Preferencias
 
     Versao "1" o-- "1..*" Capitulo
     Capitulo "*" --> "1" Livro
@@ -81,7 +81,7 @@ classDiagram
     }
 
     class CodigoLivro {
-        <<value object>>
+        <<ValueObject>>
         +valor: string
         +de(codigo: string)$ CodigoLivro
     }
@@ -97,7 +97,7 @@ classDiagram
     }
 
     class Canon {
-        <<domain service>>
+        <<DomainService>>
         +livros() Livro[]
         +livro(codigo: CodigoLivro) Livro
         +porNomeOuAbreviacao(texto: string) Livro
@@ -106,7 +106,7 @@ classDiagram
     }
 
     class Referencia {
-        <<value object>>
+        <<ValueObject>>
         +livro: CodigoLivro
         +capitulo: number
         +versiculo: number
@@ -118,7 +118,7 @@ classDiagram
     }
 
     class IntervaloReferencia {
-        <<value object>>
+        <<ValueObject>>
         +inicio: Referencia
         +fim: Referencia
         +contem(ref: Referencia) boolean
@@ -126,7 +126,7 @@ classDiagram
     }
 
     class Versao {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +id: VersaoId
         +sigla: string
         +nome: string
@@ -151,7 +151,7 @@ classDiagram
     }
 
     class Versiculo {
-        <<value object>>
+        <<ValueObject>>
         +referencia: Referencia
         +texto: string
     }
@@ -194,14 +194,14 @@ classDiagram
     }
 
     class PosicaoTexto {
-        <<value object>>
+        <<ValueObject>>
         +referencia: Referencia
         +offset: number
         +compararCom(outra: PosicaoTexto) number
     }
 
     class IntervaloTexto {
-        <<value object>>
+        <<ValueObject>>
         +inicio: PosicaoTexto
         +fim: PosicaoTexto
         +sobrepoe(outro: IntervaloTexto) boolean
@@ -211,20 +211,20 @@ classDiagram
     }
 
     class Faixa {
-        <<value object>>
+        <<ValueObject>>
         +de: number
         +ate: number
     }
 
     class Favorito {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +id: FavoritoId
         +referencia: Referencia
         +criadoEm: Date
     }
 
     class Destaque {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +id: DestaqueId
         +versaoId: VersaoId
         +intervalo: IntervaloTexto
@@ -235,7 +235,7 @@ classDiagram
     }
 
     class Anotacao {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +id: AnotacaoId
         +referencia: Referencia
         +destaqueId: DestaqueId [0..1]
@@ -249,7 +249,7 @@ classDiagram
     }
 
     class MarcacoesDoCapitulo {
-        <<read model>>
+        <<ReadModel>>
         +favoritos: Favorito[]
         +destaques: Destaque[]
         +anotacoes: Anotacao[]
@@ -293,7 +293,7 @@ classDiagram
     }
 
     class PlanoLeitura {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +id: PlanoId
         +nome: string
         +descricao: string
@@ -309,7 +309,7 @@ classDiagram
     }
 
     class InscricaoPlano {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +id: InscricaoId
         +planoId: PlanoId
         +dataInicio: Date
@@ -324,7 +324,7 @@ classDiagram
     }
 
     class Progresso {
-        <<value object>>
+        <<ValueObject>>
         +concluidos: number
         +total: number
         +percentual() number
@@ -362,13 +362,13 @@ classDiagram
     }
 
     class FiltroBusca {
-        <<value object>>
+        <<ValueObject>>
         +testamento: Testamento [0..1]
         +livros: CodigoLivro[]
     }
 
     class ConsultaBusca {
-        <<value object>>
+        <<ValueObject>>
         +termo: string
         +modo: ModoBusca
         +filtro: FiltroBusca
@@ -380,7 +380,7 @@ classDiagram
     }
 
     class ResultadoBusca {
-        <<value object>>
+        <<ValueObject>>
         +referencia: Referencia
         +texto: string
         +ocorrencias: Faixa[]
@@ -388,7 +388,7 @@ classDiagram
     }
 
     class Pagina~T~ {
-        <<value object>>
+        <<ValueObject>>
         +itens: T[]
         +pagina: number
         +tamanhoPagina: number
@@ -406,7 +406,7 @@ classDiagram
     }
 
     class Preferencias {
-        <<aggregate root>>
+        <<AggregateRoot>>
         +versaoAtiva: VersaoId
         +ultimaPosicao: Referencia
         +tema: Tema
@@ -493,43 +493,43 @@ classDiagram
     }
 
     class AbrirCapitulo {
-        <<use case>>
+        <<UseCase>>
         +executar(ref: Referencia) Promise~CapituloComMarcacoes~
     }
     class BuscarTexto {
-        <<use case>>
+        <<UseCase>>
         +executar(c: ConsultaBusca) Promise~Pagina~
     }
     class AlternarFavorito {
-        <<use case>>
+        <<UseCase>>
         +executar(ref: Referencia) Promise~void~
     }
     class MarcarTexto {
-        <<use case>>
+        <<UseCase>>
         +executar(i: IntervaloTexto, cor: CorDestaque) Promise~Destaque~
     }
     class SalvarAnotacao {
-        <<use case>>
+        <<UseCase>>
         +executar(dados: AnotacaoDTO) Promise~Anotacao~
     }
     class IniciarPlano {
-        <<use case>>
+        <<UseCase>>
         +executar(p: PlanoId) Promise~InscricaoPlano~
     }
     class ConcluirDiaPlano {
-        <<use case>>
+        <<UseCase>>
         +executar(i: InscricaoId, dia: number) Promise~void~
     }
     class InstalarVersao {
-        <<use case>>
+        <<UseCase>>
         +executar(v: VersaoId) Promise~void~
     }
     class ExportarDados {
-        <<use case>>
+        <<UseCase>>
         +executar() Promise~Backup~
     }
     class ImportarDados {
-        <<use case>>
+        <<UseCase>>
         +executar(b: Backup) Promise~void~
     }
 
