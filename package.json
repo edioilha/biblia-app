@@ -20,6 +20,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "dados:blivre": "node scripts/dados/preparar-blivre.ts",
     "prepare": "husky"
   },
   "lint-staged": {

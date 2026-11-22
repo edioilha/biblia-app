@@ -8,3 +8,6 @@ docs/05-wireframes/index.html
 
 # Markdown: tabelas são mantidas compactas (alinhamento gera diffs enormes)
 *.md
+
+# Dados bíblicos gerados por scripts/dados (npm run dados:blivre)
+public/dados
