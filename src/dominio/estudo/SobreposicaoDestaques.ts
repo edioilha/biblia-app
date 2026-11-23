@@ -6,6 +6,11 @@ import type { TextoDoCapitulo } from './TextoDoCapitulo';
 export interface AlteracoesDestaques {
   readonly salvar: readonly Destaque[];
   readonly remover: readonly DestaqueId[];
+  /**
+   * Destaques que sumiram por fusão (`de`) e o que ficou no lugar (`para`): as anotações
+   * ligadas a eles devem passar para o que ficou (fase 7.4).
+   */
+  readonly religar?: readonly { readonly de: DestaqueId; readonly para: DestaqueId }[];
 }
 
 /**
@@ -50,11 +55,12 @@ export class SobreposicaoDestaques {
 
     const salvar: Destaque[] = [atual];
     const remover = [...descartados].filter((id) => id !== atual.id && ids.has(id));
+    const religar = remover.map((de) => ({ de, para: atual.id }));
     for (const e of outros) {
       if (descartados.has(e.id) || e.id === atual.id) continue;
       this.recortar(e, atual.intervalo, salvar, remover);
     }
-    return { destaque: atual, alteracoes: { salvar, remover } };
+    return { destaque: atual, alteracoes: { salvar, remover, religar } };
   }
 
   /** Borracha: tira `trecho` de todos os destaques que o cobrem (RF04.4). */

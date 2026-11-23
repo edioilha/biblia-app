@@ -24,6 +24,7 @@ describe('SobreposicaoDestaques.aplicar', () => {
     expect(resumo([r.destaque])).toEqual(['1 AMARELO 1:4-2:3']);
     expect(resumo(r.alteracoes.salvar)).toEqual(['1 AMARELO 1:4-2:3']);
     expect(r.alteracoes.remover).toEqual([]);
+    expect(r.alteracoes.religar).toEqual([]);
   });
 
   it('funde com a mesma cor separada só por espaço, inclusive entre versículos', () => {
@@ -34,6 +35,8 @@ describe('SobreposicaoDestaques.aplicar', () => {
     ]);
     expect(resumo([r.destaque])).toEqual(['1 AMARELO 1:4-2:3']);
     expect(r.alteracoes.remover).toEqual([idDestaque(2)]);
+    // anotações do destaque 2 passam para o 1 (fase 7.4)
+    expect(r.alteracoes.religar).toEqual([{ de: idDestaque(2), para: idDestaque(1) }]);
   });
 
   it('não funde com a mesma cor separada por texto', () => {
@@ -67,6 +70,7 @@ describe('SobreposicaoDestaques.aplicar', () => {
     const r = regras().aplicar(existentes[1]?.comCor('ROSA') ?? destaque(0, '1:0-1:1'), existentes);
     expect(resumo([r.destaque])).toEqual(['1 ROSA 1:0-1:7']);
     expect(r.alteracoes.remover).toEqual([idDestaque(2)]);
+    expect(r.alteracoes.religar).toEqual([{ de: idDestaque(2), para: idDestaque(1) }]);
   });
 });
 
