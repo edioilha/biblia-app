@@ -8,6 +8,7 @@ import {
   AbrirCapitulo,
   AlterarCorDestaque,
   AlternarFavorito,
+  BuscarTexto,
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
@@ -15,6 +16,7 @@ import {
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
+  PrepararBusca,
   PrepararVersaoPadrao,
   RemoverDestaque,
 } from './aplicacao/casos-de-uso';
@@ -27,6 +29,7 @@ import {
   DexiePreferenciasRepository,
   DexieTextoBiblicoRepository,
 } from './infraestrutura/dexie';
+import { ServicoBuscaWorker } from './infraestrutura/busca';
 import { FonteEstatica } from './infraestrutura/fontes';
 import { GeradorUuidV7, RelogioSistema } from './infraestrutura/sistema';
 import type { Dependencias } from './ui/contexto/Dependencias';
@@ -51,6 +54,15 @@ const anotacoes = new DexieAnotacaoRepository(db, canon);
 const relogio = new RelogioSistema();
 const gerador = new GeradorUuidV7();
 const fonte = new FonteEstatica(import.meta.env.BASE_URL);
+// ADR 0005: índice e consultas num Web Worker (criado na primeira chamada).
+const busca = new ServicoBuscaWorker(
+  canon,
+  () =>
+    new Worker(new URL('./infraestrutura/busca/busca.worker.ts', import.meta.url), {
+      type: 'module',
+      name: 'busca',
+    }),
+);
 
 export const dependencias: Dependencias = {
   canon,
@@ -67,4 +79,6 @@ export const dependencias: Dependencias = {
   excluirAnotacao: new ExcluirAnotacao(anotacoes),
   obterPosicaoInicial: new ObterPosicaoInicial(canon, preferencias),
   prepararVersaoPadrao: new PrepararVersaoPadrao(canon, fonte, texto, BLIVRE.id),
+  buscarTexto: new BuscarTexto(busca, BLIVRE.id),
+  prepararBusca: new PrepararBusca(busca, BLIVRE.id),
 };

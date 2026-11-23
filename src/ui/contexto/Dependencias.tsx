@@ -3,6 +3,7 @@ import type {
   AbrirCapitulo,
   AlterarCorDestaque,
   AlternarFavorito,
+  BuscarTexto,
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
@@ -10,6 +11,7 @@ import type {
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
+  PrepararBusca,
   PrepararVersaoPadrao,
   RemoverDestaque,
 } from '../../aplicacao/casos-de-uso';
@@ -31,6 +33,8 @@ export interface Dependencias {
   readonly excluirAnotacao: ExcluirAnotacao;
   readonly obterPosicaoInicial: ObterPosicaoInicial;
   readonly prepararVersaoPadrao: PrepararVersaoPadrao;
+  readonly buscarTexto: BuscarTexto;
+  readonly prepararBusca: PrepararBusca;
 }
 
 const DependenciasContext = createContext<Dependencias | null>(null);
