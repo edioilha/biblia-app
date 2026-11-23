@@ -1,5 +1,6 @@
 /** Implementações em memória das portas, para testes da aplicação e da UI. */
 import type {
+  AnotacaoRepository,
   DestaqueRepository,
   FavoritoRepository,
   FonteVersaoEmbarcada,
@@ -12,6 +13,8 @@ import type {
 import { Canon, Capitulo, CodigoLivro, type Referencia, type VersaoId } from '../dominio/biblia';
 import type {
   AlteracoesDestaques,
+  Anotacao,
+  AnotacaoId,
   Destaque,
   DestaqueId,
   Favorito,
@@ -94,9 +97,32 @@ export class FavoritosEmMemoria implements FavoritoRepository {
   }
 }
 
+export class AnotacoesEmMemoria implements AnotacaoRepository {
+  readonly itens = new Map<AnotacaoId, Anotacao>();
+
+  async porCapitulo(capitulo: Referencia): Promise<Anotacao[]> {
+    const chave = capitulo.doCapitulo().chave();
+    return [...this.itens.values()].filter((a) => a.referencia.doCapitulo().chave() === chave);
+  }
+
+  async porId(id: AnotacaoId): Promise<Anotacao | null> {
+    return this.itens.get(id) ?? null;
+  }
+
+  async salvar(anotacao: Anotacao): Promise<void> {
+    this.itens.set(anotacao.id, anotacao);
+  }
+
+  async remover(id: AnotacaoId): Promise<void> {
+    this.itens.delete(id);
+  }
+}
+
 export class DestaquesEmMemoria implements DestaqueRepository {
   readonly itens = new Map<DestaqueId, Destaque>();
   aplicacoes = 0;
+  /** Para religar anotações nas fusões (como o adapter Dexie faz na mesma transação). */
+  constructor(private readonly anotacoes?: AnotacoesEmMemoria) {}
 
   async porCapitulo(versao: VersaoId, capitulo: Referencia): Promise<Destaque[]> {
     const chave = capitulo.doCapitulo().chave();
@@ -109,10 +135,15 @@ export class DestaquesEmMemoria implements DestaqueRepository {
     return this.itens.get(id) ?? null;
   }
 
-  async aplicar({ salvar, remover }: AlteracoesDestaques): Promise<void> {
+  async aplicar({ salvar, remover, religar = [] }: AlteracoesDestaques): Promise<void> {
     this.aplicacoes++;
     for (const id of remover) this.itens.delete(id);
     for (const d of salvar) this.itens.set(d.id, d);
+    for (const { de, para } of religar) {
+      for (const a of this.anotacoes?.itens.values() ?? []) {
+        if (a.destaqueId === de) this.anotacoes?.itens.set(a.id, a.comDestaque(para));
+      }
+    }
   }
 }
 
