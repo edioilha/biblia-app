@@ -1,5 +1,6 @@
 /** Implementações em memória das portas, para testes da aplicação e da UI. */
 import type {
+  DestaqueRepository,
   FavoritoRepository,
   FonteVersaoEmbarcada,
   GeradorId,
@@ -9,7 +10,13 @@ import type {
   TextoBiblicoRepository,
 } from '../aplicacao/portas';
 import { Canon, Capitulo, CodigoLivro, type Referencia, type VersaoId } from '../dominio/biblia';
-import type { Favorito, FavoritoId } from '../dominio/estudo';
+import type {
+  AlteracoesDestaques,
+  Destaque,
+  DestaqueId,
+  Favorito,
+  FavoritoId,
+} from '../dominio/estudo';
 import type { Preferencias } from '../dominio/preferencias';
 
 export class TextoBiblicoEmMemoria implements TextoBiblicoRepository {
@@ -87,6 +94,28 @@ export class FavoritosEmMemoria implements FavoritoRepository {
   }
 }
 
+export class DestaquesEmMemoria implements DestaqueRepository {
+  readonly itens = new Map<DestaqueId, Destaque>();
+  aplicacoes = 0;
+
+  async porCapitulo(versao: VersaoId, capitulo: Referencia): Promise<Destaque[]> {
+    const chave = capitulo.doCapitulo().chave();
+    return [...this.itens.values()].filter(
+      (d) => d.versaoId === versao && d.capitulo.chave() === chave,
+    );
+  }
+
+  async porId(id: DestaqueId): Promise<Destaque | null> {
+    return this.itens.get(id) ?? null;
+  }
+
+  async aplicar({ salvar, remover }: AlteracoesDestaques): Promise<void> {
+    this.aplicacoes++;
+    for (const id of remover) this.itens.delete(id);
+    for (const d of salvar) this.itens.set(d.id, d);
+  }
+}
+
 export class RelogioFixo implements Relogio {
   constructor(public instante = new Date('2026-11-22T10:00:00Z')) {}
   agora(): Date {
@@ -96,7 +125,7 @@ export class RelogioFixo implements Relogio {
 
 /** Gera UUIDs sequenciais previsíveis: ...0001, ...0002. */
 export class GeradorIdSequencial implements GeradorId {
-  private proximo = 1;
+  constructor(private proximo = 1) {}
   novo(): string {
     return `00000000-0000-7000-8000-${String(this.proximo++).padStart(12, '0')}`;
   }
