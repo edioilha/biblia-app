@@ -8,14 +8,16 @@ export function Paginacao({
   atual,
   total,
   onIr,
+  rotulo = 'Páginas de resultados',
 }: {
   atual: number;
   total: number;
   onIr: (pagina: number) => void;
+  rotulo?: string;
 }) {
   if (total <= 1) return null;
   return (
-    <nav aria-label="Páginas de resultados" className="mt-6 flex justify-center">
+    <nav aria-label={rotulo} className="mt-6 flex justify-center">
       <ul className="flex flex-wrap items-center gap-1.5 font-sans">
         <li>
           <button

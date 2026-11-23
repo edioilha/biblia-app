@@ -13,12 +13,14 @@ import {
   DesmarcarTexto,
   EditarAnotacao,
   ExcluirAnotacao,
+  ListarEstudos,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
   PrepararBusca,
   PrepararVersaoPadrao,
   RemoverDestaque,
+  RemoverFavorito,
 } from './aplicacao/casos-de-uso';
 import { Canon, Versao, VersaoId } from './dominio/biblia';
 import {
@@ -70,6 +72,7 @@ export const dependencias: Dependencias = {
   abrirCapitulo: new AbrirCapitulo(canon, texto, preferencias, BLIVRE.id),
   obterMarcacoesDoCapitulo: new ObterMarcacoesDoCapitulo(favoritos, destaques, anotacoes),
   alternarFavorito: new AlternarFavorito(favoritos, relogio, gerador),
+  removerFavorito: new RemoverFavorito(favoritos),
   marcarTexto: new MarcarTexto(texto, destaques, relogio, gerador),
   desmarcarTexto: new DesmarcarTexto(texto, destaques, gerador),
   removerDestaque: new RemoverDestaque(destaques),
@@ -81,4 +84,5 @@ export const dependencias: Dependencias = {
   prepararVersaoPadrao: new PrepararVersaoPadrao(canon, fonte, texto, BLIVRE.id),
   buscarTexto: new BuscarTexto(busca, BLIVRE.id),
   prepararBusca: new PrepararBusca(busca, BLIVRE.id),
+  listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, BLIVRE.id),
 };

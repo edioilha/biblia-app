@@ -33,4 +33,20 @@ export const chaves = {
   preparoBusca: (versao: VersaoId) => ['busca-preparo', versao] as const,
   /** UC03 — uma página de resultados; `parametros` = estado da busca na URL. */
   busca: (versao: VersaoId, parametros: string) => ['busca', versao, parametros] as const,
+  /** UC13 — prefixo: invalida todas as listas de Meus Estudos. */
+  estudos: () => ['estudos'] as const,
+  /** UC13 — uma página de Meus Estudos; `parametros` = estado da tela na URL. */
+  listaEstudos: (versao: VersaoId, parametros: string) =>
+    [...chaves.estudos(), versao, parametros] as const,
 };
+
+/**
+ * Depois de mudar favoritos, destaques ou anotações: recarrega as marcações do capítulo
+ * e as listas de Meus Estudos (as duas telas mostram os mesmos dados).
+ */
+export function invalidarMarcacoes(cliente: QueryClient, ref: Referencia): Promise<void> {
+  return Promise.all([
+    cliente.invalidateQueries({ queryKey: chaves.marcacoes(ref) }),
+    cliente.invalidateQueries({ queryKey: chaves.estudos() }),
+  ]).then(() => undefined);
+}

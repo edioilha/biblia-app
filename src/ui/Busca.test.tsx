@@ -127,4 +127,12 @@ describe('Busca (UC03)', () => {
       'page',
     );
   });
+
+  it('leva o termo para as anotações em Meus Estudos (RF02.9)', async () => {
+    renderizarApp({ rota: '/buscar?q=luz' });
+    await waitFor(() => expect(status()).toHaveTextContent(/encontrados/));
+    expect(
+      screen.getByRole('link', { name: 'Procurar “luz” nas minhas anotações' }),
+    ).toHaveAttribute('href', '/estudos?aba=anotacoes&q=luz');
+  });
 });

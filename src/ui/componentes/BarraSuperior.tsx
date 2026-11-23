@@ -4,9 +4,10 @@ import { Link, useLocation } from 'react-router';
 const SECOES = [
   { para: '/', rotulo: 'Ler', ativaEm: /^\/(ler\/|$)/u },
   { para: '/buscar', rotulo: 'Buscar', ativaEm: /^\/buscar/u },
+  { para: '/estudos', rotulo: 'Meus Estudos', ativaEm: /^\/estudos/u },
 ] as const;
 
-/** Barra de navegação principal (docs/05 — wireframes). Demais seções entram nas fases 7.6+. */
+/** Barra de navegação principal (docs/05 — wireframes). Planos e Versões entram nas fases 7.7+. */
 export function BarraSuperior({ children }: { children?: ReactNode }) {
   const { pathname } = useLocation();
   return (
@@ -17,7 +18,7 @@ export function BarraSuperior({ children }: { children?: ReactNode }) {
           <span className="max-sm:sr-only">Bíblia</span>
         </span>
         <nav aria-label="Principal" className="mr-auto">
-          <ul className="flex gap-1 text-sm">
+          <ul className="flex gap-1 text-sm whitespace-nowrap">
             {SECOES.map((s) => (
               <li key={s.para}>
                 <Link
