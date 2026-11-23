@@ -1,5 +1,6 @@
 import type { Referencia } from '../biblia';
 import { ErroDominio } from '../compartilhado/ErroDominio';
+import { normalizarUuid } from '../compartilhado/uuid';
 
 /** Identificador de um favorito: UUID (v7, gerado no cliente — docs/04 §1). */
 export type FavoritoId = string & { readonly __marca: 'FavoritoId' };
@@ -12,12 +13,10 @@ export class FavoritoIdInvalidoError extends ErroDominio {
 
 export class FavoritoInvalidoError extends ErroDominio {}
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u;
-
 export const FavoritoId = {
   de(valor: string): FavoritoId {
-    const id = valor.trim().toLowerCase();
-    if (!UUID.test(id)) throw new FavoritoIdInvalidoError(valor);
+    const id = normalizarUuid(valor);
+    if (id === null) throw new FavoritoIdInvalidoError(valor);
     return id as FavoritoId;
   },
 };
