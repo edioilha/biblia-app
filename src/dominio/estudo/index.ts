@@ -18,3 +18,15 @@ export {
 export { MarcacoesDoCapitulo, type FaixaDestacada, type NotaAncorada } from './MarcacoesDoCapitulo';
 export { SobreposicaoDestaques, type AlteracoesDestaques } from './SobreposicaoDestaques';
 export { TextoDoCapitulo } from './TextoDoCapitulo';
+export {
+  AbaEstudos,
+  ConsultaEstudos,
+  ConsultaEstudosInvalidaError,
+  OrdemEstudos,
+  TAMANHO_PAGINA_ESTUDOS,
+  dataDaMarcacao,
+  referenciaDaMarcacao,
+  type ItemEstudo,
+  type MarcacaoEstudo,
+  type OpcoesConsultaEstudos,
+} from './ConsultaEstudos';
