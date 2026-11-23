@@ -473,7 +473,7 @@ function Abas({
       ref={lista}
       role="tablist"
       aria-label="Meus Estudos"
-      className="flex gap-1 overflow-x-auto border-b border-stone-300"
+      className="flex gap-1 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-stone-300)]"
     >
       {AbaEstudos.todas.map((a) => {
         const selecionada = a === atual;
@@ -489,7 +489,7 @@ function Abas({
             onClick={() => onEscolher(a)}
             onKeyDown={aoTeclar}
             className={[
-              'focus-visible:outline-primaria -mb-px flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm whitespace-nowrap focus-visible:outline-2',
+              'focus-visible:outline-primaria flex items-center gap-2 border-b-2 px-3 py-2.5 text-sm whitespace-nowrap focus-visible:outline-2',
               selecionada
                 ? 'border-tinta font-semibold'
                 : 'border-transparent text-stone-600 hover:text-stone-900',
