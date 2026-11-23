@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import type { Referencia } from '../../dominio/biblia';
+import type { Referencia, VersaoId } from '../../dominio/biblia';
 
 /**
  * Cliente do TanStack Query (ADR 0002). Os dados são locais (IndexedDB), então:
@@ -25,5 +25,8 @@ export function criarClienteConsultas(): QueryClient {
 /** Chaves de cache: um lugar só, para leitura e invalidação usarem a mesma chave. */
 export const chaves = {
   capitulo: (ref: Referencia) => ['capitulo', ref.chave()] as const,
+  /** Prefixo: invalida as marcações do capítulo em todas as versões. */
   marcacoes: (ref: Referencia) => ['marcacoes', ref.doCapitulo().chave()] as const,
+  marcacoesDaVersao: (versao: VersaoId, ref: Referencia) =>
+    [...chaves.marcacoes(ref), versao] as const,
 };

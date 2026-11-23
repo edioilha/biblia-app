@@ -11,6 +11,8 @@ const canon = new Canon();
 const titulo = () => screen.findByRole('heading', { level: 1 });
 const anterior = () => screen.getByRole('button', { name: /^Capítulo anterior/ });
 const proximo = () => screen.getByRole('button', { name: /^Próximo capítulo/ });
+/** Elemento do versículo (com número e texto) a partir do texto dele. */
+const versiculo = (texto: HTMLElement) => texto.closest<HTMLElement>('[data-ref]') ?? texto;
 
 describe('Leitura (UC01)', () => {
   it('na primeira execução prepara a versão e abre Gênesis 1', async () => {
@@ -62,7 +64,7 @@ describe('Leitura (UC01)', () => {
 
   it('exibe número do versículo sobrescrito e destaca o versículo em foco (UC02)', async () => {
     renderizarApp({ rota: '/ler/JHN/3/2' });
-    const v2 = await screen.findByText('JHN 3:2');
+    const v2 = versiculo(await screen.findByText('JHN 3:2'));
     expect(within(v2).getByRole('button', { name: 'Versículo 2' }).closest('sup')).not.toBeNull();
     expect(v2).toHaveClass('versiculo-foco');
     expect(screen.getByText('JHN 3:1')).not.toHaveClass('versiculo-foco');
@@ -83,7 +85,7 @@ describe('Seletor de referência (UC01 A1 · UC02)', () => {
     await user.click(screen.getByRole('button', { name: /Gênesis 1.*escolher livro/ }));
     await user.type(screen.getByRole('searchbox'), 'jo 3:2{Enter}');
 
-    expect(await screen.findByText('JHN 3:2')).toHaveClass('versiculo-foco');
+    expect(versiculo(await screen.findByText('JHN 3:2'))).toHaveClass('versiculo-foco');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -127,7 +129,7 @@ describe('Favoritos (UC04)', () => {
     await user.click(numero(2));
     expect(acoes()).toHaveAccessibleName('Ações do versículo João 3:2');
     expect(numero(2)).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText('JHN 3:2')).toHaveClass('versiculo-selecionado');
+    expect(versiculo(screen.getByText('JHN 3:2'))).toHaveClass('versiculo-selecionado');
 
     await user.click(within(acoes()).getByRole('button', { name: /Favoritar/ }));
     expect(screen.queryByRole('region', { name: /^Ações do versículo/ })).not.toBeInTheDocument();

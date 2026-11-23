@@ -60,3 +60,59 @@ body {
   text-decoration: underline dotted var(--color-primaria);
   text-underline-offset: 0.3em;
 }
+
+/*
+ * RF04.3 — marca-texto translúcido com efeito de caneta: a tinta é mais forte nas pontas,
+ * as bordas são levemente irregulares e `multiply` mistura a cor com o papel e a tinta.
+ * As cores vêm de CorDestaque (data-cor).
+ */
+[data-cor='AMARELO'] {
+  --marca: 255 210 0;
+}
+[data-cor='VERDE'] {
+  --marca: 120 215 110;
+}
+[data-cor='ROSA'] {
+  --marca: 255 135 185;
+}
+[data-cor='AZUL'] {
+  --marca: 115 180 255;
+}
+
+.marca-texto {
+  color: inherit;
+  background-color: transparent;
+  background-image: linear-gradient(
+    100deg,
+    rgb(var(--marca) / 0.6),
+    rgb(var(--marca) / 0.42) 6%,
+    rgb(var(--marca) / 0.5) 94%,
+    rgb(var(--marca) / 0.65)
+  );
+  border-radius: 0.3em 0.55em 0.35em 0.5em / 0.5em 0.3em 0.55em 0.35em;
+  padding-block: 0.08em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  mix-blend-mode: multiply;
+  cursor: pointer;
+}
+
+/* Destaque que continua no versículo vizinho: pontas retas na emenda */
+.marca-emenda-inicio {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+.marca-emenda-fim {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* UC05 A2 — destaque com a barra de ações aberta */
+.marca-texto-ativa {
+  outline: 2px dotted var(--color-primaria);
+  outline-offset: 1px;
+}
+
+.amostra-cor {
+  background-color: rgb(var(--marca) / 0.75);
+}

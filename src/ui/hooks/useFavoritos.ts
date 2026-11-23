@@ -1,17 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Referencia } from '../../dominio/biblia';
 import { chaves } from '../consultas/clienteConsultas';
 import { useDependencias } from '../contexto/Dependencias';
-
-/** Marcações do capítulo exibido (`null` enquanto não há capítulo). */
-export function useMarcacoes(capitulo: Referencia | null) {
-  const { obterMarcacoesDoCapitulo } = useDependencias();
-  return useQuery({
-    queryKey: capitulo ? chaves.marcacoes(capitulo) : ['marcacoes', null],
-    queryFn: () => (capitulo ? obterMarcacoesDoCapitulo.executar(capitulo) : null),
-    enabled: capitulo !== null,
-  }).data;
-}
 
 /**
  * UC04 — alterna o favorito de um versículo. A UI aplica a mudança de forma otimista a
