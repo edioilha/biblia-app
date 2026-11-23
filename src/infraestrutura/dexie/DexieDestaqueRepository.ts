@@ -24,6 +24,15 @@ export class DexieDestaqueRepository implements DestaqueRepository {
     return registros.flatMap((r) => this.paraDominio(r) ?? []);
   }
 
+  async daVersao(versao: VersaoId): Promise<Destaque[]> {
+    const registros = await this.db.destaques
+      .where('[versaoId+livro+capitulo]')
+      // Toda a faixa da versão no índice composto (qualquer livro e capítulo).
+      .between([versao, '', -Infinity], [versao, '\uffff', Infinity], true, true)
+      .toArray();
+    return registros.flatMap((r) => this.paraDominio(r) ?? []);
+  }
+
   async porId(id: DestaqueId): Promise<Destaque | null> {
     const registro = await this.db.destaques.get(id);
     return registro ? this.paraDominio(registro) : null;

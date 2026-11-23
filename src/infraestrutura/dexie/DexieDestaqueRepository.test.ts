@@ -96,6 +96,36 @@ describe('DexieDestaqueRepository', () => {
     });
     expect(await repo.porCapitulo(BLIVRE, ref('Jo 3'))).toEqual([]);
   });
+  it('lista todos os destaques da versão, só dela (UC13)', async () => {
+    await repo.aplicar({ salvar: [destaque(1, '1:0-1:3'), destaque(2, '2:0-2:3')], remover: [] });
+    await db.destaques.put({
+      id: idDestaque(3),
+      versaoId: 'ARC',
+      livro: 'GEN',
+      capitulo: 1,
+      inicio: [1, 0],
+      fim: [1, 3],
+      cor: 'AMARELO',
+      criadoEm: new Date(),
+    });
+    await db.destaques.put({
+      id: idDestaque(4),
+      versaoId: 'BLIVRE',
+      livro: 'GEN',
+      capitulo: 1,
+      inicio: [1, 0],
+      fim: [1, 3],
+      cor: 'VERDE',
+      criadoEm: new Date(),
+    });
+
+    expect((await repo.daVersao(BLIVRE)).map((d) => d.id).sort()).toEqual([
+      idDestaque(1),
+      idDestaque(2),
+      idDestaque(4),
+    ]);
+    expect((await repo.daVersao(VersaoId.de('ARC'))).map((d) => d.id)).toEqual([idDestaque(3)]);
+  });
 });
 
 describe('BancoApp — migração v2 → v3', () => {

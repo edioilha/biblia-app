@@ -94,6 +94,15 @@ describe('DexieAnotacaoRepository', () => {
     expect((await repo.porId(idAnotacao(1)))?.destaqueId).toBe(idDestaque(1));
     expect((await repo.porId(idAnotacao(2)))?.destaqueId).toBeNull();
   });
+  it('lista todas as anotações (UC13)', async () => {
+    await repo.salvar(anotacao(1, 'Jo 3:16'));
+    await repo.salvar(anotacao(2, 'Sl 23:1'));
+
+    expect((await repo.todas()).map((a) => a.referencia.chave()).sort()).toEqual([
+      'JHN.3.16',
+      'PSA.23.1',
+    ]);
+  });
 });
 
 describe('BancoApp — migração v3 → v4', () => {

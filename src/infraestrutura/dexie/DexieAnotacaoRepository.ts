@@ -17,6 +17,11 @@ export class DexieAnotacaoRepository implements AnotacaoRepository {
     return registros.flatMap((r) => this.paraDominio(r) ?? []);
   }
 
+  async todas(): Promise<Anotacao[]> {
+    const registros = await this.db.anotacoes.toArray();
+    return registros.flatMap((r) => this.paraDominio(r) ?? []);
+  }
+
   async porId(id: AnotacaoId): Promise<Anotacao | null> {
     const registro = await this.db.anotacoes.get(id);
     return registro ? this.paraDominio(registro) : null;
