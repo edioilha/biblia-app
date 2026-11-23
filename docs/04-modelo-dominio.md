@@ -195,7 +195,7 @@ classDiagram
 
     class PosicaoTexto {
         <<ValueObject>>
-        +referencia: Referencia
+        +versiculo: Referencia
         +offset: number
         +compararCom(outra: PosicaoTexto) number
     }
@@ -204,16 +204,41 @@ classDiagram
         <<ValueObject>>
         +inicio: PosicaoTexto
         +fim: PosicaoTexto
+        +capitulo: Referencia
         +sobrepoe(outro: IntervaloTexto) boolean
         +unir(outro: IntervaloTexto) IntervaloTexto
-        +referencias() Referencia[]
-        +trechoNoVersiculo(ref: Referencia, tamanho: number) Faixa
+        +subtrair(outro: IntervaloTexto) IntervaloTexto[]
+        +trechoNoVersiculo(n: number, tamanho: number) Faixa
     }
 
     class Faixa {
         <<ValueObject>>
         +de: number
         +ate: number
+    }
+
+    class FaixaDestacada {
+        <<ValueObject>>
+        +de: number
+        +ate: number
+        +cor: CorDestaque
+        +destaque: DestaqueId
+    }
+
+    class TextoDoCapitulo {
+        <<DomainService>>
+        +validar(i: IntervaloTexto) void
+        +ajustarAPalavras(i: IntervaloTexto) IntervaloTexto
+        +aparar(i: IntervaloTexto) IntervaloTexto
+        +soEspacoEntre(a: PosicaoTexto, b: PosicaoTexto) boolean
+        +intervaloDoVersiculo(n: number) IntervaloTexto
+        +trecho(i: IntervaloTexto) string
+    }
+
+    class SobreposicaoDestaques {
+        <<DomainService>>
+        +aplicar(d: Destaque, existentes: Destaque[]) AlteracoesDestaques
+        +apagar(trecho: IntervaloTexto, existentes: Destaque[]) AlteracoesDestaques
     }
 
     class Favorito {
@@ -230,8 +255,10 @@ classDiagram
         +intervalo: IntervaloTexto
         +cor: CorDestaque
         +criadoEm: Date
+        +capitulo: Referencia
         +fundirCom(outro: Destaque) Destaque
-        +alterarCor(cor: CorDestaque) void
+        +comCor(cor: CorDestaque) Destaque
+        +comIntervalo(i: IntervaloTexto) Destaque
     }
 
     class Anotacao {
@@ -255,12 +282,18 @@ classDiagram
         +anotacoes: Anotacao[]
         +notasDeRodape() Anotacao[]
         +notasInline(ref: Referencia) Anotacao[]
-        +faixasDestacadas(ref: Referencia) Faixa[]
+        +favoritado(n: number) boolean
+        +faixasDestacadas(n: number, tamanho: number) FaixaDestacada[]
+        +destaque(id: DestaqueId) Destaque
     }
 
     PosicaoTexto --> Referencia
     IntervaloTexto "1" *-- "2" PosicaoTexto
     IntervaloTexto ..> Faixa
+    FaixaDestacada --> CorDestaque
+    TextoDoCapitulo ..> IntervaloTexto
+    SobreposicaoDestaques ..> TextoDoCapitulo
+    SobreposicaoDestaques ..> Destaque
     Favorito --> Referencia
     Destaque *-- IntervaloTexto
     Destaque --> CorDestaque
@@ -273,11 +306,14 @@ classDiagram
 ```
 
 **Invariantes**
-- `IntervaloTexto`: `inicio ≤ fim`; offsets ≥ 0 e dentro do tamanho do versículo.
+- `IntervaloTexto`: `inicio < fim` (nunca vazio), dentro de **um único capítulo**; offsets ≥ 0. Que os offsets cabem no texto dos versículos é verificado por `TextoDoCapitulo.validar()`, que conhece o texto.
+- Os destaques de uma versão num capítulo **nunca se sobrepõem** (`SobreposicaoDestaques`, UC05 A1/A2).
 - `Anotacao.conteudo` não pode ser vazio.
 - Um versículo tem **no máximo um** `Favorito`.
 - `Destaque` pertence a uma versão (offsets dependem do texto); `Favorito` e `Anotacao` são **independentes de versão**.
 - `MarcacoesDoCapitulo` é um *read model* montado para a renderização de um capítulo (não é persistido).
+
+**Offsets:** contam unidades UTF-16 (como o DOM) a partir do início do texto do versículo, sem o número. O intervalo é semiaberto: `[inicio, fim)`.
 
 ### 4.1 Consulta "Meus Estudos"
 
@@ -501,10 +537,10 @@ classDiagram
     }
     class DestaqueRepository {
         <<interface>>
-        +porCapitulo(v: VersaoId, l: CodigoLivro, n: number) Promise~Destaque[]~
+        +porCapitulo(v: VersaoId, capitulo: Referencia) Promise~Destaque[]~
+        +porId(id: DestaqueId) Promise~Destaque~
         +listar() Promise~Destaque[]~
-        +salvar(d: Destaque) Promise~void~
-        +remover(id: DestaqueId) Promise~void~
+        +aplicar(a: AlteracoesDestaques) Promise~void~
     }
     class AnotacaoRepository {
         <<interface>>
@@ -562,11 +598,23 @@ classDiagram
     }
     class ObterMarcacoesDoCapitulo {
         <<UseCase>>
-        +executar(ref: Referencia) Promise~MarcacoesDoCapitulo~
+        +executar(v: VersaoId, ref: Referencia) Promise~MarcacoesDoCapitulo~
     }
     class MarcarTexto {
         <<UseCase>>
-        +executar(i: IntervaloTexto, cor: CorDestaque) Promise~Destaque~
+        +executar(v: VersaoId, i: IntervaloTexto, cor: CorDestaque) Promise~Destaque~
+    }
+    class DesmarcarTexto {
+        <<UseCase>>
+        +executar(v: VersaoId, i: IntervaloTexto) Promise~boolean~
+    }
+    class RemoverDestaque {
+        <<UseCase>>
+        +executar(id: DestaqueId) Promise~void~
+    }
+    class AlterarCorDestaque {
+        <<UseCase>>
+        +executar(id: DestaqueId, cor: CorDestaque) Promise~Destaque~
     }
     class SalvarAnotacao {
         <<UseCase>>
@@ -606,7 +654,13 @@ classDiagram
     ObterMarcacoesDoCapitulo ..> FavoritoRepository
     ObterMarcacoesDoCapitulo ..> DestaqueRepository
     ObterMarcacoesDoCapitulo ..> AnotacaoRepository
+    MarcarTexto ..> TextoBiblicoRepository
     MarcarTexto ..> DestaqueRepository
+    MarcarTexto ..> Relogio
+    MarcarTexto ..> GeradorId
+    DesmarcarTexto ..> DestaqueRepository
+    RemoverDestaque ..> DestaqueRepository
+    AlterarCorDestaque ..> DestaqueRepository
     SalvarAnotacao ..> AnotacaoRepository
     IniciarPlano ..> PlanoRepository
     IniciarPlano ..> InscricaoRepository
@@ -643,6 +697,15 @@ classDiagram
 - `AlternarFavorito` devolve o novo estado (`true` = favoritado), usado no aviso ao leitor de tela.
 - `Favorito.criar()` exige referência de **versículo**; `FavoritoId` valida o formato UUID.
 - `Relogio` expõe `agora()` (o "hoje" dos planos deriva dele); nova porta `GeradorId` (UUID v7 gerado fora do domínio, que não usa bibliotecas externas — ADR 0006).
+
+**Notas de implementação (fase 7.3)**
+- **Destaque imutável**, como `Favorito`: `comCor()`, `comIntervalo()` e `fundirCom()` devolvem um novo valor com o mesmo `id` (no lugar do `alterarCor(): void` previsto). Na fusão, o resultado fica com o id e a data do **mais antigo**, para que o que já aponta para ele (anotações, 7.4) continue válido.
+- **Regras que dependem do texto** ficam no domain service `TextoDoCapitulo` (ajuste a palavras, aparar espaços, "só espaço entre", trecho para exibição). A **regra de sobreposição** fica em `SobreposicaoDestaques`, que devolve `AlteracoesDestaques` (`salvar` + `remover`).
+- `DestaqueRepository.aplicar()` grava e remove numa **única transação**, para nunca persistir destaques sobrepostos. `PosicaoTexto` é persistida como `[versículo, offset]`; livro e capítulo ficam no registro.
+- Casos de uso: `MarcarTexto` (ajusta e aplica a regra), `DesmarcarTexto` (borracha, sem ajuste), `RemoverDestaque` e `AlterarCorDestaque` (reaplica a regra, pode fundir). Os que precisam do texto carregam o capítulo por `TextoBiblicoRepository`.
+- `ObterMarcacoesDoCapitulo` recebe a **versão** exibida: favoritos valem para qualquer versão, destaques não.
+- `MarcacoesDoCapitulo.faixasDestacadas(n, tamanho)` recebe o tamanho do texto do versículo (o read model não carrega o texto); `listar()` dos repositórios entra com UC13 (fase 7.6).
+- Ids: `FavoritoId` e `DestaqueId` validam UUID com o mesmo utilitário (`dominio/compartilhado/uuid.ts`).
 
 ### Adapters (infraestrutura) previstos
 

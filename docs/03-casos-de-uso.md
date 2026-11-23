@@ -151,15 +151,25 @@ flowchart LR
 | Pós-condição | Destaque persistido e visível |
 
 **Fluxo principal**
-1. Leitor seleciona um trecho do texto (mouse ou toque).
-2. Sistema exibe barra flutuante: **Marcar**, **Anotar**, **Favoritar**, **Copiar**.
-3. Leitor escolhe **Marcar**.
-4. Sistema converte a seleção em `IntervaloTexto` (versículo + offset inicial → versículo + offset final), cria o `Destaque` em amarelo e o renderiza como marca-texto translúcido.
+1. Leitor seleciona um trecho do texto (mouse, toque ou teclado), dentro de um versículo ou atravessando vários.
+2. Sistema exibe a **barra de seleção** no rodapé da tela (desktop e celular, sem disputar espaço com o menu nativo de seleção): **Marcar** com as cores amarelo, verde, rosa e azul. A barra não rouba o foco, para o leitor continuar ajustando a seleção.
+3. Leitor escolhe uma cor (amarelo é a primeira, RF04.3).
+4. Sistema converte a seleção em `IntervaloTexto` (versículo + offset inicial → versículo + offset final) e **ajusta a palavras inteiras**: descarta espaços nas pontas e estende a ponta que cai no meio de uma palavra.
+5. Sistema aplica a **regra de sobreposição** (A1, A2), grava o resultado de uma vez, limpa a seleção, renderiza o trecho como marca-texto translúcido e anuncia "Trecho marcado em amarelo".
 
 **Fluxos alternativos**
-- **A1 — Sobreposição:** a seleção sobrepõe um destaque existente da mesma cor → sistema **funde** os destaques.
-- **A2 — Remover:** leitor toca um destaque → escolhe **Remover** → sistema exclui (anotações vinculadas passam a apontar só para o versículo).
-- **A3 — Seleção fora do texto bíblico:** número de versículo/títulos são ignorados ao calcular offsets.
+- **A1 — Mesma cor:** a seleção sobrepõe um destaque da mesma cor, ou está separada dele **só por espaço** (inclusive na passagem entre versículos) → os destaques são **fundidos**. O resultado fica com o id e a data do mais antigo.
+- **A2 — Outra cor (decisão da fase 7.3):** **o mais recente vence**. O destaque antigo é cortado no trecho sobreposto, dividido em dois se o novo cair no meio dele, ou removido se ficar coberto por inteiro. Assim os destaques de um capítulo **nunca se sobrepõem**.
+- **A3 — Seleção fora do texto bíblico:** número de versículo, títulos e o espaço entre versículos não contam nos offsets; uma ponta fora do texto vai para o texto mais próximo dentro da seleção. Seleção sem texto bíblico não abre a barra.
+- **A4 — Tocar num destaque:** leitor toca/clica no trecho marcado (sem selecionar) → sistema abre a **barra do destaque** (ex.: "João 3:16–17") com o foco nela: as quatro cores (a atual indicada) e **Remover**.
+  - **Trocar a cor** (RF04.5): segue a regra de sobreposição (pode fundir com vizinhos da nova cor).
+  - **Remover** (RF04.4): exclui o destaque inteiro. Anotações vinculadas passam a apontar só para o versículo (UC06, fase 7.4).
+- **A5 — Desmarcar trecho (borracha):** se a seleção cobre algum destaque, a barra de seleção mostra também **Desmarcar**, que tira exatamente o trecho selecionado (sem ajuste a palavras) de todos os destaques.
+- **A6 — Pelo teclado:** a barra de ações do versículo (UC04) mostra **Remover marcação** quando o versículo tem marca-texto, e apaga a marcação só desse versículo. É o caminho acessível, pois o `<mark>` não recebe foco (virar botão atrapalharia a seleção de texto).
+- **A7 — Cancelar:** ✕ ou Esc fecham a barra e desfazem a seleção.
+- **A8 — Falha ao gravar:** sistema exibe aviso de erro e o texto fica como estava.
+
+**Fora desta fase:** *Anotar* na barra entra com o UC06 (7.4). *Favoritar* fica no número do versículo (UC04). *Copiar* é o do próprio sistema. A listagem de destaques (RF04.6) fica em Meus Estudos (UC13, 7.6).
 
 ---
 

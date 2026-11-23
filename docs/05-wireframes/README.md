@@ -22,6 +22,8 @@ UC01 · UC04 · UC05 · UC06 — página de papel, marca-texto, favoritos, notas
 
 > **Implementado na fase 7.2 (UC04):** favoritar não depende de selecionar texto. O **número do versículo** é um botão que abre uma **barra de ações do versículo** fixa no rodapé (desktop e celular), acessível pelo teclado. A barra flutuante de seleção do wireframe continua prevista para o marca-texto (UC05, fase 7.3).
 
+> **Implementado na fase 7.3 (UC05):** a barra de seleção também fica **fixa no rodapé** em vez de flutuar junto ao trecho: no celular, o menu nativo de seleção (Copiar…) aparece sobre o texto e cobriria uma barra flutuante. Ela mostra **Marcar** e as quatro cores (um toque marca na cor), mais **Desmarcar** quando a seleção cobre um destaque. Tocar num trecho marcado abre a barra do destaque (cores e Remover).
+
 ## 1b. Leitura — celular
 Seleção abre *bottom sheet* com ações e cores.
 

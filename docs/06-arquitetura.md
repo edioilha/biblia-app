@@ -165,11 +165,11 @@ sequenceDiagram
     T-->>UC: Capitulo
     UC->>PR: salvar(ultimaPosicao = JHN.3)
     UC-->>P: CapituloAberto
-    P->>Q: ['marcacoes', 'JHN.3']
-    Q->>M: executar(JHN.3)
+    P->>Q: ['marcacoes', 'JHN.3', 'BLIVRE']
+    Q->>M: executar(BLIVRE, JHN.3)
     M->>F: porCapitulo(JHN.3)
     F-->>M: Favorito[]
-    Note over M: destaques e anotações<br/>entram em 7.3/7.4
+    Note over M: + destaques da versão (7.3)<br/>anotações entram em 7.4
     M-->>P: MarcacoesDoCapitulo
     P-->>L: página de papel com ★
 
@@ -190,31 +190,41 @@ sequenceDiagram
 
 ### 5.2 Marcar texto (UC05)
 
+A seleção é convertida em `IntervaloTexto` na UI (`selecaoTexto.ts`): os offsets contam só o texto dos versículos (cada um num elemento `data-texto-versiculo`), ignorando o número e o espaço entre versículos. As regras ficam no domínio: `TextoDoCapitulo` ajusta a palavras inteiras e `SobreposicaoDestaques` funde (mesma cor) ou corta (outra cor). O repositório grava tudo numa transação.
+
 ```mermaid
 sequenceDiagram
     autonumber
     actor L as Leitor
-    participant C as PaginaPapel (UI)
+    participant P as LeituraPage
+    participant Q as TanStack Query
     participant UC as MarcarTexto
-    participant IT as IntervaloTexto
+    participant T as TextoBiblicoRepository
+    participant TC as TextoDoCapitulo
+    participant S as SobreposicaoDestaques
     participant D as DestaqueRepository
 
-    L->>C: seleciona trecho (v.17 → v.18)
-    C->>C: Selection API → nós DOM com data-ref + offsets
-    C-->>L: exibe barra flutuante
-    L->>C: clica "Marcar"
-    C->>UC: executar(inicio, fim, AMARELO)
-    UC->>IT: criar(inicio, fim) — valida invariantes
-    UC->>D: porCapitulo(versão, livro, cap)
+    L->>P: seleciona trecho (v.16 → v.17)
+    P->>P: selectionchange → IntervaloTexto (offsets do texto)
+    P-->>L: barra de seleção no rodapé (cores)
+    L->>P: "Marcar em amarelo"
+    P->>UC: executar(BLIVRE, intervalo, AMARELO)
+    UC->>T: obterCapitulo(BLIVRE, JHN.3)
+    UC->>D: porCapitulo(BLIVRE, JHN.3)
     D-->>UC: destaques existentes
-    alt sobrepõe destaque da mesma cor
-        UC->>UC: fundirCom() → novo intervalo
-        UC->>D: remover(antigo)
-    end
-    UC->>D: salvar(Destaque)
-    UC-->>C: Destaque
-    C-->>L: trecho com marca-texto amarelo
+    UC->>TC: ajustarAPalavras(intervalo)
+    TC-->>UC: trecho ajustado
+    UC->>S: aplicar(novo, existentes)
+    Note over S: mesma cor sobrepondo ou só com espaço entre → funde<br/>outra cor sobreposta → corta / divide / remove
+    S-->>UC: destaque + {salvar, remover}
+    UC->>D: aplicar({salvar, remover}) — uma transação
+    UC-->>P: Destaque
+    P->>Q: invalidar ['marcacoes', 'JHN.3']
+    Q-->>P: MarcacoesDoCapitulo (com faixas por versículo)
+    P-->>L: trecho com marca-texto + "Trecho marcado em amarelo"
 ```
+
+Sem atualização otimista (ao contrário do favorito): o resultado (fusões e cortes) só é conhecido depois das regras, e a gravação é local e rápida. Tocar num `<mark>` abre a barra do destaque (trocar cor → `AlterarCorDestaque`, remover → `RemoverDestaque`); a borracha usa `DesmarcarTexto`.
 
 ### 5.3 Buscar texto (UC03)
 
@@ -300,6 +310,7 @@ sequenceDiagram
 - **Persistência durável**: `navigator.storage.persist()` na primeira execução (previsto para a fase de backup).
 - **Schema v1** (fase 7.1): `capitulos`, `versoes` (presença = versão importada por completo) e `preferencias`. Os demais stores entram em novas versões do schema.
 - **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
+- **Schema v3** (fase 7.3): `destaques` (`id, [versaoId+livro+capitulo], criadoEm`); `inicio`/`fim` gravados como `[versículo, offset]`. Só cria a tabela; testado com migração a partir de um banco v2.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
 ## 7. Importação e normalização dos dados
