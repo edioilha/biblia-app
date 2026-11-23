@@ -480,8 +480,14 @@ classDiagram
         <<ValueObject>>
         +referencia: Referencia
         +texto: string
-        +ocorrencias: Faixa[]
+        +ocorrencias: Ocorrencia[]
         +pontuacao: number
+    }
+
+    class Ocorrencia {
+        <<ValueObject>>
+        +de: number
+        +ate: number
     }
 
     class Pagina~T~ {
@@ -515,6 +521,7 @@ classDiagram
     ConsultaBusca --> Ordenacao
     ConsultaBusca *-- FiltroBusca
     Pagina~T~ o-- ResultadoBusca
+    ResultadoBusca *-- Ocorrencia
     Preferencias --> Tema
 ```
 
@@ -580,7 +587,7 @@ classDiagram
     }
     class ServicoBusca {
         <<interface>>
-        +indexar(v: VersaoId, progresso: Callback) Promise~void~
+        +preparar(v: VersaoId) Promise~void~
         +buscar(v: VersaoId, c: ConsultaBusca) Promise~Pagina~
     }
     class FonteVersoes {
@@ -742,13 +749,20 @@ classDiagram
 - **Fusão de destaques:** `AlteracoesDestaques` ganhou `religar` (`{de, para}`): as notas do destaque que some passam ao sobrevivente, na mesma transação de `DestaqueRepository.aplicar()`.
 - `ObterMarcacoesDoCapitulo` carrega favoritos, destaques e anotações em paralelo.
 
+**Notas de implementação (fase 7.5)**
+- `ConsultaBusca.interpretar(entrada, opções)` guarda o termo (sem aspas) e os `termos` normalizados; aspas forçam `FRASE_EXATA`. `pesquisavel` aplica o termo mínimo; `com()` devolve uma cópia alterada.
+- `FiltroBusca.de(testamento, livros)` descarta livros fora do testamento; `aceita(livro)` decide o filtro.
+- Normalização (`normalizarTermo`, `tokenizar`) e destaque (`ocorrenciasDosTermos`, `ocorrenciasDaFrase`) são funções puras do domínio, usadas pelo índice e pela verificação da frase exata. `ResultadoBusca.ocorrencias` usa `Ocorrencia` (`[de, ate)`, próprio do módulo `busca`) em vez de `Faixa`.
+- `ServicoBusca.preparar()` substitui `indexar(progresso)`: o índice é montado em memória (ADR 0005, revisão da 7.5), sem progresso. Casos de uso `BuscarTexto` (página vazia abaixo do termo mínimo) e `PrepararBusca` (pré-carrega o índice). `InstalarVersao` (7.8) vai chamar `preparar` da nova versão.
+- No adapter, `MotorBusca` (classe pura sobre o MiniSearch) usa como id de documento `ordem do livro × 10⁶ + capítulo × 10³ + versículo`: ordenar e filtrar não exigem campos extras.
+
 ### Adapters (infraestrutura) previstos
 
 | Porta | Implementação |
 |---|---|
 | `*Repository` | `Dexie*Repository` (IndexedDB) |
 | `FonteVersaoEmbarcada` | `FonteEstatica` (`public/dados/<SIGLA>/<LIVRO>.json`, em precache) |
-| `ServicoBusca` | `MiniSearchServicoBusca` (executa em Web Worker; índice persistido no IndexedDB) |
+| `ServicoBusca` | `ServicoBuscaWorker` → `busca.worker.ts` → `MotorBusca` (MiniSearch em Web Worker; índice em memória, ver ADR 0005) |
 | `FonteVersoes` | `GitHubBibliaDataFonte` (baixa `data/canonical/<SIGLA>/<LIVRO>.json`) |
 | `PlanoRepository` | `PlanosEstaticosRepository` (JSON empacotado no build) |
 | `Relogio` | `RelogioSistema` (testes usam `RelogioFixo`) |

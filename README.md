@@ -7,9 +7,9 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 **App:** https://edioilha.github.io/biblia-app/
 
-> 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos, ida direta a uma referência (`jo 3:16`), favoritos de versículos, marca-texto em quatro cores e anotações (rodapé ou inline, com Markdown básico), offline.
+> 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos, ida direta a uma referência (`jo 3:16`), favoritos de versículos, marca-texto em quatro cores, anotações (rodapé ou inline, com Markdown básico) e busca em toda a Bíblia, offline.
 >
-> **Progresso:** fase 7.4 de 7.9 entregue · próxima: 7.5 busca · [roadmap completo](docs/09-roadmap.md)
+> **Progresso:** fase 7.5 de 7.9 entregue · próxima: 7.6 Meus Estudos · [roadmap completo](docs/09-roadmap.md)
 
 ## Stats
 

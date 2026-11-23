@@ -29,4 +29,8 @@ export const chaves = {
   marcacoes: (ref: Referencia) => ['marcacoes', ref.doCapitulo().chave()] as const,
   marcacoesDaVersao: (versao: VersaoId, ref: Referencia) =>
     [...chaves.marcacoes(ref), versao] as const,
+  /** UC03 — índice da versão pronto (o preparo roda uma vez por sessão). */
+  preparoBusca: (versao: VersaoId) => ['busca-preparo', versao] as const,
+  /** UC03 — uma página de resultados; `parametros` = estado da busca na URL. */
+  busca: (versao: VersaoId, parametros: string) => ['busca', versao, parametros] as const,
 };

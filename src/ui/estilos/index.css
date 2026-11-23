@@ -162,3 +162,13 @@ body {
     margin-bottom: 0;
   }
 }
+
+/* RF02.8 — termos encontrados na busca: negrito sublinhado (não confunde com o marca-texto) */
+mark.termo-encontrado {
+  background: transparent;
+  color: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}

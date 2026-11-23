@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { ProgressoPreparacao } from '../../aplicacao/casos-de-uso';
 import { useDependencias } from '../contexto/Dependencias';
+import { usePreparoBuscaEmSegundoPlano } from '../hooks/useBusca';
 import { TelaPreparacao } from './TelaPreparacao';
 
 type Estado =
@@ -36,7 +37,7 @@ export function PreparacaoVersao({ children }: { children: ReactNode }) {
 
   switch (estado.tipo) {
     case 'pronta':
-      return children;
+      return <ComBuscaEmPreparo>{children}</ComBuscaEmPreparo>;
     case 'verificando':
       return null;
     case 'importando':
@@ -50,4 +51,10 @@ export function PreparacaoVersao({ children }: { children: ReactNode }) {
         />
       );
   }
+}
+
+/** Com a versão pronta, o índice de busca (UC03) é montado em segundo plano. */
+function ComBuscaEmPreparo({ children }: { children: ReactNode }) {
+  usePreparoBuscaEmSegundoPlano();
+  return children;
 }

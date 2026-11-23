@@ -5,6 +5,7 @@ import {
   AbrirCapitulo,
   AlterarCorDestaque,
   AlternarFavorito,
+  BuscarTexto,
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
@@ -12,6 +13,7 @@ import {
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
+  PrepararBusca,
   PrepararVersaoPadrao,
   RemoverDestaque,
 } from '../aplicacao/casos-de-uso';
@@ -31,6 +33,7 @@ import {
   RelogioFixo,
   TextoBiblicoEmMemoria,
 } from './fakes';
+import { BuscaEmMemoria } from './busca';
 
 interface Opcoes {
   rota?: string;
@@ -39,6 +42,7 @@ interface Opcoes {
   favoritos?: FavoritosEmMemoria;
   destaques?: DestaquesEmMemoria;
   anotacoes?: AnotacoesEmMemoria;
+  busca?: BuscaEmMemoria;
 }
 
 /** Monta o app completo com as portas em memória e um MemoryRouter. */
@@ -49,6 +53,7 @@ export function renderizarApp({
   favoritos = new FavoritosEmMemoria(),
   anotacoes = new AnotacoesEmMemoria(),
   destaques = new DestaquesEmMemoria(anotacoes),
+  busca = new BuscaEmMemoria(),
 }: Opcoes = {}) {
   const canon = new Canon();
   const versao = new Versao(
@@ -83,6 +88,8 @@ export function renderizarApp({
       texto,
       versao.id,
     ),
+    buscarTexto: new BuscarTexto(busca, versao.id),
+    prepararBusca: new PrepararBusca(busca, versao.id),
   };
 
   const resultado = render(
@@ -94,5 +101,5 @@ export function renderizarApp({
       </QueryClientProvider>
     </DependenciasProvider>,
   );
-  return { ...resultado, canon, prefs, texto, favoritos, destaques, anotacoes };
+  return { ...resultado, canon, prefs, texto, favoritos, destaques, anotacoes, busca };
 }

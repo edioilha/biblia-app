@@ -101,19 +101,23 @@ flowchart LR
 | Pós-condição | Resultados exibidos (nenhum estado alterado) |
 
 **Fluxo principal**
-1. Leitor abre a busca e digita o termo.
-2. Após 250 ms sem digitação (*debounce*), sistema executa a busca na versão ativa, ignorando acentos e maiúsculas.
-3. Sistema exibe a 1ª página (20 itens) com referência, texto com termos destacados e o total de ocorrências.
-4. Leitor navega entre páginas.
-5. Leitor clica em um resultado; sistema abre UC01 no capítulo, rolando e piscando o versículo.
+1. Leitor abre **Buscar** (barra superior) e digita o termo.
+2. Após 250 ms sem digitação (*debounce*), sistema executa a busca na versão ativa, ignorando acentos e maiúsculas. O modo padrão é **Todas as palavras**; a **última palavra vale como prefixo** a partir de 3 letras ("amo" encontra "amor", "amou"), para a busca funcionar enquanto se digita.
+3. Sistema exibe a 1ª página (20 itens) com referência, texto com os termos encontrados em negrito sublinhado e o total de **versículos** encontrados ("152 versículos encontrados · página 1 de 8", anunciado ao leitor de tela).
+4. Leitor navega entre páginas (paginação numérica com primeira/última e reticências), muda a ordenação (relevância ou ordem bíblica) ou o tamanho da página (10, 20 ou 50).
+5. Leitor clica em um resultado; sistema abre UC01 no capítulo, rolando até o versículo e destacando-o. **Voltar** retorna à mesma busca e página: o estado da busca fica na URL (`#/buscar?q=…&t=NT&p=2`), o que também permite compartilhar o link.
 
 **Fluxos alternativos**
-- **A1 — Frase exata:** termo entre aspas → apenas correspondência exata da frase.
-- **A2 — Filtros:** leitor aplica testamento/livros → sistema refaz a busca a partir da página 1.
-- **A3 — Fuzzy:** sem resultados exatos → sistema sugere resultados aproximados.
-- **A4 — Sem resultados:** sistema exibe mensagem e sugestões.
+- **A1 — Frase exata:** termo entre aspas (ou o chip **Frase exata**) → só a sequência exata das palavras, ignorando a pontuação entre elas; a frase inteira é destacada. Escolher outro modo tira as aspas do termo.
+- **A1b — Qualquer palavra:** chip **Qualquer palavra** → versículos com ao menos um dos termos.
+- **A2 — Filtros:** chips **Toda a Bíblia / AT / NT** e o diálogo **Livros** (caixas de marcar por testamento) → sistema refaz a busca a partir da página 1. Escolher um testamento descarta os livros do outro.
+- **A3 — Aproximada (fuzzy):** chip **≈ Aproximada**, desligado por padrão (só em palavras de 4+ letras). Sem resultados exatos, o sistema oferece **Buscar resultados aproximados**.
+- **A4 — Sem resultados:** "Nenhum versículo encontrado para …" e sugestões conforme o caso: aproximada, buscar em toda a Bíblia (se há filtro), buscar as palavras em qualquer ordem (se frase exata).
+- **A5 — Índice em preparo:** o índice é montado em segundo plano ao abrir o app; se o leitor buscar antes de ficar pronto, o sistema mostra "Preparando a busca…" e responde quando terminar.
 
-**Regras:** termo mínimo de 2 caracteres; resultados ordenados por relevância (padrão) ou ordem canônica.
+**Regras:** termo mínimo de 2 letras ou números; resultados ordenados por relevância (padrão) ou ordem canônica.
+
+**Fora desta fase:** buscar nas anotações (RF02.9) entra com Meus Estudos (UC13, 7.6); histórico de buscas (RF02.10) e seletor de intervalo de livros ficam no backlog (BL-08, BL-09).
 
 ---
 

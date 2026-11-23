@@ -14,3 +14,5 @@ export {
   VersaoCorrompidaError,
   type ProgressoPreparacao,
 } from './PrepararVersaoPadrao';
+export { BuscarTexto } from './BuscarTexto';
+export { PrepararBusca } from './PrepararBusca';

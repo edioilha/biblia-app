@@ -20,6 +20,8 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-05 | Persistência garantida do armazenamento (`navigator.storage.persist()`) | backup | ideia |
 | BL-06 | Teste E2E de uso offline | RNF (PWA) | ideia |
 | BL-07 | Modo foco de leitura | UC01, UC12 | ideia |
+| BL-08 | Histórico das últimas buscas | RF02.10, UC03 | ideia |
+| BL-09 | Filtro por intervalo de livros na busca | RF02.5, UC03 | ideia |
 
 ## Itens
 
@@ -66,3 +68,14 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Origem:** feedback após a fase 7.1.
 - **Ideia:** modo de leitura sem distrações: esconde barra superior, botões de navegação e demais controles, deixando só a página de papel. Os controles reaparecem ao tocar/mover o mouse ou com uma tecla (ex.: `F` para entrar, `Esc` para sair). Pode combinar com tela cheia (Fullscreen API) e com BL-01/BL-03 (largura e folha próprias para o foco).
 - **A decidir:** se o modo foco é um botão próprio ou um preset do UC12; manter navegação por teclado/swipe ativa enquanto os controles estão ocultos; acessibilidade (o controle de sair precisa ser sempre alcançável por teclado e leitor de tela).
+
+### BL-08 — Histórico das últimas buscas
+
+- **Origem:** RF02.10 (prioridade *Could*), adiado na fase 7.5.
+- **Ideia:** mostrar as últimas buscas sob o campo quando ele está vazio (wireframe da busca), guardadas localmente.
+- **A decidir:** quantas guardar, como apagar, se entram no backup (UC11).
+
+### BL-09 — Filtro por intervalo de livros na busca
+
+- **Origem:** RF02.5 ("intervalo de livros"), adiado na fase 7.5: marcar vários livros no diálogo cobre o uso.
+- **Ideia:** atalho "de … até …" (ex.: Mateus a João) no diálogo de livros.
