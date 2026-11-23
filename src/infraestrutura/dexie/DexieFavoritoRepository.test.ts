@@ -92,7 +92,7 @@ describe('BancoApp — migração a partir da v1', () => {
     expect(await db.preferencias.get('usuario')).toMatchObject({ ultimaPosicao: 'JHN.3' });
     expect(await db.favoritos.count()).toBe(0);
     expect(await db.destaques.count()).toBe(0);
-    expect(db.verno).toBe(3);
+    expect(db.verno).toBe(4);
     await db.delete();
   });
 });

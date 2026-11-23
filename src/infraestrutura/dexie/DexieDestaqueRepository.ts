@@ -29,10 +29,13 @@ export class DexieDestaqueRepository implements DestaqueRepository {
     return registro ? this.paraDominio(registro) : null;
   }
 
-  async aplicar({ salvar, remover }: AlteracoesDestaques): Promise<void> {
-    await this.db.transaction('rw', this.db.destaques, async () => {
+  async aplicar({ salvar, remover, religar = [] }: AlteracoesDestaques): Promise<void> {
+    await this.db.transaction('rw', this.db.destaques, this.db.anotacoes, async () => {
       await this.db.destaques.bulkDelete([...remover]);
       await this.db.destaques.bulkPut(salvar.map((d) => this.paraRegistro(d)));
+      for (const { de, para } of religar) {
+        await this.db.anotacoes.where('destaqueId').equals(de).modify({ destaqueId: para });
+      }
     });
   }
 
