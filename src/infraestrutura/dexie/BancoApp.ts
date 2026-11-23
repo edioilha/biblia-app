@@ -51,6 +51,22 @@ export interface DestaqueRegistro {
 }
 
 /**
+ * Anotação (docs/06 §6). `chave` = versículo ("JHN.3.16"); `destaqueId` = null quando a
+ * nota é só do versículo (null não entra no índice). `exibicao` = "RODAPE" | "INLINE".
+ */
+export interface AnotacaoRegistro {
+  id: string;
+  chave: string;
+  livro: string;
+  capitulo: number;
+  destaqueId: string | null;
+  conteudo: string;
+  exibicao: string;
+  criadoEm: Date;
+  atualizadoEm: Date;
+}
+
+/**
  * Banco IndexedDB do app (ADR 0004). Cada mudança de schema = nova `version(n)`
  * com `upgrade()` quando houver migração de dados; nunca alterar versões publicadas.
  */
@@ -60,6 +76,7 @@ export class BancoApp extends Dexie {
   preferencias!: EntityTable<PreferenciasRegistro, 'id'>;
   favoritos!: EntityTable<FavoritoRegistro, 'id'>;
   destaques!: EntityTable<DestaqueRegistro, 'id'>;
+  anotacoes!: EntityTable<AnotacaoRegistro, 'id'>;
 
   constructor(nome = 'biblia-app') {
     super(nome);
@@ -75,6 +92,10 @@ export class BancoApp extends Dexie {
     // v3 (fase 7.3): destaques (marca-texto). Só cria a tabela.
     this.version(3).stores({
       destaques: 'id, [versaoId+livro+capitulo], criadoEm',
+    });
+    // v4 (fase 7.4): anotações. Só cria a tabela.
+    this.version(4).stores({
+      anotacoes: 'id, [livro+capitulo], atualizadoEm, destaqueId',
     });
   }
 }

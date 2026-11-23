@@ -5,6 +5,9 @@ export interface DestaqueRepository {
   /** Destaques da versão no capítulo de `capitulo`. */
   porCapitulo(versao: VersaoId, capitulo: Referencia): Promise<Destaque[]>;
   porId(id: DestaqueId): Promise<Destaque | null>;
-  /** Grava e remove numa única transação (os destaques nunca ficam sobrepostos). */
+  /**
+   * Grava e remove numa única transação (os destaques nunca ficam sobrepostos). Na mesma
+   * transação, passa as anotações de `religar[].de` para `religar[].para` (fusões).
+   */
   aplicar(alteracoes: AlteracoesDestaques): Promise<void>;
 }

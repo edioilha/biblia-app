@@ -5,7 +5,10 @@ import {
   AbrirCapitulo,
   AlterarCorDestaque,
   AlternarFavorito,
+  CriarAnotacao,
   DesmarcarTexto,
+  EditarAnotacao,
+  ExcluirAnotacao,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
@@ -19,6 +22,7 @@ import { App } from '../ui/App';
 import { criarClienteConsultas } from '../ui/consultas/clienteConsultas';
 import { DependenciasProvider, type Dependencias } from '../ui/contexto/Dependencias';
 import {
+  AnotacoesEmMemoria,
   DestaquesEmMemoria,
   FavoritosEmMemoria,
   FonteSintetica,
@@ -34,6 +38,7 @@ interface Opcoes {
   fonte?: FonteVersaoEmbarcada;
   favoritos?: FavoritosEmMemoria;
   destaques?: DestaquesEmMemoria;
+  anotacoes?: AnotacoesEmMemoria;
 }
 
 /** Monta o app completo com as portas em memória e um MemoryRouter. */
@@ -42,7 +47,8 @@ export function renderizarApp({
   preferencias = null,
   fonte,
   favoritos = new FavoritosEmMemoria(),
-  destaques = new DestaquesEmMemoria(),
+  anotacoes = new AnotacoesEmMemoria(),
+  destaques = new DestaquesEmMemoria(anotacoes),
 }: Opcoes = {}) {
   const canon = new Canon();
   const versao = new Versao(
@@ -61,12 +67,15 @@ export function renderizarApp({
     canon,
     versaoPadrao: versao,
     abrirCapitulo: new AbrirCapitulo(canon, texto, prefs, versao.id),
-    obterMarcacoesDoCapitulo: new ObterMarcacoesDoCapitulo(favoritos, destaques),
+    obterMarcacoesDoCapitulo: new ObterMarcacoesDoCapitulo(favoritos, destaques, anotacoes),
     alternarFavorito: new AlternarFavorito(favoritos, relogio, gerador),
     marcarTexto: new MarcarTexto(texto, destaques, relogio, gerador),
     desmarcarTexto: new DesmarcarTexto(texto, destaques, gerador),
     removerDestaque: new RemoverDestaque(destaques),
     alterarCorDestaque: new AlterarCorDestaque(texto, destaques, gerador),
+    criarAnotacao: new CriarAnotacao(anotacoes, relogio, gerador),
+    editarAnotacao: new EditarAnotacao(anotacoes, relogio),
+    excluirAnotacao: new ExcluirAnotacao(anotacoes),
     obterPosicaoInicial: new ObterPosicaoInicial(canon, prefs),
     prepararVersaoPadrao: new PrepararVersaoPadrao(
       canon,
@@ -85,5 +94,5 @@ export function renderizarApp({
       </QueryClientProvider>
     </DependenciasProvider>,
   );
-  return { ...resultado, canon, prefs, texto, favoritos, destaques };
+  return { ...resultado, canon, prefs, texto, favoritos, destaques, anotacoes };
 }

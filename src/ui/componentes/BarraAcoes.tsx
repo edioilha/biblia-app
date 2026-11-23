@@ -81,13 +81,18 @@ export function BarraAcoes({
   );
 }
 
-/** Botão de texto padrão das barras. */
+/**
+ * Botão das barras: ícone + texto. Em telas estreitas só o ícone aparece (o texto continua
+ * sendo o nome acessível), para a barra caber no celular.
+ */
 export function BotaoBarra({
   onClick,
+  icone,
   children,
   disabled,
 }: {
   onClick: () => void;
+  icone: ReactNode;
   children: ReactNode;
   disabled?: boolean | undefined;
 }) {
@@ -96,9 +101,12 @@ export function BotaoBarra({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="focus-visible:outline-primaria shrink-0 rounded-full px-2.5 py-2 whitespace-nowrap hover:bg-stone-100 focus-visible:outline-2 disabled:opacity-50 sm:px-3"
+      className="focus-visible:outline-primaria flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-2 whitespace-nowrap hover:bg-stone-100 focus-visible:outline-2 disabled:opacity-50 sm:px-3"
     >
-      {children}
+      <span aria-hidden="true" className="flex size-5 items-center justify-center">
+        {icone}
+      </span>
+      <span className="sr-only sm:not-sr-only">{children}</span>
     </button>
   );
 }

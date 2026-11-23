@@ -161,15 +161,16 @@ flowchart LR
 - **A1 — Mesma cor:** a seleção sobrepõe um destaque da mesma cor, ou está separada dele **só por espaço** (inclusive na passagem entre versículos) → os destaques são **fundidos**. O resultado fica com o id e a data do mais antigo.
 - **A2 — Outra cor (decisão da fase 7.3):** **o mais recente vence**. O destaque antigo é cortado no trecho sobreposto, dividido em dois se o novo cair no meio dele, ou removido se ficar coberto por inteiro. Assim os destaques de um capítulo **nunca se sobrepõem**.
 - **A3 — Seleção fora do texto bíblico:** número de versículo, títulos e o espaço entre versículos não contam nos offsets; uma ponta fora do texto vai para o texto mais próximo dentro da seleção. Seleção sem texto bíblico não abre a barra.
-- **A4 — Tocar num destaque:** leitor toca/clica no trecho marcado (sem selecionar) → sistema abre a **barra do destaque** (ex.: "João 3:16–17") com o foco nela: as quatro cores (a atual indicada) e **Remover**.
+- **A4 — Tocar num destaque:** leitor toca/clica no trecho marcado (sem selecionar) → sistema abre a **barra do destaque** (ex.: "João 3:16–17") com o foco nela: as quatro cores (a atual indicada), **Anotar** (UC06) e **Remover**.
   - **Trocar a cor** (RF04.5): segue a regra de sobreposição (pode fundir com vizinhos da nova cor).
-  - **Remover** (RF04.4): exclui o destaque inteiro. Anotações vinculadas passam a apontar só para o versículo (UC06, fase 7.4).
+  - **Remover** (RF04.4): exclui o destaque inteiro. Anotações vinculadas a ele passam a aparecer no versículo (UC06 A5).
+  - Na **fusão** (A1), as anotações do destaque que deixa de existir passam para o que fica, na mesma transação.
 - **A5 — Desmarcar trecho (borracha):** se a seleção cobre algum destaque, a barra de seleção mostra também **Desmarcar**, que tira exatamente o trecho selecionado (sem ajuste a palavras) de todos os destaques.
 - **A6 — Pelo teclado:** a barra de ações do versículo (UC04) mostra **Remover marcação** quando o versículo tem marca-texto, e apaga a marcação só desse versículo. É o caminho acessível, pois o `<mark>` não recebe foco (virar botão atrapalharia a seleção de texto).
 - **A7 — Cancelar:** ✕ ou Esc fecham a barra e desfazem a seleção.
 - **A8 — Falha ao gravar:** sistema exibe aviso de erro e o texto fica como estava.
 
-**Fora desta fase:** *Anotar* na barra entra com o UC06 (7.4). *Favoritar* fica no número do versículo (UC04). *Copiar* é o do próprio sistema. A listagem de destaques (RF04.6) fica em Meus Estudos (UC13, 7.6).
+**Fora desta fase:** *Favoritar* fica no número do versículo (UC04). *Copiar* é o do próprio sistema. A listagem de destaques (RF04.6) fica em Meus Estudos (UC13, 7.6).
 
 ---
 
@@ -182,17 +183,22 @@ flowchart LR
 | Pós-condição | Anotação persistida e visível na página |
 
 **Fluxo principal**
-1. Leitor toca um versículo (ou destaque) e escolhe **Anotar**.
-2. Sistema abre o editor com opção de exibição: **Inline** ou **Rodapé** (padrão: rodapé).
-3. Leitor escreve a nota (Markdown básico) e salva.
-4. Sistema persiste e renderiza:
-   - **Rodapé:** marcador numerado (¹, ², …) após o versículo e a nota no rodapé da página.
-   - **Inline:** bloco de nota logo abaixo do versículo.
+1. Leitor escolhe **Anotar** na barra do versículo (UC04) ou na barra de um destaque (UC05 A4). Não há *Anotar* na barra de seleção: para anotar um trecho, ele é marcado antes.
+2. Sistema abre o editor num diálogo modal (no celular, ocupa a parte de baixo da tela), com o foco no texto e a opção de exibição: **Rodapé** (padrão) ou **Inline**.
+3. Leitor escreve a nota em Markdown básico (RF05.5: **negrito**, *itálico*, listas `-` e `1.`, parágrafos) e salva (botão ou Ctrl/⌘+Enter).
+4. Sistema persiste, fecha o editor, devolve o foco ao número do versículo, anuncia "Nota salva em João 3:16" e renderiza:
+   - **Rodapé:** marcador numerado (1, 2, … na ordem do capítulo) no fim do versículo, ou no fim do trecho quando a nota é de um destaque. As notas ficam no pé da página; o marcador leva até a nota, e a nota tem **Voltar ao texto** (↩) e **Editar nota**.
+   - **Inline:** bloco logo abaixo do versículo, com **Editar nota**. O texto do capítulo é dividido em parágrafos nesse ponto.
 
 **Fluxos alternativos**
-- **A1 — Editar:** leitor toca a nota → edita → salva (atualiza `atualizadoEm`).
-- **A2 — Excluir:** leitor exclui → sistema pede confirmação → remove.
-- **A3 — Nota vazia:** sistema não permite salvar.
+- **A1 — Editar:** leitor escolhe **Editar nota** (rodapé ou bloco inline) → altera o texto e/ou o modo de exibição → salva (atualiza `atualizadoEm`).
+- **A2 — Excluir:** no editor de uma nota existente, **Excluir** → o diálogo pede confirmação (**Excluir nota** / **Manter**) → remove e anuncia "Nota excluída".
+- **A3 — Nota vazia:** **Salvar** fica desabilitado enquanto o texto só tem espaços.
+- **A4 — Cancelar:** **Cancelar** ou Esc fecham sem gravar.
+- **A5 — Destaque inexistente (leitura tolerante):** uma nota de destaque cujo destaque foi removido, ou que não existe na versão aberta (destaques são por versão; notas não), aparece no fim do versículo.
+- **A6 — Falha ao gravar:** o erro aparece dentro do editor, que continua aberto com o texto.
+
+**Regras (decisões da fase 7.4):** várias notas por versículo; as notas valem para qualquer versão; tamanho máximo de 10.000 caracteres; o Markdown é convertido em elementos React por um parser próprio (sem HTML do usuário).
 
 ---
 

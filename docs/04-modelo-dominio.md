@@ -270,9 +270,18 @@ classDiagram
         +exibicao: ModoExibicao
         +criadoEm: Date
         +atualizadoEm: Date
-        +editar(conteudo: string) void
-        +alterarExibicao(modo: ModoExibicao) void
-        +desvincularDestaque() void
+        +nova(...)$ Anotacao
+        +reconstituir(...)$ Anotacao
+        +editar(conteudo: string, exibicao: ModoExibicao, agora: Date) Anotacao
+        +comDestaque(id: DestaqueId [0..1]) Anotacao
+    }
+
+    class NotaAncorada {
+        <<ValueObject>>
+        +anotacao: Anotacao
+        +versiculo: number
+        +offset: number [0..1]
+        +numero: number [0..1]
     }
 
     class MarcacoesDoCapitulo {
@@ -280,8 +289,10 @@ classDiagram
         +favoritos: Favorito[]
         +destaques: Destaque[]
         +anotacoes: Anotacao[]
-        +notasDeRodape() Anotacao[]
-        +notasInline(ref: Referencia) Anotacao[]
+        +notas: NotaAncorada[]
+        +notasDeRodape() NotaAncorada[]
+        +marcadores(n: number) NotaAncorada[]
+        +notasInline(n: number) NotaAncorada[]
         +favoritado(n: number) boolean
         +faixasDestacadas(n: number, tamanho: number) FaixaDestacada[]
         +destaque(id: DestaqueId) Destaque
@@ -303,12 +314,14 @@ classDiagram
     MarcacoesDoCapitulo o-- Favorito
     MarcacoesDoCapitulo o-- Destaque
     MarcacoesDoCapitulo o-- Anotacao
+    MarcacoesDoCapitulo ..> NotaAncorada
+    NotaAncorada --> Anotacao
 ```
 
 **Invariantes**
 - `IntervaloTexto`: `inicio < fim` (nunca vazio), dentro de **um único capítulo**; offsets ≥ 0. Que os offsets cabem no texto dos versículos é verificado por `TextoDoCapitulo.validar()`, que conhece o texto.
 - Os destaques de uma versão num capítulo **nunca se sobrepõem** (`SobreposicaoDestaques`, UC05 A1/A2).
-- `Anotacao.conteudo` não pode ser vazio.
+- `Anotacao.conteudo` não pode ser vazio (após aparar espaços) nem passar de 10.000 caracteres; a referência é de **versículo**.
 - Um versículo tem **no máximo um** `Favorito`.
 - `Destaque` pertence a uma versão (offsets dependem do texto); `Favorito` e `Anotacao` são **independentes de versão**.
 - `MarcacoesDoCapitulo` é um *read model* montado para a renderização de um capítulo (não é persistido).
@@ -544,7 +557,8 @@ classDiagram
     }
     class AnotacaoRepository {
         <<interface>>
-        +porCapitulo(l: CodigoLivro, n: number) Promise~Anotacao[]~
+        +porCapitulo(capitulo: Referencia) Promise~Anotacao[]~
+        +porId(id: AnotacaoId) Promise~Anotacao~
         +listar() Promise~Anotacao[]~
         +salvar(a: Anotacao) Promise~void~
         +remover(id: AnotacaoId) Promise~void~
@@ -616,9 +630,17 @@ classDiagram
         <<UseCase>>
         +executar(id: DestaqueId, cor: CorDestaque) Promise~Destaque~
     }
-    class SalvarAnotacao {
+    class CriarAnotacao {
         <<UseCase>>
-        +executar(dados: AnotacaoDTO) Promise~Anotacao~
+        +executar(alvo: AlvoAnotacao, conteudo: string, exibicao: ModoExibicao) Promise~Anotacao~
+    }
+    class EditarAnotacao {
+        <<UseCase>>
+        +executar(id: AnotacaoId, conteudo: string, exibicao: ModoExibicao) Promise~Anotacao~
+    }
+    class ExcluirAnotacao {
+        <<UseCase>>
+        +executar(id: AnotacaoId) Promise~void~
     }
     class IniciarPlano {
         <<UseCase>>
@@ -661,7 +683,12 @@ classDiagram
     DesmarcarTexto ..> DestaqueRepository
     RemoverDestaque ..> DestaqueRepository
     AlterarCorDestaque ..> DestaqueRepository
-    SalvarAnotacao ..> AnotacaoRepository
+    CriarAnotacao ..> AnotacaoRepository
+    CriarAnotacao ..> Relogio
+    CriarAnotacao ..> GeradorId
+    EditarAnotacao ..> AnotacaoRepository
+    EditarAnotacao ..> Relogio
+    ExcluirAnotacao ..> AnotacaoRepository
     IniciarPlano ..> PlanoRepository
     IniciarPlano ..> InscricaoRepository
     IniciarPlano ..> Relogio
@@ -706,6 +733,14 @@ classDiagram
 - `ObterMarcacoesDoCapitulo` recebe a **versão** exibida: favoritos valem para qualquer versão, destaques não.
 - `MarcacoesDoCapitulo.faixasDestacadas(n, tamanho)` recebe o tamanho do texto do versículo (o read model não carrega o texto); `listar()` dos repositórios entra com UC13 (fase 7.6).
 - Ids: `FavoritoId` e `DestaqueId` validam UUID com o mesmo utilitário (`dominio/compartilhado/uuid.ts`).
+
+**Notas de implementação (fase 7.4)**
+- **Anotacao imutável**, como `Destaque`: `nova()` cria, `reconstituir()` valida o que vem do banco, `editar()` e `comDestaque()` devolvem um novo valor com o mesmo `id`. No lugar dos previstos `editar(): void`, `alterarExibicao()` e `desvincularDestaque()`: o editor muda texto e modo juntos, e desvincular não é necessário (leitura tolerante, abaixo).
+- Casos de uso `CriarAnotacao` (alvo = versículo, ou versículo + destaque), `EditarAnotacao` e `ExcluirAnotacao`, no lugar do `SalvarAnotacao` com DTO.
+- **Ancoragem** em `MarcacoesDoCapitulo.notas` (`NotaAncorada`): nota de destaque vai para o fim do trecho (versículo e offset do fim do intervalo); as demais, para o fim do versículo (`offset` nulo). Ordem: versículo, offset, criação, id; as de rodapé recebem `numero` 1..n nessa ordem.
+- **Leitura tolerante:** se o `destaqueId` não está entre os destaques carregados (removido, ou de outra versão — destaques são por versão, notas não), a nota ancora no versículo. Por isso remover um destaque não precisa mexer nas notas.
+- **Fusão de destaques:** `AlteracoesDestaques` ganhou `religar` (`{de, para}`): as notas do destaque que some passam ao sobrevivente, na mesma transação de `DestaqueRepository.aplicar()`.
+- `ObterMarcacoesDoCapitulo` carrega favoritos, destaques e anotações em paralelo.
 
 ### Adapters (infraestrutura) previstos
 

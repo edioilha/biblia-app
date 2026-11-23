@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { anotacao } from '../../test/anotacoes';
 import { destaque } from '../../test/destaques';
 import { Canon, Referencia } from '../biblia';
 import { Favorito, FavoritoId } from './Favorito';
@@ -50,5 +51,41 @@ describe('MarcacoesDoCapitulo', () => {
     ]);
     expect(m.faixasDestacadas(4, 10)).toEqual([]);
     expect(m.destaque(m.destaques[0]?.id ?? ('' as never))?.cor).toBe('AMARELO');
+  });
+
+  it('ancora notas no fim do destaque ou do versículo e numera as de rodapé', () => {
+    const marcado = destaque(1, '1:4-2:3');
+    const m = new MarcacoesDoCapitulo(
+      ref('Jo 3'),
+      [],
+      [marcado],
+      [
+        anotacao(1, 'Jo 3:2'),
+        anotacao(2, 'Jo 3:1', { destaque: marcado.id }),
+        anotacao(3, 'Jo 3:1', { exibicao: 'INLINE' }),
+        anotacao(4, 'Jo 3:1'),
+        anotacao(5, 'Jo 4:1'),
+      ],
+    );
+    const resumo = m.notas.map((n) => [n.anotacao.conteudo, n.versiculo, n.offset, n.numero]);
+    expect(resumo).toEqual([
+      ['Nota 3', 1, null, null],
+      ['Nota 4', 1, null, 1],
+      ['Nota 2', 2, 3, 2],
+      ['Nota 1', 2, null, 3],
+    ]);
+    expect(m.marcadores(2).map((n) => n.numero)).toEqual([2, 3]);
+    expect(m.notasInline(1).map((n) => n.anotacao.conteudo)).toEqual(['Nota 3']);
+    expect(m.notasDeRodape().map((n) => n.numero)).toEqual([1, 2, 3]);
+  });
+
+  it('nota de destaque inexistente (removido ou de outra versão) fica no versículo', () => {
+    const m = new MarcacoesDoCapitulo(
+      ref('Jo 3'),
+      [],
+      [],
+      [anotacao(1, 'Jo 3:2', { destaque: destaque(9, '2:0-3:3').id })],
+    );
+    expect(m.notas[0]).toMatchObject({ versiculo: 2, offset: null, numero: 1 });
   });
 });

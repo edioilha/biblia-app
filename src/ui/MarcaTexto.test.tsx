@@ -161,6 +161,7 @@ describe('Marca-texto (UC05)', () => {
 
     screen.getByRole('button', { name: 'Versículo 2' }).focus();
     await user.keyboard('{Enter}');
+    await user.tab(); // Anotar
     await user.tab();
     expect(screen.getByRole('button', { name: 'Remover marcação' })).toHaveFocus();
     await user.keyboard('{Enter}');

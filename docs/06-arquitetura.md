@@ -90,7 +90,7 @@ flowchart LR
 
     subgraph app["Aplicação — src/aplicacao"]
         direction TB
-        uc["Casos de uso<br/><i>AbrirCapitulo, BuscarTexto,<br/>MarcarTexto, SalvarAnotacao,<br/>InstalarVersao…</i>"]
+        uc["Casos de uso<br/><i>AbrirCapitulo, BuscarTexto,<br/>MarcarTexto, CriarAnotacao,<br/>InstalarVersao…</i>"]
         portas["Portas (interfaces)<br/><i>*Repository, ServicoBusca,<br/>FonteVersoes, Relogio, GeradorId</i>"]
     end
 
@@ -169,7 +169,7 @@ sequenceDiagram
     Q->>M: executar(BLIVRE, JHN.3)
     M->>F: porCapitulo(JHN.3)
     F-->>M: Favorito[]
-    Note over M: + destaques da versão (7.3)<br/>anotações entram em 7.4
+    Note over M: + destaques da versão (7.3)<br/>+ anotações (7.4)
     M-->>P: MarcacoesDoCapitulo
     P-->>L: página de papel com ★
 
@@ -224,9 +224,37 @@ sequenceDiagram
     P-->>L: trecho com marca-texto + "Trecho marcado em amarelo"
 ```
 
-Sem atualização otimista (ao contrário do favorito): o resultado (fusões e cortes) só é conhecido depois das regras, e a gravação é local e rápida. Tocar num `<mark>` abre a barra do destaque (trocar cor → `AlterarCorDestaque`, remover → `RemoverDestaque`); a borracha usa `DesmarcarTexto`.
+Sem atualização otimista (ao contrário do favorito): o resultado (fusões e cortes) só é conhecido depois das regras, e a gravação é local e rápida. Tocar num `<mark>` abre a barra do destaque (trocar cor → `AlterarCorDestaque`, remover → `RemoverDestaque`); a borracha usa `DesmarcarTexto`. Na fusão, `aplicar()` também religa as anotações do destaque removido ao sobrevivente (`religar`), na mesma transação sobre `destaques` + `anotacoes`.
 
-### 5.3 Buscar texto (UC03)
+### 5.3 Anotar (UC06)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor L as Leitor
+    participant P as LeituraPage
+    participant E as EditorAnotacao (dialog)
+    participant Q as TanStack Query
+    participant UC as CriarAnotacao
+    participant A as AnotacaoRepository
+    participant M as ObterMarcacoesDoCapitulo
+
+    L->>P: número 16 → Anotar (ou destaque → Anotar)
+    P->>E: abre (showModal), foco no texto
+    L->>E: escreve (Markdown) e escolhe Rodapé/Inline
+    E->>P: onSalvar(conteudo, exibicao)
+    P->>UC: executar({versiculo, destaque}, conteudo, exibicao)
+    UC->>A: salvar(Anotacao.nova(...))
+    UC-->>P: Anotacao
+    P->>Q: invalidar ['marcacoes', 'JHN.3']
+    Q->>M: executar(BLIVRE, JHN.3)
+    M-->>P: MarcacoesDoCapitulo (notas ancoradas e numeradas)
+    P-->>L: fecha o editor, foco no número 16, marcador ou bloco + "Nota salva em João 3:16"
+```
+
+A página é dividida em parágrafos após cada versículo com nota inline. O marcador de rodapé é um botão cujo número vem do CSS (`::before { content: attr(data-n) }`), para não entrar nos offsets da seleção do marca-texto. O Markdown é convertido em elementos React por um parser próprio (`markdown.tsx`), sem `innerHTML`. O foco volta ao versículo só depois que o `<dialog>` desmonta: com o modal aberto, o resto da página é inerte.
+
+### 5.4 Buscar texto (UC03)
 
 ```mermaid
 sequenceDiagram
@@ -255,7 +283,7 @@ sequenceDiagram
     P-->>L: 20 resultados + total + paginação
 ```
 
-### 5.4 Instalar versão (UC09)
+### 5.5 Instalar versão (UC09)
 
 ```mermaid
 sequenceDiagram
@@ -301,7 +329,7 @@ sequenceDiagram
 | `indices` | `versaoId` | — | Índice MiniSearch serializado (JSON) |
 | `favoritos` | `id` | `&chave` (`JHN.3.16`), `[livro+capitulo]`, `criadoEm` | `Favorito` |
 | `destaques` | `id` | `[versaoId+livro+capitulo]`, `criadoEm` | `Destaque` |
-| `anotacoes` | `id` | `[livro+capitulo]`, `atualizadoEm` | `Anotacao` |
+| `anotacoes` | `id` | `[livro+capitulo]`, `atualizadoEm`, `destaqueId` | `Anotacao` |
 | `inscricoes` | `id` | `status` | `InscricaoPlano` |
 | `preferencias` | `id` (`'usuario'`) | — | `Preferencias` |
 
@@ -311,6 +339,7 @@ sequenceDiagram
 - **Schema v1** (fase 7.1): `capitulos`, `versoes` (presença = versão importada por completo) e `preferencias`. Os demais stores entram em novas versões do schema.
 - **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
 - **Schema v3** (fase 7.3): `destaques` (`id, [versaoId+livro+capitulo], criadoEm`); `inicio`/`fim` gravados como `[versículo, offset]`. Só cria a tabela; testado com migração a partir de um banco v2.
+- **Schema v4** (fase 7.4): `anotacoes` (`id, [livro+capitulo], atualizadoEm, destaqueId`); o índice `destaqueId` serve para religar notas na fusão de destaques. Só cria a tabela; testado com migração a partir de um banco v3.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
 ## 7. Importação e normalização dos dados

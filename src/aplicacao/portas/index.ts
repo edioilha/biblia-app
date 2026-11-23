@@ -1,3 +1,4 @@
+export type { AnotacaoRepository } from './AnotacaoRepository';
 export type { DestaqueRepository } from './DestaqueRepository';
 export type { FavoritoRepository } from './FavoritoRepository';
 export type { FonteVersaoEmbarcada } from './FonteVersaoEmbarcada';
