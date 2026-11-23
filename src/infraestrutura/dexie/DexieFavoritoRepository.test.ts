@@ -74,8 +74,8 @@ describe('DexieFavoritoRepository', () => {
   });
 });
 
-describe('BancoApp — migração v1 → v2', () => {
-  it('preserva os dados da v1 e cria a tabela de favoritos', async () => {
+describe('BancoApp — migração a partir da v1', () => {
+  it('preserva os dados da v1 e cria as tabelas novas', async () => {
     const nome = `teste-${crypto.randomUUID()}`;
     const v1 = new Dexie(nome);
     v1.version(1).stores({
@@ -91,7 +91,8 @@ describe('BancoApp — migração v1 → v2', () => {
     const db = new BancoApp(nome);
     expect(await db.preferencias.get('usuario')).toMatchObject({ ultimaPosicao: 'JHN.3' });
     expect(await db.favoritos.count()).toBe(0);
-    expect(db.verno).toBe(2);
+    expect(await db.destaques.count()).toBe(0);
+    expect(db.verno).toBe(3);
     await db.delete();
   });
 });
