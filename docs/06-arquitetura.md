@@ -103,7 +103,7 @@ flowchart LR
     subgraph infra["Infraestrutura — src/infraestrutura"]
         direction TB
         dexie["Dexie*Repository"]
-        busca["MiniSearchServicoBusca<br/><i>(proxy p/ Search Worker)</i>"]
+        busca["ServicoBuscaWorker<br/><i>(proxy p/ Search Worker)</i>"]
         fonte["GitHubBibliaDataFonte"]
         relogio["RelogioSistema<br/>GeradorUuidV7"]
     end
@@ -262,26 +262,29 @@ sequenceDiagram
     actor L as Leitor
     participant P as BuscaPage
     participant UC as BuscarTexto
-    participant S as MiniSearchServicoBusca
-    participant W as Search Worker
+    participant S as ServicoBuscaWorker
+    participant W as busca.worker (MotorBusca)
     participant DB as IndexedDB
 
+    Note over P,W: ao abrir o app (ocioso): PrepararBusca → preparar(BLIVRE)
     L->>P: digita "amor de deus"
-    P->>P: debounce 250 ms
-    P->>UC: executar(ConsultaBusca.interpretar(entrada))
+    P->>P: debounce 250 ms → URL #/buscar?q=amor+de+deus
+    P->>UC: executar(ConsultaBusca.interpretar(entrada, opções))
     UC->>S: buscar(BLIVRE, consulta)
-    S->>W: postMessage(consulta)
+    S->>W: Comlink: buscar(BLIVRE, ConsultaDTO)
     opt índice ainda não está em memória
-        W->>DB: carregar índice serializado
-        DB-->>W: JSON do índice
-        W->>W: MiniSearch.loadJSON()
+        W->>DB: capitulos da versão
+        DB-->>W: 1.189 capítulos
+        W->>W: MiniSearch.addAll() (~0,3 s desktop)
     end
-    W->>W: search() + filtros + paginação
-    W-->>S: Pagina<ResultadoBusca>
+    W->>W: search() + filtro + frase exata + ordenação + página + ocorrências
+    W-->>S: PaginaDTO
     S-->>UC: Pagina<ResultadoBusca>
     UC-->>P: Pagina<ResultadoBusca>
     P-->>L: 20 resultados + total + paginação
 ```
+
+Consulta e página atravessam o `postMessage` como DTOs (`dto.ts`), pois o *structured clone* não preserva classes. Medido no navegador (fase 7.5): ~25–35 ms por busca com o índice pronto (ida e volta ao worker incluída; meta RNF02: < 500 ms) e ~1,3 s para a primeira busca logo após abrir o app, que mostra "Preparando a busca…".
 
 ### 5.5 Instalar versão (UC09)
 
@@ -307,8 +310,7 @@ sequenceDiagram
     F-->>UC: LivroImportado[] (normalizado)
     UC->>UC: validar (66 livros, capítulos > 0)
     UC->>T: importar(TB, livros) — transação única
-    UC->>S: indexar(TB, progresso)
-    S-->>P: progresso (etapa 3/3)
+    UC->>S: preparar(TB)
     UC->>V: salvar(status = INSTALADA)
     UC-->>P: ok
     P-->>L: "Tradução Brasileira instalada"
@@ -326,7 +328,6 @@ sequenceDiagram
 |---|---|---|---|
 | `versoes` | `id` | `status` | Metadados de `Versao` |
 | `capitulos` | `[versaoId+livro+numero]` | `versaoId` | `Capitulo` com array de versículos |
-| `indices` | `versaoId` | — | Índice MiniSearch serializado (JSON) |
 | `favoritos` | `id` | `&chave` (`JHN.3.16`), `[livro+capitulo]`, `criadoEm` | `Favorito` |
 | `destaques` | `id` | `[versaoId+livro+capitulo]`, `criadoEm` | `Destaque` |
 | `anotacoes` | `id` | `[livro+capitulo]`, `atualizadoEm`, `destaqueId` | `Anotacao` |
@@ -405,7 +406,7 @@ biblia-app/
 │   │   └── casos-de-uso/         # AbrirCapitulo, BuscarTexto, …
 │   ├── infraestrutura/
 │   │   ├── dexie/                # BancoApp, Dexie*Repository
-│   │   ├── busca/                # MiniSearchServicoBusca, busca.worker.ts
+│   │   ├── busca/                # MotorBusca, ServicoBuscaWorker, busca.worker.ts
 │   │   ├── fontes/               # FonteEstatica (embarcada), GitHubBibliaDataFonte
 │   │   └── sistema/              # RelogioSistema
 │   ├── ui/

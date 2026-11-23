@@ -36,6 +36,8 @@ UC03 — busca dinâmica, modos, filtros, resultados paginados.
 
 ![Busca](img/wf-busca.png)
 
+> **Implementado na fase 7.5 (UC03):** como no wireframe, com estas diferenças: o total é de **versículos**; "Incluir minhas notas" (RF02.9) fica para Meus Estudos (7.6); a paginação mostra primeira, última e as vizinhas da atual. Sem resultados, os botões de sugestão (aproximada, toda a Bíblia, qualquer ordem) aparecem abaixo da mensagem. O estado da busca fica na URL.
+
 ## 3. Meus Estudos
 UC13 — abas Favoritos / Destaques / Anotações, filtro, ordenação, paginação.
 
