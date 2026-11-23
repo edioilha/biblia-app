@@ -7,9 +7,9 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 **App:** https://edioilha.github.io/biblia-app/
 
-> 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos e ida direta a uma referência (`jo 3:16`), offline.
+> 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos, ida direta a uma referência (`jo 3:16`) e favoritos de versículos, offline.
 >
-> **Progresso:** fase 7.1 de 7.9 entregue · próxima: 7.2 favoritos · [roadmap completo](docs/09-roadmap.md)
+> **Progresso:** fase 7.2 de 7.9 entregue · próxima: 7.3 marca-texto · [roadmap completo](docs/09-roadmap.md)
 
 ## Stats
 
@@ -39,7 +39,7 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 ## Stack
 
-TypeScript · React · React Router · Vite · Tailwind CSS · Dexie (IndexedDB) · PWA (Workbox) · Vitest · Testing Library · Playwright · ESLint · Prettier
+TypeScript · React · React Router · TanStack Query · Vite · Tailwind CSS · Dexie (IndexedDB) · PWA (Workbox) · Vitest · Testing Library · Playwright · ESLint · Prettier
 
 ## Desenvolvimento
 

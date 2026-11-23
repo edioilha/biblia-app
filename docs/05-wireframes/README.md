@@ -20,6 +20,8 @@ UC01 · UC04 · UC05 · UC06 — página de papel, marca-texto, favoritos, notas
 
 ![Leitura desktop](img/wf-leitura.png)
 
+> **Implementado na fase 7.2 (UC04):** favoritar não depende de selecionar texto. O **número do versículo** é um botão que abre uma **barra de ações do versículo** fixa no rodapé (desktop e celular), acessível pelo teclado. A barra flutuante de seleção do wireframe continua prevista para o marca-texto (UC05, fase 7.3).
+
 ## 1b. Leitura — celular
 Seleção abre *bottom sheet* com ações e cores.
 

@@ -54,3 +54,9 @@ body {
     background-color: var(--color-marca-texto);
   }
 }
+
+/* UC04 — versículo com a barra de ações aberta */
+.versiculo-selecionado {
+  text-decoration: underline dotted var(--color-primaria);
+  text-underline-offset: 0.3em;
+}

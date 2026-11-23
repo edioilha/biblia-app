@@ -1,46 +1,26 @@
-import { useEffect, useState } from 'react';
-import type { CapituloAberto } from '../../aplicacao/casos-de-uso';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { Referencia } from '../../dominio/biblia';
+import { chaves } from '../consultas/clienteConsultas';
 import { useDependencias } from '../contexto/Dependencias';
 
-interface Estado {
-  /** Chave da referência a que `aberto`/`erro` se referem. */
-  chave: string | null;
-  aberto: CapituloAberto | null;
-  erro: Error | null;
-}
-
 /**
- * Executa AbrirCapitulo para a referência — que deve ser estável entre renders (useMemo).
- * Mantém o capítulo anterior visível enquanto o próximo carrega (sem "piscar")
- * e ignora respostas obsoletas.
+ * Executa AbrirCapitulo para a referência. Mantém o capítulo anterior visível enquanto
+ * o próximo carrega (sem "piscar"); respostas obsoletas são descartadas pelo TanStack Query.
  */
-export function useCapitulo(ref: Referencia | null) {
+export function useCapitulo(ref: Referencia) {
   const { abrirCapitulo } = useDependencias();
-  const [estado, setEstado] = useState<Estado>({ chave: null, aberto: null, erro: null });
-  const chave = ref?.chave() ?? null;
-
-  useEffect(() => {
-    if (!ref) return;
-    let ativo = true;
-    abrirCapitulo.executar(ref).then(
-      (aberto) => ativo && setEstado({ chave: ref.chave(), aberto, erro: null }),
-      (erro: unknown) =>
-        ativo &&
-        setEstado((e) => ({
-          ...e,
-          chave: ref.chave(),
-          erro: erro instanceof Error ? erro : new Error(String(erro)),
-        })),
-    );
-    return () => {
-      ativo = false;
-    };
-  }, [abrirCapitulo, ref]);
+  const consulta = useQuery({
+    queryKey: chaves.capitulo(ref),
+    queryFn: () => abrirCapitulo.executar(ref),
+    placeholderData: keepPreviousData,
+    // AbrirCapitulo também salva a última posição: ao voltar a um capítulo em cache,
+    // exibe o cache na hora e reexecuta em segundo plano para registrar a posição.
+    staleTime: 0,
+  });
 
   return {
-    aberto: estado.aberto,
-    erro: estado.chave === chave ? estado.erro : null,
-    carregando: estado.chave !== chave,
+    aberto: consulta.data ?? null,
+    erro: consulta.error,
+    carregando: consulta.isPending || consulta.isPlaceholderData,
   };
 }

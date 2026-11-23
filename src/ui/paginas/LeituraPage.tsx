@@ -1,11 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import type { Referencia } from '../../dominio/biblia';
+import { AcoesVersiculo } from '../componentes/AcoesVersiculo';
 import { BarraSuperior } from '../componentes/BarraSuperior';
+import { idBotaoVersiculo } from '../componentes/idsVersiculo';
 import { PaginaPapel } from '../componentes/PaginaPapel';
 import { SeletorReferencia } from '../componentes/SeletorReferencia';
 import { useDependencias } from '../contexto/Dependencias';
 import { useCapitulo } from '../hooks/useCapitulo';
+import { useAlternarFavorito, useMarcacoes } from '../hooks/useFavoritos';
 import { useNavegacaoCapitulos } from '../hooks/useNavegacaoCapitulos';
 import { caminhoLeitura, referenciaDaRota } from '../rotas';
 
@@ -47,6 +50,56 @@ function Leitura({
     document.title = `${titulo} · Bíblia App`;
   }, [titulo]);
 
+  // UC04 — marcações do capítulo exibido e barra de ações do versículo.
+  const capituloExibido = exibido?.capitulo.referencia ?? null;
+  const marcacoes = useMarcacoes(capituloExibido);
+  const alternar = useAlternarFavorito();
+  const [aviso, setAviso] = useState<{ texto: string; erro: boolean } | null>(null);
+  // A seleção vale só para o capítulo em que foi feita (trocar de capítulo fecha a barra).
+  const [selecao, setSelecao] = useState<{ capitulo: string; versiculo: number } | null>(null);
+  const selecionado =
+    capituloExibido && selecao?.capitulo === capituloExibido.chave() ? selecao.versiculo : null;
+
+  const favoritado = (versiculo: number) => {
+    const base = marcacoes?.favoritado(versiculo) ?? false;
+    const pendente = alternar.isPending ? alternar.variables : null;
+    // Atualização otimista: inverte enquanto a gravação está em andamento.
+    const emAndamento =
+      pendente?.versiculo === versiculo &&
+      capituloExibido !== null &&
+      pendente.doCapitulo().equals(capituloExibido);
+    return emAndamento ? !base : base;
+  };
+
+  const abrirOuFecharAcoes = (versiculo: number) => {
+    if (versiculo === selecionado) fecharAcoes();
+    else if (capituloExibido) setSelecao({ capitulo: capituloExibido.chave(), versiculo });
+  };
+
+  const fecharAcoes = () => {
+    const versiculo = selecionado;
+    setSelecao(null);
+    if (versiculo !== null) {
+      document.getElementById(idBotaoVersiculo(versiculo))?.focus();
+    }
+  };
+
+  const alternarFavorito = (versiculo: number) => {
+    const alvo = exibido?.capitulo.versiculo(versiculo)?.referencia;
+    if (!alvo || alternar.isPending) return;
+    const nome = alvo.formatar(canon.livro(alvo.livro));
+    fecharAcoes();
+    alternar.mutate(alvo, {
+      onSuccess: (agora) =>
+        setAviso({
+          texto: agora ? `${nome} adicionado aos favoritos.` : `${nome} removido dos favoritos.`,
+          erro: false,
+        }),
+      onError: () =>
+        setAviso({ texto: `Não foi possível atualizar o favorito de ${nome}.`, erro: true }),
+    });
+  };
+
   return (
     <>
       <BarraSuperior>
@@ -60,7 +113,7 @@ function Leitura({
       </BarraSuperior>
 
       <main
-        className="relative mx-auto max-w-5xl px-2 py-6 sm:px-4 sm:py-10"
+        className={`relative mx-auto max-w-5xl px-2 py-6 sm:px-4 sm:py-10 ${selecionado !== null ? 'pb-28 sm:pb-28' : ''}`}
         onTouchStart={toque.onTouchStart}
         onTouchEnd={toque.onTouchEnd}
         aria-busy={carregando}
@@ -68,7 +121,13 @@ function Leitura({
         {erro ? (
           <Mensagem titulo="Não foi possível abrir o capítulo">{erro.message}</Mensagem>
         ) : exibido ? (
-          <PaginaPapel aberto={exibido} nomeVersao={nomeVersao} />
+          <PaginaPapel
+            aberto={exibido}
+            nomeVersao={nomeVersao}
+            favoritado={favoritado}
+            selecionado={selecionado}
+            onAcoesVersiculo={abrirOuFecharAcoes}
+          />
         ) : null}
 
         {exibido && (
@@ -89,6 +148,30 @@ function Leitura({
               simbolo="›"
             />
           </nav>
+        )}
+
+        {exibido && selecionado !== null && (
+          <AcoesVersiculo
+            rotulo={`${exibido.livro.nome} ${exibido.capitulo.numero}:${selecionado}`}
+            favoritado={favoritado(selecionado)}
+            onAlternarFavorito={() => alternarFavorito(selecionado)}
+            onFechar={() => fecharAcoes()}
+          />
+        )}
+
+        <p role="status" className="sr-only">
+          {aviso && !aviso.erro ? aviso.texto : ''}
+        </p>
+        {aviso?.erro && (
+          <p
+            role="alert"
+            className="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-30 mx-auto max-w-md rounded-md border border-red-300 bg-red-50 px-4 py-3 text-center font-sans text-sm text-red-800 shadow-lg"
+          >
+            {aviso.texto}{' '}
+            <button type="button" className="underline" onClick={() => setAviso(null)}>
+              Fechar
+            </button>
+          </p>
         )}
       </main>
     </>

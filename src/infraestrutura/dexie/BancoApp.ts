@@ -23,6 +23,15 @@ export interface PreferenciasRegistro {
   ultimaPosicao: string;
 }
 
+/** Favorito (docs/06 §6). `chave` = "JHN.3.16" (índice único: um favorito por versículo). */
+export interface FavoritoRegistro {
+  id: string;
+  chave: string;
+  livro: string;
+  capitulo: number;
+  criadoEm: Date;
+}
+
 /**
  * Banco IndexedDB do app (ADR 0004). Cada mudança de schema = nova `version(n)`
  * com `upgrade()` quando houver migração de dados; nunca alterar versões publicadas.
@@ -31,6 +40,7 @@ export class BancoApp extends Dexie {
   capitulos!: Table<CapituloRegistro, [versaoId: string, livro: string, numero: number]>;
   versoes!: EntityTable<VersaoRegistro, 'versaoId'>;
   preferencias!: EntityTable<PreferenciasRegistro, 'id'>;
+  favoritos!: EntityTable<FavoritoRegistro, 'id'>;
 
   constructor(nome = 'biblia-app') {
     super(nome);
@@ -38,6 +48,10 @@ export class BancoApp extends Dexie {
       capitulos: '[versaoId+livro+numero], versaoId',
       versoes: 'versaoId',
       preferencias: 'id',
+    });
+    // v2 (fase 7.2): favoritos. Só cria a tabela; nenhum dado existente muda.
+    this.version(2).stores({
+      favoritos: 'id, &chave, [livro+capitulo], criadoEm',
     });
   }
 }

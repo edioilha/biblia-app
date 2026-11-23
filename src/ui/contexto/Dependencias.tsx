@@ -1,6 +1,8 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import type {
   AbrirCapitulo,
+  AlternarFavorito,
+  ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
   PrepararVersaoPadrao,
 } from '../../aplicacao/casos-de-uso';
@@ -11,6 +13,8 @@ export interface Dependencias {
   readonly canon: Canon;
   readonly versaoPadrao: Versao;
   readonly abrirCapitulo: AbrirCapitulo;
+  readonly obterMarcacoesDoCapitulo: ObterMarcacoesDoCapitulo;
+  readonly alternarFavorito: AlternarFavorito;
   readonly obterPosicaoInicial: ObterPosicaoInicial;
   readonly prepararVersaoPadrao: PrepararVersaoPadrao;
 }
