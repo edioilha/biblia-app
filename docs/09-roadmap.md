@@ -25,8 +25,8 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | 7.3 | Marca-texto: seleção ajustada a palavras, 4 cores, fusão/corte de sobreposições, borracha | UC05 | F05 | ✅ | #8 | 2026-11-22 |
 | 7.4 | Anotações: rodapé numerado ou inline, Markdown básico, nota de versículo ou de destaque | UC06 | F06 | ✅ | #9 | 2026-11-22 |
 | 7.5 | Busca: dinâmica, sem acentos, frase exata, filtros, aproximada, paginação, índice em Web Worker | UC03 | F03 | ✅ | #10 | 2026-11-22 |
-| 7.6 | Meus Estudos (+ busca nas anotações, RF02.9) | UC13 | F10 | ⏭️ | — | — |
-| 7.7 | Planos de leitura | UC07, UC08 | F07 | ⏳ | — | — |
+| 7.6 | Meus Estudos: abas com total, filtro de texto e livro, ordem, paginação, menu de ações (+ busca nas anotações, RF02.9) | UC13 | F10 | ✅ | #11 | 2026-11-23 |
+| 7.7 | Planos de leitura | UC07, UC08 | F07 | ⏭️ | — | — |
 | 7.8 | Versões (instalar e trocar) | UC09, UC10 | F08 | ⏳ | — | — |
 | 7.9 | Backup e configurações de leitura | UC11, UC12 | — | ⏳ | — | — |
 | — | **Release v1.0.0 — MVP entregue** | | | ⏳ | — | — |

@@ -270,3 +270,5 @@ flowchart LR
 - **A3 — Ordenar por data:** sistema ordena do mais recente para o mais antigo.
 - **A4 — Ações do item (⋮):** remover (com confirmação); editar nota (UC06); alterar cor do destaque (UC05).
 - **A5 — Lista vazia:** sistema exibe orientação ("Selecione um texto na leitura para marcar…").
+
+**Regras (decisões da fase 7.6):** os totais das abas seguem os filtros; o filtro de texto ignora acentos e maiúsculas e exige todas as palavras; na aba Anotações ele também procura na nota (é a busca nas anotações, RF02.9, com atalho na tela de busca); "mais recentes" usa a última edição das notas; destaques são os da versão exibida; o estado da tela fica na URL.
