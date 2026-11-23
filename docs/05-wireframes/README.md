@@ -24,6 +24,8 @@ UC01 · UC04 · UC05 · UC06 — página de papel, marca-texto, favoritos, notas
 
 > **Implementado na fase 7.3 (UC05):** a barra de seleção também fica **fixa no rodapé** em vez de flutuar junto ao trecho: no celular, o menu nativo de seleção (Copiar…) aparece sobre o texto e cobriria uma barra flutuante. Ela mostra **Marcar** e as quatro cores (um toque marca na cor), mais **Desmarcar** quando a seleção cobre um destaque. Tocar num trecho marcado abre a barra do destaque (cores e Remover).
 
+> **Implementado na fase 7.4 (UC06):** **Anotar** fica na barra do versículo e na barra do destaque (não na barra de seleção). O editor é um diálogo modal, *bottom sheet* no celular. As notas de rodapé têm marcador numerado no fim do versículo (ou do trecho destacado) e ficam no pé da página, com **Voltar ao texto**; as inline são um bloco após o versículo, que divide o texto em parágrafos, como no wireframe.
+
 ## 1b. Leitura — celular
 Seleção abre *bottom sheet* com ações e cores.
 

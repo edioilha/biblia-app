@@ -23,8 +23,8 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | 7.1 | Leitura: versão BLIVRE embarcada, Dexie, página de papel, seletor de referência | UC01, UC02 | F01, F02, F09 | ✅ | #5 | 2026-11-22 |
 | 7.2 | Favoritos: marcar/desmarcar pelo número do versículo (+ TanStack Query) | UC04 | F04 | ✅ | #7 | 2026-11-22 |
 | 7.3 | Marca-texto: seleção ajustada a palavras, 4 cores, fusão/corte de sobreposições, borracha | UC05 | F05 | ✅ | #8 | 2026-11-22 |
-| 7.4 | Anotações | UC06 | F06 | ⏭️ | — | — |
-| 7.5 | Busca (com indexação da versão) | UC03 | F03 | ⏳ | — | — |
+| 7.4 | Anotações: rodapé numerado ou inline, Markdown básico, nota de versículo ou de destaque | UC06 | F06 | ✅ | #9 | 2026-11-22 |
+| 7.5 | Busca (com indexação da versão) | UC03 | F03 | ⏭️ | — | — |
 | 7.6 | Meus Estudos | UC13 | F10 | ⏳ | — | — |
 | 7.7 | Planos de leitura | UC07, UC08 | F07 | ⏳ | — | — |
 | 7.8 | Versões (instalar e trocar) | UC09, UC10 | F08 | ⏳ | — | — |
