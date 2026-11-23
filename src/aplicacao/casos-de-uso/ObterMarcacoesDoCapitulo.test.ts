@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { Canon, Referencia, VersaoId } from '../../dominio/biblia';
 import { BLIVRE, destaque } from '../../test/destaques';
+import { anotacao } from '../../test/anotacoes';
 import {
+  AnotacoesEmMemoria,
   DestaquesEmMemoria,
   FavoritosEmMemoria,
   GeradorIdSequencial,
@@ -19,7 +21,11 @@ describe('ObterMarcacoesDoCapitulo', () => {
     const alternar = new AlternarFavorito(repo, new RelogioFixo(), new GeradorIdSequencial());
     await alternar.executar(ref('Jo 3:16'));
     await alternar.executar(ref('Jo 4:1'));
-    const uc = new ObterMarcacoesDoCapitulo(repo, new DestaquesEmMemoria());
+    const uc = new ObterMarcacoesDoCapitulo(
+      repo,
+      new DestaquesEmMemoria(),
+      new AnotacoesEmMemoria(),
+    );
 
     const m = await uc.executar(BLIVRE, ref('Jo 3:2'));
     expect(m.capitulo.chave()).toBe('JHN.3');
@@ -31,10 +37,29 @@ describe('ObterMarcacoesDoCapitulo', () => {
   it('devolve os destaques da versão exibida', async () => {
     const destaques = new DestaquesEmMemoria();
     await destaques.aplicar({ salvar: [destaque(1, '1:0-1:3')], remover: [] });
-    const uc = new ObterMarcacoesDoCapitulo(new FavoritosEmMemoria(), destaques);
+    const uc = new ObterMarcacoesDoCapitulo(
+      new FavoritosEmMemoria(),
+      destaques,
+      new AnotacoesEmMemoria(),
+    );
 
     expect((await uc.executar(BLIVRE, ref('Jo 3'))).destaques).toHaveLength(1);
     expect((await uc.executar(VersaoId.de('ARC'), ref('Jo 3'))).destaques).toEqual([]);
     expect((await uc.executar(BLIVRE, ref('Jo 4'))).destaques).toEqual([]);
+  });
+
+  it('devolve as anotações do capítulo em qualquer versão', async () => {
+    const anotacoes = new AnotacoesEmMemoria();
+    await anotacoes.salvar(anotacao(1, 'Jo 3:16'));
+    await anotacoes.salvar(anotacao(2, 'Jo 4:1'));
+    const uc = new ObterMarcacoesDoCapitulo(
+      new FavoritosEmMemoria(),
+      new DestaquesEmMemoria(),
+      anotacoes,
+    );
+    for (const versao of [BLIVRE, VersaoId.de('ARC')]) {
+      const m = await uc.executar(versao, ref('Jo 3'));
+      expect(m.notas.map((n) => n.anotacao.referencia.chave())).toEqual(['JHN.3.16']);
+    }
   });
 });

@@ -1,21 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import type { Referencia } from '../../dominio/biblia';
+import type { AlvoAnotacao } from '../../aplicacao/casos-de-uso';
 import {
   TextoDoCapitulo,
+  type Anotacao,
   type CorDestaque,
   type Destaque,
   type DestaqueId,
+  type ModoExibicao,
 } from '../../dominio/estudo';
 import { AcoesVersiculo } from '../componentes/AcoesVersiculo';
 import { BarraDestaque, BarraSelecao } from '../componentes/BarrasMarcaTexto';
 import { BarraSuperior } from '../componentes/BarraSuperior';
+import { EditorAnotacao } from '../componentes/EditorAnotacao';
 import { idBotaoVersiculo } from '../componentes/idsVersiculo';
 import { NOME_COR } from '../componentes/nomesCores';
 import { PaginaPapel } from '../componentes/PaginaPapel';
 import { SeletorReferencia } from '../componentes/SeletorReferencia';
 import { useDependencias } from '../contexto/Dependencias';
 import { useCapitulo } from '../hooks/useCapitulo';
+import { useEditarAnotacoes } from '../hooks/useAnotacoes';
 import { useEditarDestaques, type AcaoDestaque } from '../hooks/useDestaques';
 import { useAlternarFavorito } from '../hooks/useFavoritos';
 import { useMarcacoes } from '../hooks/useMarcacoes';
@@ -77,7 +82,7 @@ function Leitura({
     barraAtual?.tipo === 'destaque' ? (marcacoes?.destaque(barraAtual.id) ?? null) : null;
 
   // UC05 — seleção de texto; selecionar fecha as outras barras.
-  const refTexto = useRef<HTMLParagraphElement>(null);
+  const refTexto = useRef<HTMLDivElement>(null);
   const refBarraSelecao = useRef<HTMLDivElement>(null);
   const { selecao, limpar: limparSelecao } = useSelecaoTexto(
     refTexto,
@@ -202,6 +207,112 @@ function Leitura({
     );
   };
 
+  // UC06 — editor de anotação (nova no versículo/destaque, ou edição).
+  const editarNotas = useEditarAnotacoes();
+  const [editor, setEditor] = useState<EditorAberto | null>(null);
+  const [erroEditor, setErroEditor] = useState<string | null>(null);
+
+  const abrirEditor = (aberto: Omit<EditorAberto, 'foco'>) => {
+    // Foco a devolver ao fechar: o botão do versículo ou o "Editar nota" acionado.
+    const versiculo = aberto.anotacao?.referencia.versiculo ?? aberto.alvo?.versiculo.versiculo;
+    const ativo = document.activeElement;
+    const foco =
+      aberto.anotacao && ativo instanceof HTMLElement && ativo !== document.body
+        ? ativo
+        : versiculo
+          ? document.getElementById(idBotaoVersiculo(versiculo))
+          : null;
+    setBarra(null);
+    setErroEditor(null);
+    setEditor({ ...aberto, foco });
+  };
+
+  /** `noVersiculo`: o elemento de origem vai sumir (nota excluída), foca o versículo. */
+  const fecharEditor = (noVersiculo = false) => {
+    const anterior = editor;
+    const versiculo =
+      anterior?.anotacao?.referencia.versiculo ?? anterior?.alvo?.versiculo.versiculo;
+    focoAoFechar.current = () => {
+      const alvo =
+        !noVersiculo && anterior?.foco?.isConnected
+          ? anterior.foco
+          : versiculo
+            ? document.getElementById(idBotaoVersiculo(versiculo))
+            : null;
+      alvo?.focus();
+    };
+    setEditor(null);
+  };
+
+  // Foca só depois que o <dialog> desmonta: com o modal aberto, o resto da página é inerte.
+  const focoAoFechar = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (editor) return;
+    focoAoFechar.current?.();
+    focoAoFechar.current = null;
+  }, [editor]);
+
+  const anotarVersiculo = (versiculo: number) => {
+    const ref = exibido?.capitulo.versiculo(versiculo)?.referencia;
+    if (!ref) return;
+    abrirEditor({
+      titulo: `Nota em ${nomeVersiculo(versiculo)}`,
+      alvo: { versiculo: ref, destaque: null },
+    });
+  };
+
+  const anotarDestaque = (destaque: Destaque) => {
+    if (!exibido) return;
+    abrirEditor({
+      titulo: `Nota no destaque ${rotuloDestaque(destaque, exibido.livro.nome)}`,
+      alvo: { versiculo: destaque.intervalo.inicio.versiculo, destaque: destaque.id },
+    });
+  };
+
+  const editarNota = (anotacao: Anotacao) =>
+    abrirEditor({
+      titulo: `Nota em ${anotacao.referencia.formatar(canon.livro(anotacao.referencia.livro))}`,
+      anotacao,
+    });
+
+  const salvarNota = (conteudo: string, exibicao: ModoExibicao) => {
+    if (!editor || editarNotas.isPending) return;
+    const ref = editor.anotacao?.referencia ?? editor.alvo?.versiculo;
+    const nome = ref ? ref.formatar(canon.livro(ref.livro)) : '';
+    const acao = editor.anotacao
+      ? ({ tipo: 'editar', anotacao: editor.anotacao, conteudo, exibicao } as const)
+      : editor.alvo
+        ? ({ tipo: 'criar', alvo: editor.alvo, conteudo, exibicao } as const)
+        : null;
+    if (!acao) return;
+    editarNotas.mutate(acao, {
+      onSuccess: () => {
+        fecharEditor();
+        setAviso({
+          texto: editor.anotacao ? `Nota de ${nome} atualizada.` : `Nota salva em ${nome}.`,
+          erro: false,
+        });
+      },
+      onError: (e) =>
+        setErroEditor(`Não foi possível salvar a nota. ${e instanceof Error ? e.message : ''}`),
+    });
+  };
+
+  const excluirNota = () => {
+    const anotacao = editor?.anotacao;
+    if (!anotacao || editarNotas.isPending) return;
+    editarNotas.mutate(
+      { tipo: 'excluir', anotacao },
+      {
+        onSuccess: () => {
+          fecharEditor(true);
+          setAviso({ texto: 'Nota excluída.', erro: false });
+        },
+        onError: () => setErroEditor('Não foi possível excluir a nota.'),
+      },
+    );
+  };
+
   const algumaBarra = selecionado !== null || destaqueAtivo !== null || selecao !== null;
   const sobrepoeDestaque =
     selecao !== null && !!marcacoes?.destaques.some((d) => d.intervalo.sobrepoe(selecao));
@@ -233,9 +344,10 @@ function Leitura({
             favoritado={favoritado}
             selecionado={selecionado}
             onAcoesVersiculo={abrirOuFecharAcoes}
-            faixas={(n, tamanho) => marcacoes?.faixasDestacadas(n, tamanho) ?? []}
+            marcacoes={marcacoes ?? undefined}
             destaqueAtivo={destaqueAtivo?.id ?? null}
             onTocarDestaque={abrirDestaque}
+            onEditarNota={editarNota}
             refTexto={refTexto}
           />
         ) : null}
@@ -273,6 +385,7 @@ function Leitura({
             rotulo={nomeVersiculo(selecionado)}
             favoritado={favoritado(selecionado)}
             onAlternarFavorito={() => alternarFavorito(selecionado)}
+            onAnotar={() => anotarVersiculo(selecionado)}
             onRemoverMarcacao={
               temMarcacao(selecionado) ? () => removerMarcacaoDoVersiculo(selecionado) : undefined
             }
@@ -284,10 +397,23 @@ function Leitura({
             cor={destaqueAtivo.cor}
             ocupado={editar.isPending}
             onCor={(cor) => mudarCor(destaqueAtivo, cor)}
+            onAnotar={() => anotarDestaque(destaqueAtivo)}
             onRemover={() => removerDestaque(destaqueAtivo)}
             onFechar={() => setBarra(null)}
           />
         ) : null}
+
+        {editor && (
+          <EditorAnotacao
+            titulo={editor.titulo}
+            inicial={editor.anotacao ?? null}
+            ocupado={editarNotas.isPending}
+            erro={erroEditor}
+            onSalvar={salvarNota}
+            onExcluir={editor.anotacao ? excluirNota : undefined}
+            onFechar={() => fecharEditor()}
+          />
+        )}
 
         <p role="status" className="sr-only">
           {aviso && !aviso.erro ? aviso.texto : ''}
@@ -306,6 +432,16 @@ function Leitura({
       </main>
     </>
   );
+}
+
+interface EditorAberto {
+  titulo: string;
+  /** Nova nota: versículo ou destaque. */
+  alvo?: AlvoAnotacao;
+  /** Edição. */
+  anotacao?: Anotacao;
+  /** Elemento que recebe o foco ao fechar. */
+  foco: HTMLElement | null;
 }
 
 type BarraAberta =

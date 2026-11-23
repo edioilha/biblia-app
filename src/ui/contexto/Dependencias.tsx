@@ -3,7 +3,10 @@ import type {
   AbrirCapitulo,
   AlterarCorDestaque,
   AlternarFavorito,
+  CriarAnotacao,
   DesmarcarTexto,
+  EditarAnotacao,
+  ExcluirAnotacao,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
@@ -23,6 +26,9 @@ export interface Dependencias {
   readonly desmarcarTexto: DesmarcarTexto;
   readonly removerDestaque: RemoverDestaque;
   readonly alterarCorDestaque: AlterarCorDestaque;
+  readonly criarAnotacao: CriarAnotacao;
+  readonly editarAnotacao: EditarAnotacao;
+  readonly excluirAnotacao: ExcluirAnotacao;
   readonly obterPosicaoInicial: ObterPosicaoInicial;
   readonly prepararVersaoPadrao: PrepararVersaoPadrao;
 }

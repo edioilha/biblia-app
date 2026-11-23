@@ -116,3 +116,49 @@ body {
 .amostra-cor {
   background-color: rgb(var(--marca) / 0.75);
 }
+
+/*
+ * RF05.3 — marcador de nota de rodapé. O número vem do CSS (data-n), não de um nó de texto:
+ * assim o marcador não entra nos offsets da seleção do marca-texto (UC05).
+ */
+.marcador-nota {
+  margin-inline: 0.05em 0.1em;
+  padding-inline: 0.1em;
+  font-family: var(--font-sans);
+  font-size: 0.62em;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: super;
+  color: var(--color-primaria);
+  cursor: pointer;
+}
+.marcador-nota::before {
+  content: attr(data-n);
+}
+.marcador-nota:hover {
+  text-decoration: underline;
+}
+
+/* RF05.5 — Markdown das notas (inline e rodapé) */
+.conteudo-nota > * + * {
+  margin-top: 0.4em;
+}
+.conteudo-nota ul {
+  list-style: disc;
+  padding-left: 1.25em;
+}
+.conteudo-nota ol {
+  list-style: decimal;
+  padding-left: 1.25em;
+}
+.conteudo-nota li + li {
+  margin-top: 0.15em;
+}
+
+/* UC06 — editor: bottom sheet no celular (o dialog modal centraliza por padrão) */
+@media (max-width: 639px) {
+  dialog.editor-anotacao {
+    max-height: 92dvh;
+    margin-bottom: 0;
+  }
+}

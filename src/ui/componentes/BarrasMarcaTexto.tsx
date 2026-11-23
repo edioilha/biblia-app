@@ -1,6 +1,7 @@
 import type { Ref } from 'react';
 import { CorDestaque } from '../../dominio/estudo';
 import { BarraAcoes, BotaoBarra } from './BarraAcoes';
+import { Icones } from './icones';
 import { NOME_COR } from './nomesCores';
 
 function BotaoCor({
@@ -73,7 +74,7 @@ export function BarraSelecao({
         />
       ))}
       {onDesmarcar && (
-        <BotaoBarra onClick={onDesmarcar} disabled={ocupado}>
+        <BotaoBarra onClick={onDesmarcar} disabled={ocupado} icone={Icones.borracha}>
           Desmarcar
         </BotaoBarra>
       )}
@@ -81,12 +82,13 @@ export function BarraSelecao({
   );
 }
 
-/** UC05 A2 — barra de um destaque tocado: trocar a cor ou remover. */
+/** UC05 A4 — barra de um destaque tocado: trocar a cor, anotar (UC06) ou remover. */
 export function BarraDestaque({
   rotulo,
   cor,
   ocupado,
   onCor,
+  onAnotar,
   onRemover,
   onFechar,
 }: {
@@ -95,6 +97,7 @@ export function BarraDestaque({
   cor: CorDestaque;
   ocupado: boolean;
   onCor: (cor: CorDestaque) => void;
+  onAnotar: () => void;
   onRemover: () => void;
   onFechar: () => void;
 }) {
@@ -116,7 +119,10 @@ export function BarraDestaque({
           disabled={ocupado}
         />
       ))}
-      <BotaoBarra onClick={onRemover} disabled={ocupado}>
+      <BotaoBarra onClick={onAnotar} disabled={ocupado} icone={Icones.lapis}>
+        Anotar
+      </BotaoBarra>
+      <BotaoBarra onClick={onRemover} disabled={ocupado} icone={Icones.lixeira}>
         Remover
       </BotaoBarra>
     </BarraAcoes>
