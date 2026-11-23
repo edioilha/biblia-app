@@ -1,10 +1,14 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import type {
   AbrirCapitulo,
+  AlterarCorDestaque,
   AlternarFavorito,
+  DesmarcarTexto,
+  MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
   PrepararVersaoPadrao,
+  RemoverDestaque,
 } from '../../aplicacao/casos-de-uso';
 import type { Canon, Versao } from '../../dominio/biblia';
 
@@ -15,6 +19,10 @@ export interface Dependencias {
   readonly abrirCapitulo: AbrirCapitulo;
   readonly obterMarcacoesDoCapitulo: ObterMarcacoesDoCapitulo;
   readonly alternarFavorito: AlternarFavorito;
+  readonly marcarTexto: MarcarTexto;
+  readonly desmarcarTexto: DesmarcarTexto;
+  readonly removerDestaque: RemoverDestaque;
+  readonly alterarCorDestaque: AlterarCorDestaque;
   readonly obterPosicaoInicial: ObterPosicaoInicial;
   readonly prepararVersaoPadrao: PrepararVersaoPadrao;
 }

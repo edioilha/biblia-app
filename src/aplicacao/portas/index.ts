@@ -1,3 +1,4 @@
+export type { DestaqueRepository } from './DestaqueRepository';
 export type { FavoritoRepository } from './FavoritoRepository';
 export type { FonteVersaoEmbarcada } from './FonteVersaoEmbarcada';
 export type { GeradorId } from './GeradorId';
