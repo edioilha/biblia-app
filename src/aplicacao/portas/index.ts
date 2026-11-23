@@ -6,3 +6,4 @@ export type { GeradorId } from './GeradorId';
 export type { PreferenciasRepository } from './PreferenciasRepository';
 export type { Relogio } from './Relogio';
 export type { LivroImportado, TextoBiblicoRepository } from './TextoBiblicoRepository';
+export type { ServicoBusca } from './ServicoBusca';
