@@ -14,7 +14,14 @@ async function comPlano(page: Page) {
   await page.getByRole('region', { name: 'Salmos e Provérbios em 31 dias' }).waitFor();
 }
 const casos: [string, (p: Page) => Promise<void>, (a: AxeBuilder) => AxeBuilder][] = [
-  ['A catalogo vazio', async (p) => { await p.goto('./#/planos'); await p.getByText('Escolha um plano para começar').waitFor({ timeout: 30_000 }); }, (a) => a],
+  [
+    'A catalogo vazio',
+    async (p) => {
+      await p.goto('./#/planos');
+      await p.getByText('Escolha um plano para começar').waitFor({ timeout: 30_000 });
+    },
+    (a) => a,
+  ],
   ['B so cartao', comPlano, (a) => a.include('main section[aria-labelledby]')],
   ['C sem cartao', comPlano, (a) => a.exclude('main section[aria-labelledby]')],
   ['D sem color-contrast', comPlano, (a) => a.disableRules(['color-contrast'])],
