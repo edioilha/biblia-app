@@ -1,6 +1,7 @@
 import type { InscricaoRepository } from '../../aplicacao/portas';
-import { DataLocal, InscricaoId, InscricaoPlano, PlanoId } from '../../dominio/planos';
+import type { InscricaoId, InscricaoPlano, PlanoId } from '../../dominio/planos';
 import type { BancoApp, InscricaoRegistro } from './BancoApp';
+import { inscricaoDeRegistro, inscricaoParaRegistro, ouNulo } from './mapeadores';
 
 export class DexieInscricaoRepository implements InscricaoRepository {
   constructor(private readonly db: BancoApp) {}
@@ -21,33 +22,14 @@ export class DexieInscricaoRepository implements InscricaoRepository {
   }
 
   async salvar(i: InscricaoPlano): Promise<void> {
-    await this.db.inscricoes.put({
-      id: i.id,
-      planoId: i.planoId,
-      totalDias: i.totalDias,
-      inicio: i.inicio.paraIso(),
-      diasConcluidos: [...i.diasConcluidos].sort((a, b) => a - b),
-      diaInicial: i.diaInicial,
-    });
+    await this.db.inscricoes.put(inscricaoParaRegistro(i));
   }
 
   async remover(id: InscricaoId): Promise<void> {
     await this.db.inscricoes.delete(id);
   }
 
-  /** `null` para registro inválido (ex.: gravado por versão antiga ou importado corrompido). */
   private paraDominio(r: InscricaoRegistro): InscricaoPlano | null {
-    try {
-      return InscricaoPlano.criar(
-        InscricaoId.de(r.id),
-        PlanoId.de(r.planoId),
-        r.totalDias,
-        DataLocal.iso(r.inicio),
-        r.diasConcluidos,
-        r.diaInicial ?? 1,
-      );
-    } catch {
-      return null;
-    }
+    return ouNulo(() => inscricaoDeRegistro(r));
   }
 }

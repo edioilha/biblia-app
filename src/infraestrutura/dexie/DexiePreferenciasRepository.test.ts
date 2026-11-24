@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Canon, Referencia, VersaoId } from '../../dominio/biblia';
-import { Preferencias } from '../../dominio/preferencias';
+import { ConfiguracaoLeitura, Preferencias } from '../../dominio/preferencias';
 import { BancoApp } from './BancoApp';
 import { DexiePreferenciasRepository } from './DexiePreferenciasRepository';
 
@@ -30,7 +30,32 @@ describe('DexiePreferenciasRepository', () => {
       id: 'usuario',
       versaoAtiva: 'BLIVRE',
       ultimaPosicao: 'JHN.3',
+      tema: 'CLARO',
+      tamanhoFonte: 3,
     });
+  });
+
+  it('guarda tema e tamanho da fonte (UC12)', async () => {
+    const leitura = ConfiguracaoLeitura.criar('SEPIA', 6);
+    await repo.salvar(
+      Preferencias.criar(VersaoId.de('BLIVRE'), Referencia.parse('Jo 3', canon), leitura),
+    );
+    expect((await repo.obter())?.leitura).toEqual(leitura);
+  });
+
+  it('registro antigo (sem tema) ou com tema inválido usa a configuração padrão', async () => {
+    await db.preferencias.put({ id: 'usuario', versaoAtiva: 'BLIVRE', ultimaPosicao: 'JHN.3' });
+    expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.padrao);
+    await db.preferencias.put({
+      id: 'usuario',
+      versaoAtiva: 'BLIVRE',
+      ultimaPosicao: 'JHN.3',
+      tema: 'NEON',
+      tamanhoFonte: 99,
+    });
+    const p = await repo.obter();
+    expect(p?.leitura).toEqual(ConfiguracaoLeitura.padrao);
+    expect(p?.ultimaPosicao.chave()).toBe('JHN.3');
   });
 
   it('trata registro inválido como primeira execução', async () => {

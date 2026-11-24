@@ -1,5 +1,6 @@
 /** Implementações em memória das portas, para testes da aplicação e da UI. */
 import type {
+  ArmazenamentoDadosLeitor,
   AnotacaoRepository,
   DestaqueRepository,
   FavoritoRepository,
@@ -23,6 +24,7 @@ import type {
 } from '../dominio/estudo';
 import type { InscricaoId, InscricaoPlano, PlanoId } from '../dominio/planos';
 import type { Preferencias } from '../dominio/preferencias';
+import type { AlteracoesImportacao, DadosDoLeitor } from '../dominio/backup';
 
 export class TextoBiblicoEmMemoria implements TextoBiblicoRepository {
   readonly versoes = new Map<VersaoId, Map<string, LivroImportado>>();
@@ -241,5 +243,32 @@ export class InscricoesEmMemoria implements InscricaoRepository {
 
   async remover(id: InscricaoId): Promise<void> {
     this.itens.delete(id);
+  }
+}
+
+/** Backup sobre os repositórios em memória (o que a tela vê é o que o backup lê e grava). */
+export class DadosLeitorEmMemoria implements ArmazenamentoDadosLeitor {
+  constructor(
+    private readonly favoritos: FavoritosEmMemoria,
+    private readonly destaques: DestaquesEmMemoria,
+    private readonly anotacoes: AnotacoesEmMemoria,
+    private readonly inscricoes: InscricoesEmMemoria,
+  ) {}
+
+  async ler(): Promise<DadosDoLeitor> {
+    return {
+      favoritos: [...this.favoritos.itens.values()],
+      destaques: [...this.destaques.itens.values()],
+      anotacoes: [...this.anotacoes.itens.values()],
+      inscricoes: [...this.inscricoes.itens.values()],
+    };
+  }
+
+  async aplicar(a: AlteracoesImportacao): Promise<void> {
+    for (const id of a.inscricoesRemovidas) this.inscricoes.itens.delete(id);
+    for (const f of a.favoritos) this.favoritos.itens.set(f.id, f);
+    for (const d of a.destaques) this.destaques.itens.set(d.id, d);
+    for (const n of a.anotacoes) this.anotacoes.itens.set(n.id, n);
+    for (const i of a.inscricoes) this.inscricoes.itens.set(i.id, i);
   }
 }

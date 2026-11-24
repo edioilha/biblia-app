@@ -9,10 +9,13 @@ import {
   AlterarCorDestaque,
   AlternarFavorito,
   BuscarTexto,
+  ConfigurarLeitura,
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
   EncerrarPlano,
+  ExportarDados,
+  ImportarDados,
   IniciarPlano,
   MarcarDiaPlano,
   ObterLeiturasDoCapitulo,
@@ -34,9 +37,11 @@ import {
   RemoverFavorito,
 } from './aplicacao/casos-de-uso';
 import { Canon } from './dominio/biblia';
+import { BackupJson } from './infraestrutura/backup';
 import {
   BancoApp,
   DexieAnotacaoRepository,
+  DexieDadosLeitor,
   DexieDestaqueRepository,
   DexieFavoritoRepository,
   DexieInscricaoRepository,
@@ -77,6 +82,9 @@ const busca = new ServicoBuscaWorker(
 );
 
 const versaoAtiva = new ObterVersaoAtiva(catalogo, preferencias);
+// UC11: o arquivo de backup guarda os mesmos registros do banco.
+const dadosLeitor = new DexieDadosLeitor(db, canon);
+const formatoBackup = new BackupJson(canon);
 
 export const dependencias: Dependencias = {
   canon,
@@ -107,4 +115,7 @@ export const dependencias: Dependencias = {
   instalarVersao: new InstalarVersao(canon, catalogo, fonteInstalacao, texto, busca),
   trocarVersao: new TrocarVersao(canon, catalogo, texto, preferencias),
   removerVersao: new RemoverVersao(catalogo, texto, preferencias, busca),
+  exportarDados: new ExportarDados(dadosLeitor, formatoBackup, relogio),
+  importarDados: new ImportarDados(dadosLeitor, formatoBackup),
+  configurarLeitura: new ConfigurarLeitura(canon, preferencias, padrao.id),
 };

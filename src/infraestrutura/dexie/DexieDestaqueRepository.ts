@@ -1,14 +1,8 @@
 import type { DestaqueRepository } from '../../aplicacao/portas';
-import { Referencia, VersaoId, type Canon } from '../../dominio/biblia';
-import {
-  CorDestaque,
-  Destaque,
-  DestaqueId,
-  IntervaloTexto,
-  PosicaoTexto,
-  type AlteracoesDestaques,
-} from '../../dominio/estudo';
-import type { BancoApp, DestaqueRegistro, PosicaoRegistro } from './BancoApp';
+import type { Canon, Referencia, VersaoId } from '../../dominio/biblia';
+import type { AlteracoesDestaques, Destaque, DestaqueId } from '../../dominio/estudo';
+import type { BancoApp, DestaqueRegistro } from './BancoApp';
+import { destaqueDeRegistro, destaqueParaRegistro, ouNulo } from './mapeadores';
 
 export class DexieDestaqueRepository implements DestaqueRepository {
   constructor(
@@ -41,44 +35,14 @@ export class DexieDestaqueRepository implements DestaqueRepository {
   async aplicar({ salvar, remover, religar = [] }: AlteracoesDestaques): Promise<void> {
     await this.db.transaction('rw', this.db.destaques, this.db.anotacoes, async () => {
       await this.db.destaques.bulkDelete([...remover]);
-      await this.db.destaques.bulkPut(salvar.map((d) => this.paraRegistro(d)));
+      await this.db.destaques.bulkPut(salvar.map(destaqueParaRegistro));
       for (const { de, para } of religar) {
         await this.db.anotacoes.where('destaqueId').equals(de).modify({ destaqueId: para });
       }
     });
   }
 
-  private paraRegistro(d: Destaque): DestaqueRegistro {
-    const { inicio, fim } = d.intervalo;
-    return {
-      id: d.id,
-      versaoId: d.versaoId,
-      livro: d.capitulo.livro.valor,
-      capitulo: d.capitulo.capitulo,
-      inicio: [inicio.numero, inicio.offset],
-      fim: [fim.numero, fim.offset],
-      cor: d.cor,
-      criadoEm: d.criadoEm,
-    };
-  }
-
-  /** `null` para registro inválido (ex.: gravado por versão antiga ou importado corrompido). */
   private paraDominio(r: DestaqueRegistro): Destaque | null {
-    try {
-      const posicao = ([versiculo, offset]: PosicaoRegistro) =>
-        PosicaoTexto.em(
-          Referencia.deChave(`${r.livro}.${r.capitulo}.${versiculo}`, this.canon),
-          offset,
-        );
-      return Destaque.criar(
-        DestaqueId.de(r.id),
-        VersaoId.de(r.versaoId),
-        IntervaloTexto.criar(posicao(r.inicio), posicao(r.fim)),
-        CorDestaque.de(r.cor),
-        r.criadoEm,
-      );
-    } catch {
-      return null;
-    }
+    return ouNulo(() => destaqueDeRegistro(r, this.canon));
   }
 }

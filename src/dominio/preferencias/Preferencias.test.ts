@@ -26,3 +26,19 @@ describe('Preferencias', () => {
     expect(p.comPosicao(ref('Gn 1:5'))).toBe(p);
   });
 });
+
+describe('Preferencias — leitura (UC12)', () => {
+  it('começa com a configuração padrão e troca sem mexer na versão e na posição', async () => {
+    const { ConfiguracaoLeitura } = await import('./ConfiguracaoLeitura');
+    const p = Preferencias.criar(blivre, ref('Jo 3'));
+    expect(p.leitura).toBe(ConfiguracaoLeitura.padrao);
+
+    const escuro = ConfiguracaoLeitura.criar('ESCURO', 5);
+    const q = p.comLeitura(escuro);
+    expect(q.leitura).toBe(escuro);
+    expect(q.ultimaPosicao.chave()).toBe('JHN.3');
+    expect(q.comLeitura(ConfiguracaoLeitura.criar('ESCURO', 5))).toBe(q);
+    expect(q.comPosicao(ref('Rm 8')).leitura).toBe(escuro);
+    expect(q.comVersao(VersaoId.de('TB')).leitura).toBe(escuro);
+  });
+});

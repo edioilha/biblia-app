@@ -21,6 +21,10 @@ export interface PreferenciasRegistro {
   id: 'usuario';
   versaoAtiva: string;
   ultimaPosicao: string;
+  /** UC12 (fase 7.9): "CLARO" | "SEPIA" | "ESCURO". Ausente em registros antigos: claro. */
+  tema?: string;
+  /** UC12: nível 1–7. Ausente em registros antigos: o padrão. */
+  tamanhoFonte?: number;
 }
 
 /** Favorito (docs/06 §6). `chave` = "JHN.3.16" (índice único: um favorito por versículo). */

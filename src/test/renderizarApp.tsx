@@ -6,10 +6,13 @@ import {
   AlterarCorDestaque,
   AlternarFavorito,
   BuscarTexto,
+  ConfigurarLeitura,
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
   EncerrarPlano,
+  ExportarDados,
+  ImportarDados,
   IniciarPlano,
   MarcarDiaPlano,
   ObterLeiturasDoCapitulo,
@@ -38,6 +41,7 @@ import { criarClienteConsultas } from '../ui/consultas/clienteConsultas';
 import { DependenciasProvider, type Dependencias } from '../ui/contexto/Dependencias';
 import {
   AnotacoesEmMemoria,
+  DadosLeitorEmMemoria,
   DestaquesEmMemoria,
   FavoritosEmMemoria,
   FonteSintetica,
@@ -50,6 +54,7 @@ import {
 import { BuscaEmMemoria } from './busca';
 import { PlanosPreDefinidos } from '../infraestrutura/planos';
 import { VersoesDisponiveis } from '../infraestrutura/versoes';
+import { BackupJson } from '../infraestrutura/backup';
 
 interface Opcoes {
   rota?: string;
@@ -86,6 +91,8 @@ export function renderizarApp({
   const planos = new PlanosPreDefinidos(canon);
   const gerador = new GeradorIdSequencial();
   const versaoAtiva = new ObterVersaoAtiva(catalogo, prefs);
+  const dadosLeitor = new DadosLeitorEmMemoria(favoritos, destaques, anotacoes, inscricoes);
+  const formatoBackup = new BackupJson(canon);
   const instalacao = fonteInstalacao ?? new FonteSintetica(canon, { prefixo: true });
   const deps: Dependencias = {
     canon,
@@ -121,6 +128,9 @@ export function renderizarApp({
     instalarVersao: new InstalarVersao(canon, catalogo, instalacao, texto, busca),
     trocarVersao: new TrocarVersao(canon, catalogo, texto, prefs),
     removerVersao: new RemoverVersao(catalogo, texto, prefs, busca),
+    exportarDados: new ExportarDados(dadosLeitor, formatoBackup, relogio),
+    importarDados: new ImportarDados(dadosLeitor, formatoBackup),
+    configurarLeitura: new ConfigurarLeitura(canon, prefs, versao.id),
   };
 
   const resultado = render(
