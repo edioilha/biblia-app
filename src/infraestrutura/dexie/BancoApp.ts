@@ -67,6 +67,18 @@ export interface AnotacaoRegistro {
 }
 
 /**
+ * Inscrição num plano de leitura (docs/06 §6). `planoId` tem índice único (um plano por
+ * vez); `inicio` = "2026-11-24" (dia local); `diasConcluidos` em ordem crescente.
+ */
+export interface InscricaoRegistro {
+  id: string;
+  planoId: string;
+  totalDias: number;
+  inicio: string;
+  diasConcluidos: number[];
+}
+
+/**
  * Banco IndexedDB do app (ADR 0004). Cada mudança de schema = nova `version(n)`
  * com `upgrade()` quando houver migração de dados; nunca alterar versões publicadas.
  */
@@ -77,6 +89,7 @@ export class BancoApp extends Dexie {
   favoritos!: EntityTable<FavoritoRegistro, 'id'>;
   destaques!: EntityTable<DestaqueRegistro, 'id'>;
   anotacoes!: EntityTable<AnotacaoRegistro, 'id'>;
+  inscricoes!: EntityTable<InscricaoRegistro, 'id'>;
 
   constructor(nome = 'biblia-app') {
     super(nome);
@@ -96,6 +109,10 @@ export class BancoApp extends Dexie {
     // v4 (fase 7.4): anotações. Só cria a tabela.
     this.version(4).stores({
       anotacoes: 'id, [livro+capitulo], atualizadoEm, destaqueId',
+    });
+    // v5 (fase 7.7): inscrições em planos de leitura. Só cria a tabela.
+    this.version(5).stores({
+      inscricoes: 'id, &planoId',
     });
   }
 }

@@ -150,7 +150,7 @@ describe('BancoApp — migração v2 → v3', () => {
     const db = new BancoApp(nome);
     expect(await db.favoritos.count()).toBe(1);
     expect(await db.destaques.count()).toBe(0);
-    expect(db.verno).toBe(4);
+    expect(db.verno).toBe(5);
     await db.delete();
   });
 });
