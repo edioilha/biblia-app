@@ -756,6 +756,12 @@ classDiagram
 - `ServicoBusca.preparar()` substitui `indexar(progresso)`: o índice é montado em memória (ADR 0005, revisão da 7.5), sem progresso. Casos de uso `BuscarTexto` (página vazia abaixo do termo mínimo) e `PrepararBusca` (pré-carrega o índice). `InstalarVersao` (7.8) vai chamar `preparar` da nova versão.
 - No adapter, `MotorBusca` (classe pura sobre o MiniSearch) usa como id de documento `ordem do livro × 10⁶ + capítulo × 10³ + versículo`: ordenar e filtrar não exigem campos extras.
 
+**Notas de implementação (fase 7.6)**
+- No lugar de `listar()`: `FavoritoRepository.todos()`, `DestaqueRepository.daVersao(versao)` (faixa da versão no índice `[versaoId+livro+capitulo]`) e `AnotacaoRepository.todas()`. Sem índices novos: o schema continua na v4.
+- `ConsultaEstudos` (value object do módulo `estudo`): aba, filtro de texto (palavras normalizadas, todas obrigatórias, como substring), livro, ordem (`BIBLICA` | `RECENTES`), página e tamanho (20). `correspondeTexto()` olha o versículo ou o trecho e, nas anotações, também a nota (RF02.9). `comparar()` desempata pela ordem bíblica, pelo offset (destaques) e pela data.
+- `ItemEstudo` = marcação + texto exibido (versículo; nos destaques, só o trecho via `TextoDoCapitulo.trecho()`). A data da ordem "mais recentes" é `criadoEm` (favorito, destaque) ou `atualizadoEm` (anotação).
+- Casos de uso `ListarEstudos` (filtra, ordena e pagina em memória; devolve `Pagina<ItemEstudo>` e o total de cada aba com os mesmos filtros; `Pagina` vem do módulo `busca`) e `RemoverFavorito` (por id; `AlternarFavorito` continua na leitura).
+
 ### Adapters (infraestrutura) previstos
 
 | Porta | Implementação |

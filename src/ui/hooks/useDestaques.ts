@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { VersaoId } from '../../dominio/biblia';
 import type { CorDestaque, Destaque, IntervaloTexto } from '../../dominio/estudo';
-import { chaves } from '../consultas/clienteConsultas';
+import { invalidarMarcacoes } from '../consultas/clienteConsultas';
 import { useDependencias } from '../contexto/Dependencias';
 
 /** Ações do marca-texto (UC05). */
@@ -37,10 +37,6 @@ export function useEditarDestaques() {
       }
     },
     onSettled: (_r, _e, acao) =>
-      cliente.invalidateQueries({
-        queryKey: chaves.marcacoes(
-          'trecho' in acao ? acao.trecho.capitulo : acao.destaque.capitulo,
-        ),
-      }),
+      invalidarMarcacoes(cliente, 'trecho' in acao ? acao.trecho.capitulo : acao.destaque.capitulo),
   });
 }

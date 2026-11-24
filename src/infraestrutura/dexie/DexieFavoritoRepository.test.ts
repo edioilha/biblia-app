@@ -72,6 +72,16 @@ describe('DexieFavoritoRepository', () => {
     expect(await repo.porCapitulo(ref('Jo 3'))).toEqual([]);
     expect(await repo.porReferencia(ref('Jo 3:16'))).toBeNull();
   });
+  it('lista todos os favoritos, de qualquer livro (UC13)', async () => {
+    await repo.salvar(favorito('Jo 3:16', 1));
+    await repo.salvar(favorito('Gn 1:1', 2));
+    await db.favoritos.put({ id: 'lixo', chave: 'XXX.1.1', livro: 'XXX', capitulo: 1, criadoEm });
+
+    expect((await repo.todos()).map((f) => f.referencia.chave()).sort()).toEqual([
+      'GEN.1.1',
+      'JHN.3.16',
+    ]);
+  });
 });
 
 describe('BancoApp — migração a partir da v1', () => {

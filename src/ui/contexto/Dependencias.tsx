@@ -8,12 +8,14 @@ import type {
   DesmarcarTexto,
   EditarAnotacao,
   ExcluirAnotacao,
+  ListarEstudos,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
   PrepararBusca,
   PrepararVersaoPadrao,
   RemoverDestaque,
+  RemoverFavorito,
 } from '../../aplicacao/casos-de-uso';
 import type { Canon, Versao } from '../../dominio/biblia';
 
@@ -24,6 +26,7 @@ export interface Dependencias {
   readonly abrirCapitulo: AbrirCapitulo;
   readonly obterMarcacoesDoCapitulo: ObterMarcacoesDoCapitulo;
   readonly alternarFavorito: AlternarFavorito;
+  readonly removerFavorito: RemoverFavorito;
   readonly marcarTexto: MarcarTexto;
   readonly desmarcarTexto: DesmarcarTexto;
   readonly removerDestaque: RemoverDestaque;
@@ -35,6 +38,7 @@ export interface Dependencias {
   readonly prepararVersaoPadrao: PrepararVersaoPadrao;
   readonly buscarTexto: BuscarTexto;
   readonly prepararBusca: PrepararBusca;
+  readonly listarEstudos: ListarEstudos;
 }
 
 const DependenciasContext = createContext<Dependencias | null>(null);

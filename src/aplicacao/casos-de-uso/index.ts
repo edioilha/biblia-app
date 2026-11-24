@@ -16,3 +16,5 @@ export {
 } from './PrepararVersaoPadrao';
 export { BuscarTexto } from './BuscarTexto';
 export { PrepararBusca } from './PrepararBusca';
+export { ListarEstudos, type ResultadoEstudos } from './ListarEstudos';
+export { RemoverFavorito } from './RemoverFavorito';

@@ -88,6 +88,10 @@ export class FavoritosEmMemoria implements FavoritoRepository {
     return [...this.itens.values()].find((f) => f.referencia.equals(versiculo)) ?? null;
   }
 
+  async todos(): Promise<Favorito[]> {
+    return [...this.itens.values()];
+  }
+
   async salvar(favorito: Favorito): Promise<void> {
     this.itens.set(favorito.id, favorito);
   }
@@ -103,6 +107,10 @@ export class AnotacoesEmMemoria implements AnotacaoRepository {
   async porCapitulo(capitulo: Referencia): Promise<Anotacao[]> {
     const chave = capitulo.doCapitulo().chave();
     return [...this.itens.values()].filter((a) => a.referencia.doCapitulo().chave() === chave);
+  }
+
+  async todas(): Promise<Anotacao[]> {
+    return [...this.itens.values()];
   }
 
   async porId(id: AnotacaoId): Promise<Anotacao | null> {
@@ -129,6 +137,10 @@ export class DestaquesEmMemoria implements DestaqueRepository {
     return [...this.itens.values()].filter(
       (d) => d.versaoId === versao && d.capitulo.chave() === chave,
     );
+  }
+
+  async daVersao(versao: VersaoId): Promise<Destaque[]> {
+    return [...this.itens.values()].filter((d) => d.versaoId === versao);
   }
 
   async porId(id: DestaqueId): Promise<Destaque | null> {

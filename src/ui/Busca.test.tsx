@@ -64,7 +64,11 @@ describe('Busca (UC03)', () => {
     const dialogo = screen.getByRole('dialog', { name: 'Buscar nos livros' });
     await user.click(within(dialogo).getByRole('checkbox', { name: 'Salmos' }));
     await user.click(within(dialogo).getByRole('button', { name: 'Aplicar' }));
-    expect(screen.getByRole('button', { name: /^Livros: Salmos/ })).toBeInTheDocument();
+    // O foco volta ao botão no quadro seguinte (requestAnimationFrame): espera, senão ele
+    // chega depois da troca de página e tira o foco do título dos resultados.
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /^Livros: Salmos/ })).toHaveFocus(),
+    );
     await waitFor(() =>
       expect(itens().every((l) => l.textContent?.startsWith('Salmos'))).toBe(true),
     );
@@ -126,5 +130,13 @@ describe('Busca (UC03)', () => {
       'aria-current',
       'page',
     );
+  });
+
+  it('leva o termo para as anotações em Meus Estudos (RF02.9)', async () => {
+    renderizarApp({ rota: '/buscar?q=luz' });
+    await waitFor(() => expect(status()).toHaveTextContent(/encontrados/));
+    expect(
+      screen.getByRole('link', { name: 'Procurar “luz” nas minhas anotações' }),
+    ).toHaveAttribute('href', '/estudos?aba=anotacoes&q=luz');
   });
 });

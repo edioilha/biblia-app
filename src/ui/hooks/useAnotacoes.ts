@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AlvoAnotacao } from '../../aplicacao/casos-de-uso';
 import type { Anotacao, ModoExibicao } from '../../dominio/estudo';
-import { chaves } from '../consultas/clienteConsultas';
+import { invalidarMarcacoes } from '../consultas/clienteConsultas';
 import { useDependencias } from '../contexto/Dependencias';
 
 /** Ações sobre anotações (UC06). */
@@ -10,7 +10,7 @@ export type AcaoAnotacao =
   | { tipo: 'editar'; anotacao: Anotacao; conteudo: string; exibicao: ModoExibicao }
   | { tipo: 'excluir'; anotacao: Anotacao };
 
-/** UC06 — cria, edita ou exclui; ao terminar, recarrega as marcações do capítulo. */
+/** UC06 — cria, edita ou exclui; ao terminar, recarrega as marcações e Meus Estudos. */
 export function useEditarAnotacoes() {
   const { criarAnotacao, editarAnotacao, excluirAnotacao } = useDependencias();
   const cliente = useQueryClient();
@@ -29,10 +29,9 @@ export function useEditarAnotacoes() {
       }
     },
     onSettled: (_r, _e, acao) =>
-      cliente.invalidateQueries({
-        queryKey: chaves.marcacoes(
-          acao.tipo === 'criar' ? acao.alvo.versiculo : acao.anotacao.referencia,
-        ),
-      }),
+      invalidarMarcacoes(
+        cliente,
+        acao.tipo === 'criar' ? acao.alvo.versiculo : acao.anotacao.referencia,
+      ),
   });
 }

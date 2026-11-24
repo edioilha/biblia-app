@@ -10,12 +10,14 @@ import {
   DesmarcarTexto,
   EditarAnotacao,
   ExcluirAnotacao,
+  ListarEstudos,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
   PrepararBusca,
   PrepararVersaoPadrao,
   RemoverDestaque,
+  RemoverFavorito,
 } from '../aplicacao/casos-de-uso';
 import type { FonteVersaoEmbarcada } from '../aplicacao/portas';
 import { Canon, Versao, VersaoId } from '../dominio/biblia';
@@ -74,6 +76,7 @@ export function renderizarApp({
     abrirCapitulo: new AbrirCapitulo(canon, texto, prefs, versao.id),
     obterMarcacoesDoCapitulo: new ObterMarcacoesDoCapitulo(favoritos, destaques, anotacoes),
     alternarFavorito: new AlternarFavorito(favoritos, relogio, gerador),
+    removerFavorito: new RemoverFavorito(favoritos),
     marcarTexto: new MarcarTexto(texto, destaques, relogio, gerador),
     desmarcarTexto: new DesmarcarTexto(texto, destaques, gerador),
     removerDestaque: new RemoverDestaque(destaques),
@@ -90,6 +93,7 @@ export function renderizarApp({
     ),
     buscarTexto: new BuscarTexto(busca, versao.id),
     prepararBusca: new PrepararBusca(busca, versao.id),
+    listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, versao.id),
   };
 
   const resultado = render(

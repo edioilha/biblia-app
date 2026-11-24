@@ -17,6 +17,7 @@ import {
   parametrosDoEstado,
   type EstadoBusca,
 } from '../parametrosBusca';
+import { caminhoEstudos } from '../parametrosEstudos';
 import { caminhoLeitura } from '../rotas';
 
 /** RF02.6 — espera após a última tecla antes de buscar. */
@@ -277,6 +278,17 @@ export function BuscaPage() {
 
         {pagina && (
           <Paginacao atual={pagina.pagina} total={pagina.totalPaginas()} onIr={irParaPagina} />
+        )}
+
+        {consulta.pesquisavel && pagina && (
+          <p className="mt-6 text-sm text-stone-600">
+            <Link
+              to={caminhoEstudos({ aba: 'ANOTACOES', q: consulta.termo })}
+              className="text-primaria font-medium hover:underline"
+            >
+              Procurar “{consulta.termo}” nas minhas anotações
+            </Link>
+          </p>
         )}
       </main>
     </>

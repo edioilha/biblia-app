@@ -22,6 +22,11 @@ export class DexieFavoritoRepository implements FavoritoRepository {
     return registro ? this.paraDominio(registro) : null;
   }
 
+  async todos(): Promise<Favorito[]> {
+    const registros = await this.db.favoritos.toArray();
+    return registros.flatMap((r) => this.paraDominio(r) ?? []);
+  }
+
   async salvar(f: Favorito): Promise<void> {
     await this.db.favoritos.put({
       id: f.id,

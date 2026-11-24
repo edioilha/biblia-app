@@ -22,6 +22,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-07 | Modo foco de leitura | UC01, UC12 | ideia |
 | BL-08 | Histórico das últimas buscas | RF02.10, UC03 | ideia |
 | BL-09 | Filtro por intervalo de livros na busca | RF02.5, UC03 | ideia |
+| BL-10 | Abas de Meus Estudos cabendo no celular | RNF03, UC13 | ideia |
 
 ## Itens
 
@@ -79,3 +80,10 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 
 - **Origem:** RF02.5 ("intervalo de livros"), adiado na fase 7.5: marcar vários livros no diálogo cobre o uso.
 - **Ideia:** atalho "de … até …" (ex.: Mateus a João) no diálogo de livros.
+
+### BL-10 — Abas de Meus Estudos cabendo no celular
+
+- **Origem:** revisão da fase 7.6. A linha das abas precisa de 375 px; numa tela de 393 px (iPhone 15) sobram só 361 px depois das margens, e a aba "Anotações" fica cortada uns 14 px. No iPhone a barra de rolagem lateral fica escondida até rolar, então o contador parece cortado sem aviso de que dá para rolar.
+- **Medição (fase 7.6):** cabe no desktop (1280 px); rola para o lado em 393, 375, 360 e 320 px. Nunca há rolagem vertical (corrigido na 7.6).
+- **Ideia:** no celular, diminuir o espaço interno das abas e entre elas (≈ 30 px a menos) para caber a partir de 375 px; abaixo disso, manter a rolagem lateral, talvez com um esmaecido na borda indicando que há mais.
+- **Relação:** RNF03 (responsivo, mobile-first). Vale definir a **largura mínima suportada** (ex.: 360 px) e um teste E2E que confira que as abas e a navegação cabem nela.

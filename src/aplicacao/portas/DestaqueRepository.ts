@@ -4,6 +4,8 @@ import type { AlteracoesDestaques, Destaque, DestaqueId } from '../../dominio/es
 export interface DestaqueRepository {
   /** Destaques da versão no capítulo de `capitulo`. */
   porCapitulo(versao: VersaoId, capitulo: Referencia): Promise<Destaque[]>;
+  /** Todos os destaques da versão (Meus Estudos, UC13). */
+  daVersao(versao: VersaoId): Promise<Destaque[]>;
   porId(id: DestaqueId): Promise<Destaque | null>;
   /**
    * Grava e remove numa única transação (os destaques nunca ficam sobrepostos). Na mesma

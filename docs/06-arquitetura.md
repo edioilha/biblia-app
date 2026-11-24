@@ -286,7 +286,35 @@ sequenceDiagram
 
 Consulta e página atravessam o `postMessage` como DTOs (`dto.ts`), pois o *structured clone* não preserva classes. Medido no navegador (fase 7.5): ~25–35 ms por busca com o índice pronto (ida e volta ao worker incluída; meta RNF02: < 500 ms) e ~1,3 s para a primeira busca logo após abrir o app, que mostra "Preparando a busca…".
 
-### 5.5 Instalar versão (UC09)
+### 5.5 Consultar Meus Estudos (UC13)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor L as Leitor
+    participant P as EstudosPage
+    participant UC as ListarEstudos
+    participant R as Favorito/Destaque/AnotacaoRepository
+    participant T as TextoBiblicoRepository
+
+    L->>P: abre #/estudos?aba=anotacoes&q=luz
+    P->>UC: executar(ConsultaEstudos)
+    UC->>R: todos() · daVersao(BLIVRE) · todas()
+    R-->>UC: marcações
+    UC->>UC: filtro de livro
+    opt filtro de texto
+        UC->>T: obterCapitulo() de cada capítulo com marcação (uma vez cada)
+        UC->>UC: filtra todas as abas (versículo, trecho ou nota)
+    end
+    UC->>UC: ordena a aba (bíblica ou recentes) e recorta a página
+    UC->>T: texto dos itens da página
+    UC-->>P: Pagina<ItemEstudo> + total de cada aba
+    P-->>L: abas com contador, até 20 itens, menu ⋮
+```
+
+Os dados do leitor são poucos (centenas de marcações), então filtro, ordem e paginação rodam em memória na camada de aplicação, sem índices novos (o schema continua na v4). O texto bíblico só é lido para o filtro de texto ou para os itens da página. Os totais das abas seguem os filtros. As ações do menu ⋮ reaproveitam os casos de uso da leitura (`AlterarCorDestaque`, `RemoverDestaque`, `EditarAnotacao`, `ExcluirAnotacao`), mais `RemoverFavorito`. Toda mutação de marcação invalida as marcações do capítulo **e** as listas de Meus Estudos (`invalidarMarcacoes`), pois as duas telas mostram os mesmos dados. O estado da tela fica na URL, como na busca. A busca das anotações (RF02.9) é o filtro de texto da aba Anotações; a tela de busca tem um link que leva o termo para lá.
+
+### 5.6 Instalar versão (UC09)
 
 ```mermaid
 sequenceDiagram
@@ -403,7 +431,7 @@ biblia-app/
 │   │   └── compartilhado/        # Pagina, Id, erros de domínio
 │   ├── aplicacao/
 │   │   ├── portas/               # *Repository, ServicoBusca, FonteVersoes, Relogio
-│   │   └── casos-de-uso/         # AbrirCapitulo, BuscarTexto, …
+│   │   └── casos-de-uso/         # AbrirCapitulo, BuscarTexto, ListarEstudos, …
 │   ├── infraestrutura/
 │   │   ├── dexie/                # BancoApp, Dexie*Repository
 │   │   ├── busca/                # MotorBusca, ServicoBuscaWorker, busca.worker.ts
