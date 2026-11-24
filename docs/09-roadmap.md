@@ -27,8 +27,8 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | 7.5 | Busca: dinâmica, sem acentos, frase exata, filtros, aproximada, paginação, índice em Web Worker | UC03 | F03 | ✅ | #10 | 2026-11-22 |
 | 7.6 | Meus Estudos: abas com total, filtro de texto e livro, ordem, paginação, menu de ações (+ busca nas anotações, RF02.9) | UC13 | F10 | ✅ | #11 | 2026-11-23 |
 | 7.7 | Planos de leitura: catálogo, início com data (pelo calendário ou por livro), leitura do dia, atrasos, reagendar, faixa na leitura (+ tab bar no celular) | UC07, UC08 | F07 | ✅ | #13 | 2026-11-24 |
-| 7.8 | Versões (instalar e trocar) | UC09, UC10 | F08 | ⏭️ | — | — |
-| 7.9 | Backup e configurações de leitura | UC11, UC12 | — | ⏳ | — | — |
+| 7.8 | Versões: tela Versões, instalar TB e ALM1911 (progresso, cancelar, tentar de novo), trocar a ativa mantendo o capítulo, remover (a padrão fica) | UC09, UC10 | F08 | ✅ | #15 | 2026-11-24 |
+| 7.9 | Backup e configurações de leitura | UC11, UC12 | — | ⏭️ | — | — |
 | — | **Release v1.0.0 — MVP entregue** | | | ⏳ | — | — |
 
 ### Candidatos do backlog por fase
@@ -39,8 +39,8 @@ Sugestão de encaixe, ainda **não planejados** (a decisão acontece na discuss�
 |---|---|
 | 7.9 | inscrições de planos no backup · BL-01 largura da leitura · BL-02 fonte · BL-03 tipo de folha · BL-05 `storage.persist()` · BL-07 modo foco |
 | Após 7.6 | BL-04 painel lateral no desktop (depende de favoritos e anotações) |
-| Qualquer fase | BL-06 teste E2E offline · BL-10 abas de Meus Estudos no celular · BL-11 wiki do projeto · BL-13 plano personalizado |
+| Qualquer fase | BL-06 teste E2E offline · BL-10 abas de Meus Estudos no celular · BL-11 wiki do projeto · BL-13 plano personalizado · BL-14 trocar versão pela leitura |
 
 ## Depois da v1.0
 
-A definir a partir do [Backlog](08-backlog.md) e do escopo fora da v1.0 ([Visão §5.2](01-visao.md)).
+A definir a partir do [Backlog](08-backlog.md) e do escopo fora da v1.0 ([Visão §5.2](01-visao.md)). Candidatos já registrados: BL-15 importar tradução de um arquivo do usuário.

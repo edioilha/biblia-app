@@ -79,7 +79,7 @@
 | RF07.2 | Listar versões disponíveis e instaladas | M |
 | RF07.3 | Instalar versão (download + importação + indexação), com progresso | M |
 | RF07.4 | Trocar versão ativa mantendo a referência atual | M |
-| RF07.5 | Remover versão instalada (exceto a última) | S |
+| RF07.5 | Remover versão instalada (exceto a última; a padrão, embarcada, fica sempre) | S |
 
 ### RF08 — Dados do usuário
 

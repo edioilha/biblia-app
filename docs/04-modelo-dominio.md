@@ -72,14 +72,6 @@ classDiagram
         NOVO
     }
 
-    class StatusInstalacao {
-        <<enumeration>>
-        DISPONIVEL
-        INSTALANDO
-        INSTALADA
-        ERRO
-    }
-
     class CodigoLivro {
         <<ValueObject>>
         +valor: string
@@ -135,10 +127,9 @@ classDiagram
         +licenca: string
         +urlOrigem: string
         +padrao: boolean
-        +status: StatusInstalacao
-        +iniciarInstalacao() void
-        +concluirInstalacao() void
-        +falharInstalacao(motivo: string) void
+        +observacao: string
+        +tamanhoMb: number
+        +removivel() boolean
     }
 
     class Capitulo {
@@ -161,7 +152,6 @@ classDiagram
     Canon "1" *-- "66" Livro
     Referencia --> CodigoLivro
     IntervaloReferencia "1" *-- "2" Referencia
-    Versao --> StatusInstalacao
     Versao "1" o-- "1..*" Capitulo
     Capitulo "1" *-- "1..*" Versiculo
     Capitulo ..> Livro
@@ -169,6 +159,7 @@ classDiagram
 ```
 
 **Notas**
+- `Versao` guarda só os metadados do catálogo (fase 7.8). Se está instalada é dado do armazenamento (versão importada por completo); o andamento de uma instalação (etapa, erro) só existe enquanto ela roda, na interface. Por isso o `StatusInstalacao` previsto não virou enum do domínio. `removivel` é falso só na versão padrão (RF07.5).
 - `Livro` é **canônico** (66 livros, mesmos códigos USFM do `biblia.data`: `GEN`, `JHN`…) e independe da versão.
 - `Referencia.chave()` gera a chave de persistência, ex.: `JHN.3.16`.
 - `Referencia.parse()` aceita `Jo 3:16`, `João 3.16`, `jo 3`, `1 Co 13` etc.
@@ -722,7 +713,7 @@ classDiagram
 - `AbrirCapitulo` retorna, por ora, `CapituloAberto` (capítulo, livro, `anterior`/`proximo` e `versiculoEmFoco`); favoritos, destaques e anotações ficam em um caso de uso separado (revisto na fase 7.2, abaixo).
 - `TextoBiblicoRepository` ganhou `possuiVersao()`; `importar()` é atômico.
 - Porta adicional `FonteVersaoEmbarcada` (lê a BLIVRE de `public/dados`) e caso de uso `PrepararVersaoPadrao` (importação na primeira execução) e `ObterPosicaoInicial`.
-- `Versao` ainda sem `StatusInstalacao` (entra com UC09); `Preferencias` só com `versaoAtiva` e `ultimaPosicao` (tema/fonte com UC12).
+- `Versao` ainda sem `StatusInstalacao` (revisto na 7.8: não virou enum, ver notas da fase); `Preferencias` só com `versaoAtiva` e `ultimaPosicao` (tema/fonte com UC12).
 - `Referencia.deChave()` é o inverso de `chave()`; `Referencia.doCapitulo()` descarta o versículo.
 
 **Notas de implementação (fase 7.2)**
@@ -753,7 +744,7 @@ classDiagram
 - `ConsultaBusca.interpretar(entrada, opções)` guarda o termo (sem aspas) e os `termos` normalizados; aspas forçam `FRASE_EXATA`. `pesquisavel` aplica o termo mínimo; `com()` devolve uma cópia alterada.
 - `FiltroBusca.de(testamento, livros)` descarta livros fora do testamento; `aceita(livro)` decide o filtro.
 - Normalização (`normalizarTermo`, `tokenizar`) e destaque (`ocorrenciasDosTermos`, `ocorrenciasDaFrase`) são funções puras do domínio, usadas pelo índice e pela verificação da frase exata. `ResultadoBusca.ocorrencias` usa `Ocorrencia` (`[de, ate)`, próprio do módulo `busca`) em vez de `Faixa`.
-- `ServicoBusca.preparar()` substitui `indexar(progresso)`: o índice é montado em memória (ADR 0005, revisão da 7.5), sem progresso. Casos de uso `BuscarTexto` (página vazia abaixo do termo mínimo) e `PrepararBusca` (pré-carrega o índice). `InstalarVersao` (7.8) vai chamar `preparar` da nova versão.
+- `ServicoBusca.preparar()` substitui `indexar(progresso)`: o índice é montado em memória (ADR 0005, revisão da 7.5), sem progresso. Casos de uso `BuscarTexto` (página vazia abaixo do termo mínimo) e `PrepararBusca` (pré-carrega o índice). `InstalarVersao` (7.8) chama `preparar` da nova versão.
 - No adapter, `MotorBusca` (classe pura sobre o MiniSearch) usa como id de documento `ordem do livro × 10⁶ + capítulo × 10³ + versículo`: ordenar e filtrar não exigem campos extras.
 
 **Notas de implementação (fase 7.6)**
@@ -771,14 +762,23 @@ classDiagram
 - **Começar por outra leitura (UC07 A5):** `InscricaoPlano.diaInicial` (padrão 1) diz por qual leitura do plano o leitor começou; `diaDoPlano(n)` dá a leitura do seu dia `n`, dando a volta no fim. Progresso, atrasos e reagendar continuam nos dias do leitor. `PlanoLeitura.segueCalendario` (365 dias) e `diaDoCalendario(data)` usam `DataLocal.diaDoAnoComum()` (29/fev = 28/fev); `livros()` e `primeiroDiaCom(livro)` servem à opção "Um livro". O registro Dexie ganhou `diaInicial` opcional (ausente = 1), sem nova versão do schema.
 - As inscrições entram no backup da fase 7.9 (UC11).
 
+**Notas de implementação (fase 7.8)**
+- **Sem `VersaoRepository`:** as versões vêm da porta **`CatalogoVersoes`** (`todas`, `padrao`, `porId`), implementada por **`VersoesDisponiveis`** (lista fixa, ADR 0007). Se uma versão está instalada é o `TextoBiblicoRepository` que diz: ganhou `versoesInstaladas()` e `removerVersao()`.
+- **`FonteVersoes` → `FonteVersao`** (antes `FonteVersaoEmbarcada`): uma porta para as duas origens, livro a livro, com `AbortSignal` para cancelar. A carga dos 66 livros com validação é a função `carregarVersao` (concorrência limitada), usada por `PrepararVersaoPadrao` e `InstalarVersao`.
+- **`ServicoBusca.descartar(versao)`**: esquece o índice de uma versão removida ou de uma instalação desfeita.
+- `Preferencias.comVersao(versao)` troca a ativa mantendo a posição.
+- Casos de uso: `ObterVersaoAtiva` (preferências; sem elas, ou com sigla fora do catálogo, a padrão), `ListarVersoes` (`ItemVersao`: versão, instalada, ativa), `InstalarVersao` (progresso por etapa `BAIXANDO` → `IMPORTANDO` → `INDEXANDO`; desfaz em falha ou cancelamento), `TrocarVersao` e `RemoverVersao` (a padrão não sai; removendo a ativa, a padrão volta).
+- `BuscarTexto`, `PrepararBusca` e `ListarEstudos` recebem a versão em `executar()` (antes, fixa no construtor); a interface passa a versão ativa.
+
 ### Adapters (infraestrutura) previstos
 
 | Porta | Implementação |
 |---|---|
 | `*Repository` | `Dexie*Repository` (IndexedDB) |
-| `FonteVersaoEmbarcada` | `FonteEstatica` (`public/dados/<SIGLA>/<LIVRO>.json`, em precache) |
+| `FonteVersao` (embarcada) | `FonteEstatica` (`public/dados/<SIGLA>/<LIVRO>.json`, em precache) |
 | `ServicoBusca` | `ServicoBuscaWorker` → `busca.worker.ts` → `MotorBusca` (MiniSearch em Web Worker; índice em memória, ver ADR 0005) |
-| `FonteVersoes` | `GitHubBibliaDataFonte` (baixa `data/canonical/<SIGLA>/<LIVRO>.json`) |
+| `FonteVersao` (instalação) | `FonteBibliaData` (baixa `data/canonical/<SIGLA>/<LIVRO>.json` e normaliza) |
+| `CatalogoVersoes` | `VersoesDisponiveis` (BLIVRE, TB, ALM1911 — ADR 0007) |
 | `CatalogoPlanos` (antes `PlanoRepository`) | `PlanosPreDefinidos` (gerados a partir do cânon, no código) |
 | `Relogio` | `RelogioSistema` (testes usam `RelogioFixo`) |
 | `GeradorId` | `GeradorUuidV7` (biblioteca `uuid`; testes usam `GeradorIdSequencial`) |

@@ -57,6 +57,8 @@ UC09 · UC10 — instaladas, disponíveis, progresso de instalação.
 
 ![Versões](img/wf-versoes.png)
 
+> **Implementado na fase 7.8 (UC09 · UC10):** como no wireframe, com estas diferenças: a BLIVRE (padrão) não tem **Remover** e mostra "vem com o app"; as disponíveis mostram o tamanho do download (~6 MB) e a observação ("ortografia antiga" na ALM1911); o progresso diz a etapa e, no download, os livros ("Baixando… 12 de 66 livros (1/3)"); em erro, a mensagem fica no cartão com **Tentar novamente**. Remover pede confirmação e avisa que os destaques voltam ao reinstalar. A instalação continua se o leitor sair da tela. Versões entrou na navegação (barra superior e *tab bar*). A sigla na leitura ainda não troca a versão (BL-14).
+
 ## 6. Navegação — seletor de livro e capítulo
 UC01 (A1) · UC02 — desktop (popover) e celular (tela cheia com acordeão).
 

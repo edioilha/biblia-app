@@ -91,7 +91,7 @@ flowchart LR
     subgraph app["Aplicação — src/aplicacao"]
         direction TB
         uc["Casos de uso<br/><i>AbrirCapitulo, BuscarTexto,<br/>MarcarTexto, CriarAnotacao,<br/>InstalarVersao…</i>"]
-        portas["Portas (interfaces)<br/><i>*Repository, ServicoBusca,<br/>FonteVersoes, Relogio, GeradorId</i>"]
+        portas["Portas (interfaces)<br/><i>*Repository, ServicoBusca,<br/>FonteVersao, CatalogoVersoes,<br/>Relogio, GeradorId</i>"]
     end
 
     subgraph dom["Domínio — src/dominio"]
@@ -104,7 +104,7 @@ flowchart LR
         direction TB
         dexie["Dexie*Repository"]
         busca["ServicoBuscaWorker<br/><i>(proxy p/ Search Worker)</i>"]
-        fonte["GitHubBibliaDataFonte"]
+        fonte["FonteBibliaData"]
         relogio["RelogioSistema<br/>GeradorUuidV7"]
     end
 
@@ -186,7 +186,7 @@ sequenceDiagram
     P-->>L: "João 3:16 adicionado aos favoritos"
 ```
 
-**Navegação** (`BarraSuperior`): no desktop, links na barra superior; no celular (< 640 px), o mesmo `<nav>` vira uma *tab bar* fixa no rodapé (fase 7.7), como no wireframe. A variável CSS `--base-inferior` diz onde começa o espaço livre no pé da tela, e as barras fixas da leitura ficam acima da tab bar. Um teste E2E confere que nenhuma tela fica mais larga que a janela.
+**Navegação** (`BarraSuperior`): Ler, Buscar, Planos, Meus Estudos e Versões (7.8). No desktop, links na barra superior; no celular (< 640 px), o mesmo `<nav>` vira uma *tab bar* fixa no rodapé (fase 7.7), como no wireframe. A variável CSS `--base-inferior` diz onde começa o espaço livre no pé da tela, e as barras fixas da leitura ficam acima da tab bar. Um teste E2E confere que nenhuma tela fica mais larga que a janela.
 
 **TanStack Query** (`src/ui/consultas/clienteConsultas.ts`): `networkMode: 'always'` (os dados são locais; o padrão pausaria consultas offline), `staleTime: Infinity` (só mudam pelas mutações, que invalidam o cache), sem *retry*. A consulta do capítulo usa `staleTime: 0`: ao voltar a um capítulo em cache, a página aparece na hora e `AbrirCapitulo` roda em segundo plano para registrar a posição.
 
@@ -348,35 +348,35 @@ As consultas de planos usam `staleTime: 0` e `refetchOnWindowFocus` (ao contrár
 sequenceDiagram
     autonumber
     actor L as Leitor
-    participant P as VersoesPage
+    participant P as VersoesPage + InstalacoesProvider
     participant UC as InstalarVersao
-    participant V as VersaoRepository
-    participant F as GitHubBibliaDataFonte
+    participant F as FonteBibliaData
     participant T as TextoBiblicoRepository
     participant S as ServicoBusca
 
     L->>P: clica "Instalar" (TB)
-    P->>UC: executar(TB)
-    UC->>V: salvar(status = INSTALANDO)
-    UC->>F: baixar(TB, progresso)
-    loop 66 livros (concorrência limitada)
-        F->>F: fetch data/canonical/TB/<LIVRO>.json
-        F-->>P: progresso (etapa 1/3)
+    P->>UC: executar(TB, progresso, sinal)
+    loop 66 livros (6 por vez)
+        UC->>F: carregarLivro(TB, livro, sinal)
+        F->>F: fetch data/canonical/TB/<LIVRO>.json<br/>normalizar + validar
+        F-->>UC: LivroImportado
+        UC-->>P: BAIXANDO n de 66 (etapa 1/3)
     end
-    F-->>UC: LivroImportado[] (normalizado)
-    UC->>UC: validar (66 livros, capítulos > 0)
+    UC-->>P: IMPORTANDO (etapa 2/3)
     UC->>T: importar(TB, livros) — transação única
+    UC-->>P: INDEXANDO (etapa 3/3)
     UC->>S: preparar(TB)
-    UC->>V: salvar(status = INSTALADA)
     UC-->>P: ok
     P-->>L: "Tradução Brasileira instalada"
 
-    alt falha em qualquer etapa
+    alt falha ou "Cancelar" (sinal abortado)
         UC->>T: removerVersao(TB)
-        UC->>V: salvar(status = ERRO)
-        UC-->>P: erro + "Tentar novamente"
+        UC->>S: descartar(TB)
+        UC-->>P: erro → "Tentar novamente" (ou cancelada)
     end
 ```
+
+O andamento fica no `InstalacoesProvider`, acima das rotas: sair da tela Versões não interrompe a instalação. Trocar a versão ativa (UC10) grava as preferências e relê todo o cache do TanStack Query, porque texto, busca, destaques e Meus Estudos dependem da versão.
 
 ## 6. Persistência (IndexedDB / Dexie)
 
@@ -397,6 +397,7 @@ sequenceDiagram
 - **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
 - **Schema v3** (fase 7.3): `destaques` (`id, [versaoId+livro+capitulo], criadoEm`); `inicio`/`fim` gravados como `[versículo, offset]`. Só cria a tabela; testado com migração a partir de um banco v2.
 - **Schema v4** (fase 7.4): `anotacoes` (`id, [livro+capitulo], atualizadoEm, destaqueId`); o índice `destaqueId` serve para religar notas na fusão de destaques. Só cria a tabela; testado com migração a partir de um banco v3.
+- **Fase 7.8:** sem mudança de schema. Uma versão instalada é a presença do registro em `versoes` (gravado na mesma transação dos capítulos); remover apaga os capítulos e o registro juntos. Destaques de uma versão removida ficam no banco.
 - **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local), `diasConcluidos` como lista de números e `diaInicial` (UC07 A5; ausente = 1, sem índice). O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
@@ -435,7 +436,12 @@ Na primeira execução, `PrepararVersaoPadrao` carrega os 66 arquivos (`FonteEst
 
 ### Versões instaláveis (UC09)
 
-As demais versões serão baixadas sob demanda pelo adapter `GitHubBibliaDataFonte`, reutilizando a mesma normalização.
+A **TB** e a **ALM1911** são baixadas no navegador pelo adapter `FonteBibliaData` (`raw.githubusercontent.com`, que responde com CORS liberado) e passam pela **mesma** normalização e validação da BLIVRE: o módulo `normalizar.ts` fica em `src/infraestrutura/fontes/` e o script da BLIVRE o importa de lá. JSON quebrado ou fora do cânon vira `VersaoCorrompidaError` (UC09 A2). O download é de ~6 MB por versão; o service worker não guarda essas respostas (o texto vai para o IndexedDB).
+
+Verificação dos dados (fase 7.8): as duas versões têm os 66 livros, nenhum versículo vazio nem fora de ordem.
+- **ALM1911:** 75 asteriscos da digitalização. A normalização junta palavras quebradas na linha ("arro-* *gantes" → "arrogantes"), mantém o hífen de nomes compostos ("Ben-*hadad" → "Ben-hadad") e tira os demais ("fru*ctos" → "fructos"). Erros de OCR em palavras (ex.: "co*uo" → "couo", Hb 12:27) não são corrigidos. A ortografia é a de 1911 ("fallando", "succedeu").
+- **TB:** versículos de autenticidade discutida vêm entre colchetes (ex.: Mt 17:21), como na edição impressa; ficam como estão.
+- **Numeração:** a BLIVRE tem 2Co 13:14 e Ap 12:18, que a TB e a ALM1911 não têm; Jó 42:17 falta na TB; Sl 46:3 existe na TB e na ALM1911 e falta na BLIVRE.
 
 ## 8. Estrutura de pastas
 
@@ -449,7 +455,7 @@ biblia-app/
 ├── public/
 │   └── dados/BLIVRE/             # versão embarcada (gerada por scripts/dados)
 ├── scripts/
-│   └── dados/                    # preparar-blivre.ts, normalizar.ts
+│   └── dados/                    # preparar-blivre.ts (normalização em src/infraestrutura/fontes)
 ├── src/
 │   ├── dominio/
 │   │   ├── biblia/               # Versao, Livro, Capitulo, Referencia, Canon…
@@ -459,12 +465,13 @@ biblia-app/
 │   │   ├── preferencias/
 │   │   └── compartilhado/        # Pagina, Id, erros de domínio
 │   ├── aplicacao/
-│   │   ├── portas/               # *Repository, ServicoBusca, FonteVersoes, Relogio
+│   │   ├── portas/               # *Repository, ServicoBusca, FonteVersao, CatalogoVersoes, Relogio
 │   │   └── casos-de-uso/         # AbrirCapitulo, BuscarTexto, ListarEstudos, …
 │   ├── infraestrutura/
 │   │   ├── dexie/                # BancoApp, Dexie*Repository
 │   │   ├── busca/                # MotorBusca, ServicoBuscaWorker, busca.worker.ts
-│   │   ├── fontes/               # FonteEstatica (embarcada), GitHubBibliaDataFonte
+│   │   ├── fontes/               # FonteEstatica (embarcada), FonteBibliaData, normalizar.ts
+│   │   ├── versoes/              # VersoesDisponiveis (catálogo)
 │   │   └── sistema/              # RelogioSistema
 │   ├── ui/
 │   │   ├── paginas/              # LeituraPage, BuscaPage, …

@@ -9,7 +9,7 @@ Aplicação web **offline-first (PWA)** para leitura e estudo da Bíblia: págin
 
 > 🚧 Em desenvolvimento — MVP em implementação. Já disponível: leitura em página de papel, navegação por capítulos, ida direta a uma referência (`jo 3:16`), favoritos de versículos, marca-texto em quatro cores, anotações (rodapé ou inline, com Markdown básico), busca em toda a Bíblia, Meus Estudos (favoritos, destaques e anotações num só lugar, com filtro) e planos de leitura (leitura do dia, atrasos e progresso), offline.
 >
-> **Progresso:** fase 7.7 de 7.9 entregue · próxima: 7.8 Versões · [roadmap completo](docs/09-roadmap.md)
+> **Progresso:** fase 7.8 de 7.9 entregue · próxima: 7.9 Backup e configurações · [roadmap completo](docs/09-roadmap.md)
 
 ## Stats
 
@@ -67,7 +67,7 @@ npm run dados:blivre            # regenera public/dados/BLIVRE a partir do bibli
 
 Textos de [Projeto-Euaggelion/biblia.data](https://github.com/Projeto-Euaggelion/biblia.data) (MIT). Apenas traduções em domínio público: Bíblia Livre, Almeida 1911, Tradução Brasileira.
 
-A Bíblia Livre vem embarcada em `public/dados/BLIVRE/`, normalizada pelo script `npm run dados:blivre` (detalhes e limitações conhecidas em [docs/06 §7](docs/06-arquitetura.md#7-importação-e-normalização-dos-dados)).
+A Bíblia Livre vem embarcada em `public/dados/BLIVRE/`, normalizada pelo script `npm run dados:blivre`. A Tradução Brasileira e a Almeida 1911 são instaladas pelo leitor na tela **Versões** (~6 MB cada), com a mesma normalização (detalhes e limitações conhecidas em [docs/06 §7](docs/06-arquitetura.md#7-importação-e-normalização-dos-dados)).
 
 ## Licença
 
