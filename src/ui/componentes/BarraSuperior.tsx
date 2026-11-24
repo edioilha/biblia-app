@@ -47,12 +47,19 @@ const SECOES = [
     icone: icone('M7 4h10v16l-5-3.5L7 20z'),
     ativaEm: /^\/estudos/u,
   },
+  {
+    para: '/versoes',
+    rotulo: 'Versões',
+    curto: 'Versões',
+    icone: icone('M12 3l9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5'),
+    ativaEm: /^\/versoes/u,
+  },
 ] as const;
 
 /**
  * Navegação principal (docs/05 — wireframes): barra superior no desktop e *tab bar*
  * inferior no celular (< 640 px), onde não cabe junto do seletor de referência. É o mesmo
- * `<nav>`; no celular ele fica fixo no rodapé. Versões entra na fase 7.8.
+ * `<nav>`; no celular ele fica fixo no rodapé.
  *
  * O cabeçalho só usa `backdrop-blur` a partir de `sm`: o filtro faria do cabeçalho o
  * contêiner do `position: fixed` e prenderia a tab bar dentro dele.

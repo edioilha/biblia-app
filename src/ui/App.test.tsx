@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import type { FonteVersaoEmbarcada } from '../aplicacao/portas';
+import type { FonteVersao } from '../aplicacao/portas';
 import { Canon, Referencia, VersaoId } from '../dominio/biblia';
 import { Preferencias } from '../dominio/preferencias';
 import { FavoritosEmMemoria, FonteSintetica } from '../test/fakes';
@@ -211,7 +211,7 @@ describe('Preparação da versão embarcada', () => {
     const user = userEvent.setup();
     let falhar = true;
     const sintetica = new FonteSintetica(canon);
-    const fonte: FonteVersaoEmbarcada = {
+    const fonte: FonteVersao = {
       carregarLivro: async (v, l) => {
         if (falhar) throw new Error('Sem conexão');
         return sintetica.carregarLivro(v, l);

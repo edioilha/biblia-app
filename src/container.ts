@@ -19,7 +19,12 @@ import {
   ObterPainelPlanos,
   ReagendarPlano,
   ExcluirAnotacao,
+  InstalarVersao,
   ListarEstudos,
+  ListarVersoes,
+  ObterVersaoAtiva,
+  RemoverVersao,
+  TrocarVersao,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
@@ -28,7 +33,7 @@ import {
   RemoverDestaque,
   RemoverFavorito,
 } from './aplicacao/casos-de-uso';
-import { Canon, Versao, VersaoId } from './dominio/biblia';
+import { Canon } from './dominio/biblia';
 import {
   BancoApp,
   DexieAnotacaoRepository,
@@ -39,22 +44,16 @@ import {
   DexieTextoBiblicoRepository,
 } from './infraestrutura/dexie';
 import { ServicoBuscaWorker } from './infraestrutura/busca';
-import { FonteEstatica } from './infraestrutura/fontes';
+import { FonteBibliaData, FonteEstatica } from './infraestrutura/fontes';
 import { PlanosPreDefinidos } from './infraestrutura/planos';
 import { GeradorUuidV7, RelogioSistema } from './infraestrutura/sistema';
+import { VersoesDisponiveis } from './infraestrutura/versoes';
 import type { Dependencias } from './ui/contexto/Dependencias';
 
-/** Versão embarcada (ADR 0007, RF07.1). */
-const BLIVRE = new Versao(
-  VersaoId.de('BLIVRE'),
-  'Bíblia Livre',
-  2018,
-  'Domínio público',
-  'https://github.com/Projeto-Euaggelion/biblia.data',
-  true,
-);
-
 const canon = new Canon();
+// ADR 0007: BLIVRE embarcada (RF07.1); TB e ALM1911 instaláveis (UC09).
+const catalogo = new VersoesDisponiveis();
+const padrao = catalogo.padrao();
 const db = new BancoApp();
 const texto = new DexieTextoBiblicoRepository(db, canon);
 const preferencias = new DexiePreferenciasRepository(db, canon);
@@ -66,6 +65,7 @@ const planos = new PlanosPreDefinidos(canon);
 const relogio = new RelogioSistema();
 const gerador = new GeradorUuidV7();
 const fonte = new FonteEstatica(import.meta.env.BASE_URL);
+const fonteInstalacao = new FonteBibliaData(canon);
 // ADR 0005: índice e consultas num Web Worker (criado na primeira chamada).
 const busca = new ServicoBuscaWorker(
   canon,
@@ -76,10 +76,11 @@ const busca = new ServicoBuscaWorker(
     }),
 );
 
+const versaoAtiva = new ObterVersaoAtiva(catalogo, preferencias);
+
 export const dependencias: Dependencias = {
   canon,
-  versaoPadrao: BLIVRE,
-  abrirCapitulo: new AbrirCapitulo(canon, texto, preferencias, BLIVRE.id),
+  abrirCapitulo: new AbrirCapitulo(canon, texto, preferencias, padrao.id),
   obterMarcacoesDoCapitulo: new ObterMarcacoesDoCapitulo(favoritos, destaques, anotacoes),
   alternarFavorito: new AlternarFavorito(favoritos, relogio, gerador),
   removerFavorito: new RemoverFavorito(favoritos),
@@ -91,14 +92,19 @@ export const dependencias: Dependencias = {
   editarAnotacao: new EditarAnotacao(anotacoes, relogio),
   excluirAnotacao: new ExcluirAnotacao(anotacoes),
   obterPosicaoInicial: new ObterPosicaoInicial(canon, preferencias),
-  prepararVersaoPadrao: new PrepararVersaoPadrao(canon, fonte, texto, BLIVRE.id),
-  buscarTexto: new BuscarTexto(busca, BLIVRE.id),
-  prepararBusca: new PrepararBusca(busca, BLIVRE.id),
-  listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, BLIVRE.id),
+  prepararVersaoPadrao: new PrepararVersaoPadrao(canon, fonte, texto, padrao.id),
+  buscarTexto: new BuscarTexto(busca),
+  prepararBusca: new PrepararBusca(busca),
+  listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes),
   obterPainelPlanos: new ObterPainelPlanos(planos, inscricoes, relogio),
   iniciarPlano: new IniciarPlano(planos, inscricoes, gerador),
   marcarDiaPlano: new MarcarDiaPlano(inscricoes),
   reagendarPlano: new ReagendarPlano(inscricoes, relogio),
   encerrarPlano: new EncerrarPlano(inscricoes),
   obterLeiturasDoCapitulo: new ObterLeiturasDoCapitulo(planos, inscricoes, relogio),
+  obterVersaoAtiva: versaoAtiva,
+  listarVersoes: new ListarVersoes(catalogo, texto, versaoAtiva),
+  instalarVersao: new InstalarVersao(canon, catalogo, fonteInstalacao, texto, busca),
+  trocarVersao: new TrocarVersao(canon, catalogo, texto, preferencias),
+  removerVersao: new RemoverVersao(catalogo, texto, preferencias, busca),
 };
