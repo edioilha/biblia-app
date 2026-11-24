@@ -13,10 +13,28 @@
 
 :root {
   color-scheme: light;
+  /*
+   * Onde começa o espaço livre no pé da tela: no celular, acima da tab bar da navegação
+   * (3.5rem + área segura); no desktop, só a área segura. Barras fixas no rodapé usam isto.
+   */
+  --base-inferior: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (width >= 40rem) {
+  :root {
+    --base-inferior: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 body {
   @apply text-tinta bg-stone-200 antialiased;
+}
+
+/* Celular: o conteúdo termina acima da tab bar. */
+@media (width < 40rem) {
+  body {
+    padding-bottom: var(--base-inferior);
+  }
 }
 
 /* RF01.6 — folha de papel: fundo creme com textura sutil e vinheta nas bordas */

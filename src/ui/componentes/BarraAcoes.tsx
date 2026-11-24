@@ -60,7 +60,7 @@ export function BarraAcoes({
       ref={ref}
       role="region"
       aria-label={rotuloRegiao}
-      className="fixed inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]"
+      className="fixed inset-x-0 bottom-0 z-20 flex justify-center px-4 pb-[calc(var(--base-inferior)+1rem)]"
     >
       <div
         ref={conteudo}
