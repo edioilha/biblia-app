@@ -1,9 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
+import axe from 'axe-core';
 import { test, type Page } from '@playwright/test';
 
 // TEMPORÁRIO — diagnóstico do "Page crashed" do axe no Firefox da CI. Será removido.
 test.skip(({ browserName }) => browserName !== 'firefox');
 test.describe.configure({ retries: 0 });
+test.setTimeout(600_000);
 
 async function comPlano(page: Page) {
   await page.goto('./#/planos');
@@ -13,31 +15,27 @@ async function comPlano(page: Page) {
   await page.getByRole('dialog').getByRole('button', { name: 'Iniciar plano' }).click();
   await page.getByRole('region', { name: 'Salmos e Provérbios em 31 dias' }).waitFor();
 }
-const casos: [string, (p: Page) => Promise<void>, (a: AxeBuilder) => AxeBuilder][] = [
-  [
-    'A catalogo vazio',
-    async (p) => {
-      await p.goto('./#/planos');
-      await p.getByText('Escolha um plano para começar').waitFor({ timeout: 30_000 });
-    },
-    (a) => a,
-  ],
-  ['B so cartao', comPlano, (a) => a.include('main section[aria-labelledby]')],
-  ['C sem cartao', comPlano, (a) => a.exclude('main section[aria-labelledby]')],
-  ['D sem color-contrast', comPlano, (a) => a.disableRules(['color-contrast'])],
-  ['E so color-contrast', comPlano, (a) => a.withRules(['color-contrast'])],
-  ['F so progressbar', comPlano, (a) => a.include('[role=progressbar]')],
-  ['G so header', comPlano, (a) => a.include('header')],
-  ['H sem progressbar', comPlano, (a) => a.exclude('[role=progressbar]')],
-];
-for (const [nome, preparar, ajustar] of casos) {
-  test(`DIAG ${nome}`, async ({ page }) => {
-    await preparar(page);
+
+test('DIAG regras no cartão', async ({ context }) => {
+  const regras = axe.getRules(['wcag2a', 'wcag2aa']).map((r) => r.ruleId);
+  const quebram: string[] = [];
+  for (const regra of regras) {
+    const page = await context.newPage();
+    await comPlano(page);
     try {
-      await ajustar(new AxeBuilder({ page })).analyze();
-      console.log(`DIAG-RESULT ${nome}: ok`);
+      await new AxeBuilder({ page })
+        .include('main section[aria-labelledby]')
+        .withRules([regra])
+        .analyze();
     } catch (e) {
-      console.log(`DIAG-RESULT ${nome}: ${String(e).slice(0, 80)}`);
+      quebram.push(`${regra}: ${String(e).slice(0, 60)}`);
     }
-  });
-}
+    await page.close().catch(() => undefined);
+  }
+  console.log(`DIAG-RESULT quebram: ${JSON.stringify(quebram)}`);
+  const page = await context.newPage();
+  await comPlano(page);
+  console.log(
+    `DIAG-RESULT html: ${(await page.locator('main section[aria-labelledby]').first().innerHTML()).slice(0, 3000)}`,
+  );
+});
