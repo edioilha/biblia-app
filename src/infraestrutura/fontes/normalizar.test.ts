@@ -4,7 +4,7 @@ import {
   DadosInvalidosError,
   normalizarTexto,
   type LivroOrigem,
-} from './normalizar.ts';
+} from './normalizar';
 
 describe('normalizarTexto', () => {
   it.each([
@@ -25,6 +25,20 @@ describe('normalizarTexto', () => {
         'a falha é deles./fn/keyCorromperam-se... é deles/*keyobscuro/*fn São uma geração perversa.',
       ),
     ).toBe('a falha é deles. São uma geração perversa.');
+  });
+
+  it.each([
+    ['coisas mui arro-* *gantes de vaidades', 'coisas mui arrogantes de vaidades'],
+    ['e vol-* *tará para a sua terra', 'e voltará para a sua terra'],
+    ['os ensi-* no, para que', 'os ensino, para que'],
+    ['por-* que eu', 'porque eu'],
+    ['depois d’isto, que Ben-*hadad, rei', 'depois d’isto, que Ben-hadad, rei'],
+    ['Succoth-*benoth;', 'Succoth-benoth;'],
+    ['em Paddan*-aram,', 'em Paddan-aram,'],
+    ['os seus fru*ctos.', 'os seus fructos.'],
+    ['dize-o* á egreja', 'dize-o á egreja'],
+  ])('remove asteriscos da digitalização: %j → %j', (entrada, esperado) => {
+    expect(normalizarTexto(entrada)).toBe(esperado);
   });
 
   it('não altera números de referência nem pontuação seguida de espaço', () => {
