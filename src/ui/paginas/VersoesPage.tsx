@@ -24,6 +24,8 @@ export function VersoesPage() {
   const [remover, setRemover] = useState<Versao | null>(null);
   const [erroRemover, setErroRemover] = useState<string | null>(null);
   const [aviso, setAviso] = useState('');
+  // Escolha em andamento: o rádio marca na hora, sem esperar a troca ser gravada.
+  const [escolhida, setEscolhida] = useState<Versao['id'] | null>(null);
   const titulo = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -34,14 +36,17 @@ export function VersoesPage() {
   const instaladas = itens.filter((i) => i.instalada);
   const disponiveis = itens.filter((i) => !i.instalada);
 
-  const trocar = (versao: Versao) =>
+  const trocar = (versao: Versao) => {
+    setEscolhida(versao.id);
     editar.mutate(
       { tipo: 'trocar', versao: versao.id },
       {
         onSuccess: () => setAviso(`Lendo na ${versao.nome}.`),
         onError: () => setAviso('Não foi possível trocar a versão.'),
+        onSettled: () => setEscolhida(null),
       },
     );
+  };
 
   const confirmarRemocao = (versao: Versao) =>
     editar.mutate(
@@ -89,7 +94,7 @@ export function VersoesPage() {
                 {instaladas.map((item) => (
                   <VersaoInstalada
                     key={item.versao.id}
-                    item={item}
+                    item={escolhida ? { ...item, ativa: item.versao.id === escolhida } : item}
                     ocupado={editar.isPending}
                     onTrocar={() => trocar(item.versao)}
                     onRemover={() => {
