@@ -4,3 +4,4 @@ export { DexieDestaqueRepository } from './DexieDestaqueRepository';
 export { DexieFavoritoRepository } from './DexieFavoritoRepository';
 export { DexiePreferenciasRepository } from './DexiePreferenciasRepository';
 export { DexieTextoBiblicoRepository } from './DexieTextoBiblicoRepository';
+export { DexieInscricaoRepository } from './DexieInscricaoRepository';

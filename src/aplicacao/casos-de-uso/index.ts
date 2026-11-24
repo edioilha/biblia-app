@@ -18,3 +18,17 @@ export { BuscarTexto } from './BuscarTexto';
 export { PrepararBusca } from './PrepararBusca';
 export { ListarEstudos, type ResultadoEstudos } from './ListarEstudos';
 export { RemoverFavorito } from './RemoverFavorito';
+export { EncerrarPlano } from './EncerrarPlano';
+export { IniciarPlano } from './IniciarPlano';
+export { MarcarDiaPlano } from './MarcarDiaPlano';
+export { ObterLeiturasDoCapitulo } from './ObterLeiturasDoCapitulo';
+export { ObterPainelPlanos } from './ObterPainelPlanos';
+export {
+  InscricaoInexistenteError,
+  PlanoInexistenteError,
+  PlanoJaIniciadoError,
+  type LeituraDoCapitulo,
+  type PainelPlanos,
+  type PlanoSeguido,
+} from './planosSeguidos';
+export { ReagendarPlano } from './ReagendarPlano';

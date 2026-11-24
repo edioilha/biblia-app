@@ -14,6 +14,7 @@ import { AcoesVersiculo } from '../componentes/AcoesVersiculo';
 import { BarraDestaque, BarraSelecao } from '../componentes/BarrasMarcaTexto';
 import { BarraSuperior } from '../componentes/BarraSuperior';
 import { EditorAnotacao } from '../componentes/EditorAnotacao';
+import { FaixaPlano } from '../componentes/FaixaPlano';
 import { idBotaoVersiculo } from '../componentes/idsVersiculo';
 import { NOME_COR } from '../componentes/nomesCores';
 import { PaginaPapel } from '../componentes/PaginaPapel';
@@ -25,6 +26,7 @@ import { useEditarDestaques, type AcaoDestaque } from '../hooks/useDestaques';
 import { useAlternarFavorito } from '../hooks/useFavoritos';
 import { useMarcacoes } from '../hooks/useMarcacoes';
 import { useNavegacaoCapitulos } from '../hooks/useNavegacaoCapitulos';
+import { useLeiturasDoCapitulo } from '../hooks/usePlanos';
 import { useSelecaoTexto } from '../hooks/useSelecaoTexto';
 import { caminhoLeitura, referenciaDaRota } from '../rotas';
 
@@ -69,6 +71,7 @@ function Leitura({
   // Marcações do capítulo exibido (UC04, UC05).
   const capituloExibido = exibido?.capitulo.referencia ?? null;
   const marcacoes = useMarcacoes(exibido?.capitulo ?? null);
+  const leiturasDoPlano = useLeiturasDoCapitulo(capituloExibido);
   const alternar = useAlternarFavorito();
   const editar = useEditarDestaques();
   const [aviso, setAviso] = useState<{ texto: string; erro: boolean } | null>(null);
@@ -328,6 +331,7 @@ function Leitura({
           {sigla}
         </span>
       </BarraSuperior>
+      <FaixaPlano leituras={leiturasDoPlano} />
 
       <main
         className={`relative mx-auto max-w-5xl px-2 py-6 sm:px-4 sm:py-10 ${algumaBarra ? 'pb-28 sm:pb-28' : ''}`}
@@ -421,7 +425,7 @@ function Leitura({
         {aviso?.erro && (
           <p
             role="alert"
-            className="fixed inset-x-4 bottom-[calc(env(safe-area-inset-bottom,0px)+1rem)] z-30 mx-auto max-w-md rounded-md border border-red-300 bg-red-50 px-4 py-3 text-center font-sans text-sm text-red-800 shadow-lg"
+            className="fixed inset-x-4 bottom-[calc(var(--base-inferior)+1rem)] z-30 mx-auto max-w-md rounded-md border border-red-300 bg-red-50 px-4 py-3 text-center font-sans text-sm text-red-800 shadow-lg"
           >
             {aviso.texto}{' '}
             <button type="button" className="underline" onClick={() => setAviso(null)}>

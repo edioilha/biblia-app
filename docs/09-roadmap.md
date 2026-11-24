@@ -26,8 +26,8 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | 7.4 | Anotações: rodapé numerado ou inline, Markdown básico, nota de versículo ou de destaque | UC06 | F06 | ✅ | #9 | 2026-11-22 |
 | 7.5 | Busca: dinâmica, sem acentos, frase exata, filtros, aproximada, paginação, índice em Web Worker | UC03 | F03 | ✅ | #10 | 2026-11-22 |
 | 7.6 | Meus Estudos: abas com total, filtro de texto e livro, ordem, paginação, menu de ações (+ busca nas anotações, RF02.9) | UC13 | F10 | ✅ | #11 | 2026-11-23 |
-| 7.7 | Planos de leitura | UC07, UC08 | F07 | ⏭️ | — | — |
-| 7.8 | Versões (instalar e trocar) | UC09, UC10 | F08 | ⏳ | — | — |
+| 7.7 | Planos de leitura: catálogo, início com data (pelo calendário ou por livro), leitura do dia, atrasos, reagendar, faixa na leitura (+ tab bar no celular) | UC07, UC08 | F07 | ✅ | #13 | 2026-11-24 |
+| 7.8 | Versões (instalar e trocar) | UC09, UC10 | F08 | ⏭️ | — | — |
 | 7.9 | Backup e configurações de leitura | UC11, UC12 | — | ⏳ | — | — |
 | — | **Release v1.0.0 — MVP entregue** | | | ⏳ | — | — |
 
@@ -37,9 +37,9 @@ Sugestão de encaixe, ainda **não planejados** (a decisão acontece na discuss�
 
 | Fase | Itens do backlog |
 |---|---|
-| 7.9 | BL-01 largura da leitura · BL-02 fonte · BL-03 tipo de folha · BL-05 `storage.persist()` · BL-07 modo foco |
+| 7.9 | inscrições de planos no backup · BL-01 largura da leitura · BL-02 fonte · BL-03 tipo de folha · BL-05 `storage.persist()` · BL-07 modo foco |
 | Após 7.6 | BL-04 painel lateral no desktop (depende de favoritos e anotações) |
-| Qualquer fase | BL-06 teste E2E offline · BL-10 abas de Meus Estudos no celular · BL-11 wiki do projeto |
+| Qualquer fase | BL-06 teste E2E offline · BL-10 abas de Meus Estudos no celular · BL-11 wiki do projeto · BL-13 plano personalizado |
 
 ## Depois da v1.0
 

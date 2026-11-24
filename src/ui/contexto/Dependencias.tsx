@@ -7,6 +7,12 @@ import type {
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
+  EncerrarPlano,
+  IniciarPlano,
+  MarcarDiaPlano,
+  ObterLeiturasDoCapitulo,
+  ObterPainelPlanos,
+  ReagendarPlano,
   ExcluirAnotacao,
   ListarEstudos,
   MarcarTexto,
@@ -39,6 +45,12 @@ export interface Dependencias {
   readonly buscarTexto: BuscarTexto;
   readonly prepararBusca: PrepararBusca;
   readonly listarEstudos: ListarEstudos;
+  readonly obterPainelPlanos: ObterPainelPlanos;
+  readonly iniciarPlano: IniciarPlano;
+  readonly marcarDiaPlano: MarcarDiaPlano;
+  readonly reagendarPlano: ReagendarPlano;
+  readonly encerrarPlano: EncerrarPlano;
+  readonly obterLeiturasDoCapitulo: ObterLeiturasDoCapitulo;
 }
 
 const DependenciasContext = createContext<Dependencias | null>(null);

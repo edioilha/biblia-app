@@ -6,13 +6,15 @@ interface Props {
   /** Rótulo do botão que confirma (ex.: "Remover favorito"). */
   confirmar: string;
   ocupado: boolean;
+  /** Ação destrutiva (padrão): botão vermelho. */
+  perigosa?: boolean;
   erro?: string | null | undefined;
   onConfirmar: () => void;
   onFechar: () => void;
 }
 
 /**
- * Confirmação de ação destrutiva em `<dialog>` modal (foco preso e Esc nativos). O foco
+ * Confirmação de ação (destrutiva, por padrão) em `<dialog>` modal (foco preso e Esc nativos). O foco
  * começa em "Cancelar": Enter sem querer não apaga nada. Montado só enquanto aberto.
  */
 export function DialogoConfirmacao({
@@ -20,6 +22,7 @@ export function DialogoConfirmacao({
   mensagem,
   confirmar,
   ocupado,
+  perigosa = true,
   erro,
   onConfirmar,
   onFechar,
@@ -74,7 +77,7 @@ export function DialogoConfirmacao({
             type="button"
             disabled={ocupado}
             onClick={onConfirmar}
-            className="rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white hover:bg-red-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 disabled:opacity-50"
+            className={`rounded-md px-3 py-2 text-sm font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 ${perigosa ? 'bg-red-700 hover:bg-red-800 focus-visible:outline-red-700' : 'bg-primaria focus-visible:outline-primaria hover:opacity-90'}`}
           >
             {confirmar}
           </button>

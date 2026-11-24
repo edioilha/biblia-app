@@ -122,7 +122,7 @@ describe('BancoApp — migração v3 → v4', () => {
     const db = new BancoApp(nome);
     expect(await db.destaques.count()).toBe(1);
     expect(await db.anotacoes.count()).toBe(0);
-    expect(db.verno).toBe(4);
+    expect(db.verno).toBe(5);
     await db.delete();
   });
 });

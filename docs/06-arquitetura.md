@@ -186,6 +186,8 @@ sequenceDiagram
     P-->>L: "João 3:16 adicionado aos favoritos"
 ```
 
+**Navegação** (`BarraSuperior`): no desktop, links na barra superior; no celular (< 640 px), o mesmo `<nav>` vira uma *tab bar* fixa no rodapé (fase 7.7), como no wireframe. A variável CSS `--base-inferior` diz onde começa o espaço livre no pé da tela, e as barras fixas da leitura ficam acima da tab bar. Um teste E2E confere que nenhuma tela fica mais larga que a janela.
+
 **TanStack Query** (`src/ui/consultas/clienteConsultas.ts`): `networkMode: 'always'` (os dados são locais; o padrão pausaria consultas offline), `staleTime: Infinity` (só mudam pelas mutações, que invalidam o cache), sem *retry*. A consulta do capítulo usa `staleTime: 0`: ao voltar a um capítulo em cache, a página aparece na hora e `AbrirCapitulo` roda em segundo plano para registrar a posição.
 
 ### 5.2 Marcar texto (UC05)
@@ -314,7 +316,33 @@ sequenceDiagram
 
 Os dados do leitor são poucos (centenas de marcações), então filtro, ordem e paginação rodam em memória na camada de aplicação, sem índices novos (o schema continua na v4). O texto bíblico só é lido para o filtro de texto ou para os itens da página. Os totais das abas seguem os filtros. As ações do menu ⋮ reaproveitam os casos de uso da leitura (`AlterarCorDestaque`, `RemoverDestaque`, `EditarAnotacao`, `ExcluirAnotacao`), mais `RemoverFavorito`. Toda mutação de marcação invalida as marcações do capítulo **e** as listas de Meus Estudos (`invalidarMarcacoes`), pois as duas telas mostram os mesmos dados. O estado da tela fica na URL, como na busca. A busca das anotações (RF02.9) é o filtro de texto da aba Anotações; a tela de busca tem um link que leva o termo para lá.
 
-### 5.6 Instalar versão (UC09)
+### 5.6 Acompanhar plano (UC08)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor L as Leitor
+    participant P as PlanosPage / FaixaPlano
+    participant UC as ObterPainelPlanos · ObterLeiturasDoCapitulo
+    participant C as PlanosPreDefinidos
+    participant R as InscricaoRepository
+    participant Rel as Relogio
+
+    L->>P: abre Planos (ou um capítulo)
+    P->>UC: executar()
+    UC->>Rel: agora() → DataLocal (dia local)
+    UC->>C: todos()
+    UC->>R: todas()
+    UC-->>P: planos seguidos + hoje (+ dia que contém o capítulo)
+    P-->>L: leitura de hoje, atrasos, progresso / faixa "Concluir dia N"
+    L->>P: Concluir dia
+    P->>R: MarcarDiaPlano → salvar(inscrição com o dia)
+    P->>P: invalida ['planos'] → painel e faixas relidos
+```
+
+As consultas de planos usam `staleTime: 0` e `refetchOnWindowFocus` (ao contrário do padrão do app): dependem do dia de hoje, que muda com o app aberto ou ao voltar a ele.
+
+### 5.7 Instalar versão (UC09)
 
 ```mermaid
 sequenceDiagram
@@ -359,7 +387,7 @@ sequenceDiagram
 | `favoritos` | `id` | `&chave` (`JHN.3.16`), `[livro+capitulo]`, `criadoEm` | `Favorito` |
 | `destaques` | `id` | `[versaoId+livro+capitulo]`, `criadoEm` | `Destaque` |
 | `anotacoes` | `id` | `[livro+capitulo]`, `atualizadoEm`, `destaqueId` | `Anotacao` |
-| `inscricoes` | `id` | `status` | `InscricaoPlano` |
+| `inscricoes` | `id` | `&planoId` | `InscricaoPlano` |
 | `preferencias` | `id` (`'usuario'`) | — | `Preferencias` |
 
 - **Granularidade por capítulo**: abrir um capítulo = 1 leitura (atende RNF02 < 300 ms).
@@ -369,6 +397,7 @@ sequenceDiagram
 - **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
 - **Schema v3** (fase 7.3): `destaques` (`id, [versaoId+livro+capitulo], criadoEm`); `inicio`/`fim` gravados como `[versículo, offset]`. Só cria a tabela; testado com migração a partir de um banco v2.
 - **Schema v4** (fase 7.4): `anotacoes` (`id, [livro+capitulo], atualizadoEm, destaqueId`); o índice `destaqueId` serve para religar notas na fusão de destaques. Só cria a tabela; testado com migração a partir de um banco v3.
+- **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local), `diasConcluidos` como lista de números e `diaInicial` (UC07 A5; ausente = 1, sem índice). O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
 ## 7. Importação e normalização dos dados

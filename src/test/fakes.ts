@@ -5,6 +5,7 @@ import type {
   FavoritoRepository,
   FonteVersaoEmbarcada,
   GeradorId,
+  InscricaoRepository,
   LivroImportado,
   PreferenciasRepository,
   Relogio,
@@ -20,6 +21,7 @@ import type {
   Favorito,
   FavoritoId,
 } from '../dominio/estudo';
+import type { InscricaoId, InscricaoPlano, PlanoId } from '../dominio/planos';
 import type { Preferencias } from '../dominio/preferencias';
 
 export class TextoBiblicoEmMemoria implements TextoBiblicoRepository {
@@ -171,5 +173,31 @@ export class GeradorIdSequencial implements GeradorId {
   constructor(private proximo = 1) {}
   novo(): string {
     return `00000000-0000-7000-8000-${String(this.proximo++).padStart(12, '0')}`;
+  }
+}
+
+export class InscricoesEmMemoria implements InscricaoRepository {
+  readonly itens = new Map<InscricaoId, InscricaoPlano>();
+
+  async todas(): Promise<InscricaoPlano[]> {
+    return [...this.itens.values()];
+  }
+
+  async porId(id: InscricaoId): Promise<InscricaoPlano | null> {
+    return this.itens.get(id) ?? null;
+  }
+
+  async porPlano(plano: PlanoId): Promise<InscricaoPlano | null> {
+    return [...this.itens.values()].find((i) => i.planoId === plano) ?? null;
+  }
+
+  async salvar(inscricao: InscricaoPlano): Promise<void> {
+    const outra = await this.porPlano(inscricao.planoId);
+    if (outra && outra.id !== inscricao.id) throw new Error('Plano já tem inscrição.');
+    this.itens.set(inscricao.id, inscricao);
+  }
+
+  async remover(id: InscricaoId): Promise<void> {
+    this.itens.delete(id);
   }
 }
