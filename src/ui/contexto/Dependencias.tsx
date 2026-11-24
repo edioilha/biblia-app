@@ -14,7 +14,12 @@ import type {
   ObterPainelPlanos,
   ReagendarPlano,
   ExcluirAnotacao,
+  InstalarVersao,
   ListarEstudos,
+  ListarVersoes,
+  ObterVersaoAtiva,
+  RemoverVersao,
+  TrocarVersao,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
@@ -23,12 +28,11 @@ import type {
   RemoverDestaque,
   RemoverFavorito,
 } from '../../aplicacao/casos-de-uso';
-import type { Canon, Versao } from '../../dominio/biblia';
+import type { Canon } from '../../dominio/biblia';
 
 /** Dependências que a UI recebe do Composition Root (src/container.ts). */
 export interface Dependencias {
   readonly canon: Canon;
-  readonly versaoPadrao: Versao;
   readonly abrirCapitulo: AbrirCapitulo;
   readonly obterMarcacoesDoCapitulo: ObterMarcacoesDoCapitulo;
   readonly alternarFavorito: AlternarFavorito;
@@ -51,6 +55,11 @@ export interface Dependencias {
   readonly reagendarPlano: ReagendarPlano;
   readonly encerrarPlano: EncerrarPlano;
   readonly obterLeiturasDoCapitulo: ObterLeiturasDoCapitulo;
+  readonly obterVersaoAtiva: ObterVersaoAtiva;
+  readonly listarVersoes: ListarVersoes;
+  readonly instalarVersao: InstalarVersao;
+  readonly trocarVersao: TrocarVersao;
+  readonly removerVersao: RemoverVersao;
 }
 
 const DependenciasContext = createContext<Dependencias | null>(null);

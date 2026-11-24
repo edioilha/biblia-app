@@ -15,6 +15,11 @@ export class Preferencias {
     return new Preferencias(versaoAtiva, ultimaPosicao.doCapitulo());
   }
 
+  /** UC10 — troca a versão ativa; a posição de leitura fica. */
+  comVersao(versao: VersaoId): Preferencias {
+    return versao === this.versaoAtiva ? this : new Preferencias(versao, this.ultimaPosicao);
+  }
+
   /** Registra o capítulo lido (a posição é guardada no nível do capítulo). */
   comPosicao(ref: Referencia): Preferencias {
     const capitulo = ref.doCapitulo();

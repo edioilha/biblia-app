@@ -1,0 +1,1 @@
+export { VersoesDisponiveis } from './VersoesDisponiveis';

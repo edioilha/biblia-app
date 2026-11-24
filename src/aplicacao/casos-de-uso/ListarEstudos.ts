@@ -35,13 +35,13 @@ export class ListarEstudos {
     private readonly favoritos: FavoritoRepository,
     private readonly destaques: DestaqueRepository,
     private readonly anotacoes: AnotacaoRepository,
-    private readonly versao: VersaoId,
   ) {}
 
-  async executar(consulta: ConsultaEstudos): Promise<ResultadoEstudos> {
+  /** `versao` = a versão exibida (ativa): dela vêm os destaques e o texto. */
+  async executar(versao: VersaoId, consulta: ConsultaEstudos): Promise<ResultadoEstudos> {
     const [favoritos, destaques, anotacoes] = await Promise.all([
       this.favoritos.todos(),
-      this.destaques.daVersao(this.versao),
+      this.destaques.daVersao(versao),
       this.anotacoes.todas(),
     ]);
     const porAba: Record<AbaEstudos, MarcacaoEstudo[]> = {
@@ -50,7 +50,7 @@ export class ListarEstudos {
       ANOTACOES: anotacoes.map((anotacao) => ({ tipo: 'ANOTACAO', anotacao })),
     };
 
-    const textos = new TextosDoEstudo(this.textoBiblico, this.versao);
+    const textos = new TextosDoEstudo(this.textoBiblico, versao);
     const filtrar = async (marcacoes: MarcacaoEstudo[]) => {
       const doLivro = marcacoes.filter((m) => consulta.doLivro(m));
       if (!consulta.filtraTexto) return doLivro;

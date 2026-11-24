@@ -54,4 +54,18 @@ describe('DexieTextoBiblicoRepository', () => {
     await expect(repo.importar(tb, [livroSintetico(canon, 'JHN')])).rejects.toThrow();
     expect(await repo.possuiVersao(tb)).toBe(false);
   });
+
+  it('lista as versões instaladas e remove uma sem tocar nas outras (RF07.5)', async () => {
+    const tb = VersaoId.de('TB');
+    await repo.importar(blivre, [livroSintetico(canon, 'JUD')]);
+    await repo.importar(tb, [livroSintetico(canon, 'JHN')]);
+    expect((await repo.versoesInstaladas()).sort()).toEqual([blivre, tb]);
+
+    await repo.removerVersao(tb);
+    expect(await repo.versoesInstaladas()).toEqual([blivre]);
+    expect(await db.capitulos.where('versaoId').equals(tb).count()).toBe(0);
+    expect(await repo.obterCapitulo(blivre, ref('Jd 1'))).not.toBeNull();
+
+    await repo.removerVersao(tb); // sem a versão, não faz nada
+  });
 });

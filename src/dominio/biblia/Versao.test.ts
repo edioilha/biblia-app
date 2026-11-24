@@ -24,4 +24,11 @@ describe('Versao', () => {
     );
     expect(v.sigla).toBe('TB');
   });
+
+  it('só a versão padrão não pode ser removida (RF07.5)', () => {
+    const criar = (padrao: boolean) =>
+      new Versao(VersaoId.de('TB'), 'Tradução Brasileira', 1917, '', '', padrao);
+    expect(criar(true).removivel).toBe(false);
+    expect(criar(false).removivel).toBe(true);
+  });
 });

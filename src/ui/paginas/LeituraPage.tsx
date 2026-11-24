@@ -28,18 +28,20 @@ import { useMarcacoes } from '../hooks/useMarcacoes';
 import { useNavegacaoCapitulos } from '../hooks/useNavegacaoCapitulos';
 import { useLeiturasDoCapitulo } from '../hooks/usePlanos';
 import { useSelecaoTexto } from '../hooks/useSelecaoTexto';
+import { useVersaoAtiva } from '../hooks/useVersoes';
 import { caminhoLeitura, referenciaDaRota } from '../rotas';
 
 /** UC01 — Ler capítulo (rota /ler/:livro/:capitulo/:versiculo?). */
 export function LeituraPage() {
-  const { canon, versaoPadrao } = useDependencias();
+  const { canon } = useDependencias();
+  const versao = useVersaoAtiva();
   const { livro, capitulo, versiculo } = useParams();
   const ref = useMemo(
     () => referenciaDaRota({ livro, capitulo, versiculo }, canon),
     [livro, capitulo, versiculo, canon],
   );
   if (!ref) return <ReferenciaInexistente />;
-  return <Leitura referencia={ref} nomeVersao={versaoPadrao.nome} sigla={versaoPadrao.sigla} />;
+  return <Leitura referencia={ref} nomeVersao={versao?.nome ?? ''} sigla={versao?.sigla ?? ''} />;
 }
 
 function Leitura({

@@ -34,6 +34,10 @@ const api = {
   async preparar(versao: string): Promise<void> {
     await motor(versao);
   },
+  /** Versão removida (ou instalação desfeita): o próximo uso lê o banco de novo. */
+  descartar(versao: string): void {
+    motores.delete(versao);
+  },
   async buscar(versao: string, consulta: ConsultaDTO): Promise<PaginaDTO> {
     const m = await motor(versao);
     return paginaParaDTO(m.buscar(consultaDeDTO(consulta, canon)));

@@ -59,14 +59,25 @@ export class BuscaEmMemoria implements ServicoBusca {
     this.soltar?.();
   }
 
-  async preparar(): Promise<void> {
+  /** Versões preparadas, buscadas e descartadas, na ordem (o índice é o mesmo para todas). */
+  readonly preparadas: VersaoId[] = [];
+  readonly buscadas: VersaoId[] = [];
+  readonly descartadas: VersaoId[] = [];
+
+  async preparar(versao: VersaoId): Promise<void> {
+    this.preparadas.push(versao);
     await this.indice();
   }
 
-  async buscar(_versao: VersaoId, consulta: ConsultaBusca): Promise<Pagina<ResultadoBusca>> {
+  async buscar(versao: VersaoId, consulta: ConsultaBusca): Promise<Pagina<ResultadoBusca>> {
     const motor = await this.indice();
+    this.buscadas.push(versao);
     this.consultas.push(consulta);
     return motor.buscar(consulta);
+  }
+
+  async descartar(versao: VersaoId): Promise<void> {
+    this.descartadas.push(versao);
   }
 
   private indice(): Promise<MotorBusca> {

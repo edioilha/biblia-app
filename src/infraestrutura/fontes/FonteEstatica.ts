@@ -1,4 +1,4 @@
-import type { FonteVersaoEmbarcada, LivroImportado } from '../../aplicacao/portas';
+import type { FonteVersao, LivroImportado } from '../../aplicacao/portas';
 import { CodigoLivro, type VersaoId } from '../../dominio/biblia';
 
 /** Formato gerado por scripts/dados (npm run dados:blivre). */
@@ -16,7 +16,7 @@ export class FonteIndisponivelError extends Error {}
  * Lê os livros da versão embarcada em `<base>dados/<VERSAO>/<LIVRO>.json`.
  * Os arquivos estão no precache do service worker, então funciona offline.
  */
-export class FonteEstatica implements FonteVersaoEmbarcada {
+export class FonteEstatica implements FonteVersao {
   constructor(
     private readonly baseUrl: string,
     private readonly buscar: typeof fetch = (...args) => fetch(...args),

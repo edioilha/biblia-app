@@ -1,6 +1,8 @@
 /**
- * Normalização e validação do JSON canônico do biblia.data para o formato embarcado
- * do app (public/dados/<SIGLA>/<LIVRO>.json). Funções puras — testadas em normalizar.test.ts.
+ * Normalização e validação do JSON canônico do biblia.data para o formato do app.
+ * Usada pelo script da versão embarcada (scripts/dados → public/dados/<SIGLA>/<LIVRO>.json)
+ * e pela instalação de versões no navegador (UC09). Funções puras — testadas em
+ * normalizar.test.ts.
  */
 
 /** Formato de origem: data/canonical/<SIGLA>/<LIVRO>.json no Projeto-Euaggelion/biblia.data. */
@@ -26,6 +28,14 @@ export const FORMATO_EMBARCADO = 1;
 
 /** Markup de nota de rodapé que vazou para o texto na fonte (ex.: Dt 32:5: "/fn/key…/*fn"). */
 const NOTA_VAZADA = /\/fn\/.*?\/\*fn/gu;
+/**
+ * Asteriscos que sobraram da digitalização (ALM1911). Palavra quebrada na linha
+ * ("arro-* *gantes", "por-* que") volta a ser uma só; hífen de nome composto
+ * ("Ben-*hadad") fica; os demais asteriscos ("fru*ctos") saem.
+ */
+const QUEBRA_DIGITALIZADA = /(\p{L})-\* \*?(?=\p{L})/gu;
+const HIFEN_DIGITALIZADO = /(\p{L})-\*(?=\p{L})/gu;
+const ASTERISCO = /\*/gu;
 /** Pontuação colada na palavra seguinte ("destruição,diz", "mim.Porém", "(Selá)Porque"). */
 const PONTUACAO_COLADA = /([,;:.!?)])(?=\p{L})/gu;
 
@@ -33,6 +43,9 @@ export function normalizarTexto(texto: string): string {
   return texto
     .normalize('NFC')
     .replace(NOTA_VAZADA, ' ')
+    .replace(QUEBRA_DIGITALIZADA, '$1')
+    .replace(HIFEN_DIGITALIZADO, '$1-')
+    .replace(ASTERISCO, '')
     .replace(/´/gu, '’')
     .replace(PONTUACAO_COLADA, '$1 ')
     .replace(/\s+/gu, ' ')

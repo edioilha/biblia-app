@@ -64,7 +64,7 @@ flowchart LR
 | UC07 | Iniciar plano de leitura | RF06.1–RF06.2 | M |
 | UC08 | Acompanhar plano | RF06.3–RF06.5 | M |
 | UC09 | Instalar versão | RF07.3 | M |
-| UC10 | Trocar versão | RF07.4 | M |
+| UC10 | Trocar versão | RF07.4, RF07.5 | M |
 | UC11 | Exportar / importar backup | RF08.x | M |
 | UC12 | Configurar leitura | RF01.7 | S |
 | UC13 | Consultar Meus Estudos | RF09.x, RF03.2, RF04.6, RF05.6 | M |
@@ -272,16 +272,43 @@ flowchart LR
 | Pós-condição | Versão disponível offline e indexada |
 
 **Fluxo principal**
-1. Leitor abre "Versões"; sistema lista as versões do catálogo com status (instalada / disponível).
+1. Leitor abre **Versões**; sistema lista as versões instaladas e as disponíveis do catálogo (RF07.2).
 2. Leitor escolhe **Instalar** em uma versão.
-3. Sistema baixa os 66 arquivos JSON, exibindo progresso.
-4. Sistema valida (66 livros, contagem de capítulos) e importa para o IndexedDB.
-5. Sistema **indexa** a versão em Web Worker (include *Indexar versão*).
-6. Sistema marca a versão como `INSTALADA`.
+3. Sistema baixa os 66 livros (até 6 por vez), exibindo o progresso: etapa 1 de 3, "Baixando… 12 de 66 livros".
+4. Sistema normaliza e valida cada livro (66 livros, total de capítulos, versículos em ordem) e importa tudo para o IndexedDB numa transação (etapa 2).
+5. Sistema **indexa** a versão para a busca no Web Worker (etapa 3).
+6. Sistema passa a versão para as instaladas e anuncia "… instalada". A instalação segue se o leitor sair da tela Versões.
 
 **Fluxos alternativos**
-- **A1 — Falha de rede:** sistema mantém status `ERRO`, descarta dados parciais e permite tentar novamente.
-- **A2 — Dados inválidos:** sistema aborta e registra o erro.
+- **A1 — Falha de rede:** sistema descarta o que baixou, mostra o erro e oferece **Tentar novamente**.
+- **A2 — Dados inválidos:** sistema aborta, descarta e mostra que os arquivos vieram com problema.
+- **A3 — Cancelar:** durante a instalação, **Cancelar** interrompe os downloads; nada fica instalado.
+
+**Regras (decisões da fase 7.8):** o catálogo é fixo (ADR 0007): BLIVRE (embarcada), TB e ALM1911. A situação "instalando" ou "erro" só existe enquanto o app está aberto; instalada é a versão importada por completo. Falha na indexação também desfaz a importação.
+
+---
+
+### UC10 — Trocar versão
+
+| Campo | Descrição |
+|---|---|
+| Ator | Leitor |
+| Pré-condição | Versão instalada (UC09) |
+| Pós-condição | Nova versão ativa; posição de leitura mantida |
+
+**Fluxo principal**
+1. Leitor abre **Versões** e escolhe outra versão instalada (botão de opção).
+2. Sistema grava a nova versão ativa nas preferências, mantendo o capítulo da última leitura (RF07.4).
+3. Leitura, busca e Meus Estudos passam a usar a versão ativa; a barra da leitura mostra a sigla.
+
+**Fluxos alternativos**
+- **A1 — Remover versão (RF07.5):** leitor escolhe **Remover** e confirma → sistema apaga o texto e o índice da versão. Se era a ativa, a padrão (BLIVRE) volta a ser a ativa.
+
+**Regras (decisões da fase 7.8):**
+- Favoritos e anotações valem para todas as versões (referência canônica). Destaques são da versão em que foram feitos; ao remover a versão, eles **ficam guardados** e voltam se ela for instalada de novo (o texto é o mesmo).
+- A versão padrão (BLIVRE) não pode ser removida: vem com o app (seria importada de novo na próxima abertura) e garante que sempre resta uma versão instalada.
+- A numeração difere pouco entre as versões (2Co 13:14 e Ap 12:18 só na BLIVRE; Jó 42:17 não existe na TB; Sl 46:3 falta na BLIVRE). Uma marcação num versículo que a versão ativa não tem fica guardada e aparece sem texto em Meus Estudos.
+- Trocar de versão pela tela de leitura fica no backlog (BL-14).
 
 ---
 

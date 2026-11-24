@@ -12,6 +12,10 @@ export interface TextoBiblicoRepository {
   obterCapitulo(versao: VersaoId, ref: Referencia): Promise<Capitulo | null>;
   /** Indica se a versão foi importada por completo. */
   possuiVersao(versao: VersaoId): Promise<boolean>;
+  /** Versões importadas por completo. */
+  versoesInstaladas(): Promise<VersaoId[]>;
   /** Importa todos os livros da versão de forma atômica (tudo ou nada). */
   importar(versao: VersaoId, livros: readonly LivroImportado[]): Promise<void>;
+  /** Apaga o texto da versão (RF07.5). Sem a versão, não faz nada. */
+  removerVersao(versao: VersaoId): Promise<void>;
 }

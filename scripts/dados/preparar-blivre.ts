@@ -10,7 +10,7 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DADOS_CANON } from '../../src/dominio/biblia/dados-canon.ts';
-import { converterLivro, type LivroOrigem } from './normalizar.ts';
+import { converterLivro, type LivroOrigem } from '../../src/infraestrutura/fontes/normalizar.ts';
 
 const SIGLA = 'BLIVRE';
 const FONTE = `https://raw.githubusercontent.com/Projeto-Euaggelion/biblia.data/main/data/canonical/${SIGLA}`;

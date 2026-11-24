@@ -16,7 +16,12 @@ import {
   ObterPainelPlanos,
   ReagendarPlano,
   ExcluirAnotacao,
+  InstalarVersao,
   ListarEstudos,
+  ListarVersoes,
+  ObterVersaoAtiva,
+  RemoverVersao,
+  TrocarVersao,
   MarcarTexto,
   ObterMarcacoesDoCapitulo,
   ObterPosicaoInicial,
@@ -25,8 +30,8 @@ import {
   RemoverDestaque,
   RemoverFavorito,
 } from '../aplicacao/casos-de-uso';
-import type { FonteVersaoEmbarcada } from '../aplicacao/portas';
-import { Canon, Versao, VersaoId } from '../dominio/biblia';
+import type { FonteVersao } from '../aplicacao/portas';
+import { Canon } from '../dominio/biblia';
 import type { Preferencias } from '../dominio/preferencias';
 import { App } from '../ui/App';
 import { criarClienteConsultas } from '../ui/consultas/clienteConsultas';
@@ -44,11 +49,14 @@ import {
 } from './fakes';
 import { BuscaEmMemoria } from './busca';
 import { PlanosPreDefinidos } from '../infraestrutura/planos';
+import { VersoesDisponiveis } from '../infraestrutura/versoes';
 
 interface Opcoes {
   rota?: string;
   preferencias?: Preferencias | null;
-  fonte?: FonteVersaoEmbarcada;
+  fonte?: FonteVersao;
+  /** Fonte da instalação de versões (UC09); por padrão, livros sintéticos com a sigla. */
+  fonteInstalacao?: FonteVersao;
   favoritos?: FavoritosEmMemoria;
   destaques?: DestaquesEmMemoria;
   anotacoes?: AnotacoesEmMemoria;
@@ -62,6 +70,7 @@ export function renderizarApp({
   rota = '/',
   preferencias = null,
   fonte,
+  fonteInstalacao,
   favoritos = new FavoritosEmMemoria(),
   anotacoes = new AnotacoesEmMemoria(),
   destaques = new DestaquesEmMemoria(anotacoes),
@@ -70,21 +79,16 @@ export function renderizarApp({
   relogio = new RelogioFixo(),
 }: Opcoes = {}) {
   const canon = new Canon();
-  const versao = new Versao(
-    VersaoId.de('BLIVRE'),
-    'Bíblia Livre',
-    2018,
-    'Domínio público',
-    '',
-    true,
-  );
+  const catalogo = new VersoesDisponiveis();
+  const versao = catalogo.padrao();
   const texto = new TextoBiblicoEmMemoria(canon);
   const prefs = new PreferenciasEmMemoria(preferencias);
   const planos = new PlanosPreDefinidos(canon);
   const gerador = new GeradorIdSequencial();
+  const versaoAtiva = new ObterVersaoAtiva(catalogo, prefs);
+  const instalacao = fonteInstalacao ?? new FonteSintetica(canon, { prefixo: true });
   const deps: Dependencias = {
     canon,
-    versaoPadrao: versao,
     abrirCapitulo: new AbrirCapitulo(canon, texto, prefs, versao.id),
     obterMarcacoesDoCapitulo: new ObterMarcacoesDoCapitulo(favoritos, destaques, anotacoes),
     alternarFavorito: new AlternarFavorito(favoritos, relogio, gerador),
@@ -103,15 +107,20 @@ export function renderizarApp({
       texto,
       versao.id,
     ),
-    buscarTexto: new BuscarTexto(busca, versao.id),
-    prepararBusca: new PrepararBusca(busca, versao.id),
-    listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, versao.id),
+    buscarTexto: new BuscarTexto(busca),
+    prepararBusca: new PrepararBusca(busca),
+    listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes),
     obterPainelPlanos: new ObterPainelPlanos(planos, inscricoes, relogio),
     iniciarPlano: new IniciarPlano(planos, inscricoes, gerador),
     marcarDiaPlano: new MarcarDiaPlano(inscricoes),
     reagendarPlano: new ReagendarPlano(inscricoes, relogio),
     encerrarPlano: new EncerrarPlano(inscricoes),
     obterLeiturasDoCapitulo: new ObterLeiturasDoCapitulo(planos, inscricoes, relogio),
+    obterVersaoAtiva: versaoAtiva,
+    listarVersoes: new ListarVersoes(catalogo, texto, versaoAtiva),
+    instalarVersao: new InstalarVersao(canon, catalogo, instalacao, texto, busca),
+    trocarVersao: new TrocarVersao(canon, catalogo, texto, prefs),
+    removerVersao: new RemoverVersao(catalogo, texto, prefs, busca),
   };
 
   const resultado = render(

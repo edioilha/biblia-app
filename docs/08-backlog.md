@@ -26,6 +26,8 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-11 | Wiki do projeto no GitHub | documentação | ideia |
 | BL-12 | Monitorar acessos ao site publicado | RNF05, ADR 0008 | descartado |
 | BL-13 | Plano de leitura personalizado | RF06.6, UC07 | ideia |
+| BL-14 | Trocar de versão pela tela de leitura | RF07.4, UC10 | ideia |
+| BL-15 | Importar tradução de um arquivo do usuário | RF07, ADR 0007 | ideia |
 
 ## Itens
 
@@ -111,3 +113,15 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Ideia:** o leitor escolhe livros (ou um intervalo) e a duração em dias; o app divide os capítulos como nos planos pré-definidos (`dividir`).
 - **A decidir:** onde guardar o plano criado (hoje os planos são gerados no código e a inscrição guarda só os números dos dias); edição depois de iniciado; se entra no backup.
 
+### BL-14 — Trocar de versão pela tela de leitura
+
+- **Origem:** discussão da fase 7.8 (fora do escopo; o wireframe prevê a troca só na tela Versões).
+- **Ideia:** a sigla da versão ativa (ex.: "BLIVRE ▾") no topo da leitura abre a lista das versões instaladas para trocar sem sair do capítulo.
+- **A decidir:** lugar na barra superior do celular, que já está cheia; se mostra só as instaladas.
+
+### BL-15 — Importar tradução de um arquivo do usuário
+
+- **Origem:** discussão da fase 7.8; é a opção 3 da [ADR 0007](adr/0007-traducoes-dominio-publico.md), deixada para avaliação futura.
+- **Ideia:** o leitor carrega um arquivo (ou pasta/ZIP) no formato canônico do `biblia.data` com uma tradução que ele tenha direito de usar; o app valida e importa como as versões instaláveis.
+- **A decidir:** nova ADR sobre licença e responsabilidade (o app não distribui o texto, só lê o arquivo do leitor); formato aceito (66 JSON, ZIP ou arquivo único); validação e mensagens de erro de arquivos de terceiros; se a tradução importada entra no backup.
+- **Candidato para:** depois da v1.0.

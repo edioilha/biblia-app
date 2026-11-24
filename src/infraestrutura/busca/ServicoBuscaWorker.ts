@@ -26,6 +26,11 @@ export class ServicoBuscaWorker implements ServicoBusca {
     return paginaDeDTO(dto, this.canon);
   }
 
+  async descartar(versao: VersaoId): Promise<void> {
+    // Sem worker ainda, não há índice para descartar.
+    if (this.api) await this.api.descartar(versao);
+  }
+
   private remoto(): Comlink.Remote<ApiBusca> {
     this.api ??= Comlink.wrap<ApiBusca>(this.criarWorker());
     return this.api;

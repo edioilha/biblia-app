@@ -18,6 +18,10 @@ export class DexieTextoBiblicoRepository implements TextoBiblicoRepository {
     return (await this.db.versoes.get(versao)) !== undefined;
   }
 
+  async versoesInstaladas(): Promise<VersaoId[]> {
+    return (await this.db.versoes.toCollection().primaryKeys()) as VersaoId[];
+  }
+
   async importar(versao: VersaoId, livros: readonly LivroImportado[]): Promise<void> {
     const registros: CapituloRegistro[] = livros.flatMap((l) =>
       l.capitulos.map((versiculos, i) => ({
@@ -33,6 +37,14 @@ export class DexieTextoBiblicoRepository implements TextoBiblicoRepository {
       await this.db.capitulos.where('versaoId').equals(versao).delete();
       await this.db.capitulos.bulkPut(registros);
       await this.db.versoes.put({ versaoId: versao, importadaEm: new Date() });
+    });
+  }
+
+  async removerVersao(versao: VersaoId): Promise<void> {
+    // O registro em `versoes` sai junto: sem ele, a versão não conta como instalada.
+    await this.db.transaction('rw', this.db.capitulos, this.db.versoes, async () => {
+      await this.db.capitulos.where('versaoId').equals(versao).delete();
+      await this.db.versoes.delete(versao);
     });
   }
 }

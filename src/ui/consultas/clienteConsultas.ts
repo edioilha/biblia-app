@@ -29,20 +29,27 @@ export const chaves = {
   marcacoes: (ref: Referencia) => ['marcacoes', ref.doCapitulo().chave()] as const,
   marcacoesDaVersao: (versao: VersaoId, ref: Referencia) =>
     [...chaves.marcacoes(ref), versao] as const,
-  /** UC03 — índice da versão pronto (o preparo roda uma vez por sessão). */
-  preparoBusca: (versao: VersaoId) => ['busca-preparo', versao] as const,
+  /**
+   * UC03 — índice da versão pronto (o preparo roda uma vez por sessão). Nas chaves por
+   * versão, `null` = versão ativa ainda carregando (a consulta fica desligada).
+   */
+  preparoBusca: (versao: VersaoId | null) => ['busca-preparo', versao] as const,
   /** UC03 — uma página de resultados; `parametros` = estado da busca na URL. */
-  busca: (versao: VersaoId, parametros: string) => ['busca', versao, parametros] as const,
+  busca: (versao: VersaoId | null, parametros: string) => ['busca', versao, parametros] as const,
   /** UC13 — prefixo: invalida todas as listas de Meus Estudos. */
   estudos: () => ['estudos'] as const,
   /** UC13 — uma página de Meus Estudos; `parametros` = estado da tela na URL. */
-  listaEstudos: (versao: VersaoId, parametros: string) =>
+  listaEstudos: (versao: VersaoId | null, parametros: string) =>
     [...chaves.estudos(), versao, parametros] as const,
   /** UC07/UC08 — prefixo: invalida o painel e as faixas da leitura. */
   planos: () => ['planos'] as const,
   painelPlanos: () => [...chaves.planos(), 'painel'] as const,
   leiturasDoCapitulo: (ref: Referencia) =>
     [...chaves.planos(), 'capitulo', ref.doCapitulo().chave()] as const,
+  /** UC10 — versão em que se lê, busca e marca. */
+  versaoAtiva: () => ['versao-ativa'] as const,
+  /** RF07.2 — versões do catálogo com a situação de cada uma. */
+  versoes: () => ['versoes'] as const,
 };
 
 /**

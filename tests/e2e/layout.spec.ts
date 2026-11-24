@@ -7,6 +7,7 @@ for (const [nome, rota] of [
   ['Busca', './#/buscar?q=luz'],
   ['Planos', './#/planos'],
   ['Meus Estudos', './#/estudos'],
+  ['Versões', './#/versoes'],
 ] as const) {
   test(`${nome}: sem rolagem horizontal da página`, async ({ page }) => {
     await page.goto(rota);
