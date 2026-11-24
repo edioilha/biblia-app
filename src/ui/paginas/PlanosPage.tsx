@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { PlanoSeguido } from '../../aplicacao/casos-de-uso';
 import type { DataLocal, DiaPlano, PlanoLeitura } from '../../dominio/planos';
@@ -54,6 +54,7 @@ export function PlanosPage() {
   };
 
   const dados = painel.data;
+  const tituloCatalogo = dados?.seguidos.length ? 'Outros planos' : 'Escolha um plano para começar';
   return (
     <>
       <BarraSuperior />
@@ -88,12 +89,9 @@ export function PlanosPage() {
             </div>
 
             {dados.disponiveis.length > 0 && (
-              <section aria-labelledby="titulo-catalogo" className="mt-8">
-                <h2
-                  id="titulo-catalogo"
-                  className="text-xs font-medium tracking-wide text-stone-600 uppercase"
-                >
-                  {dados.seguidos.length ? 'Outros planos' : 'Escolha um plano para começar'}
+              <section aria-label={tituloCatalogo} className="mt-8">
+                <h2 className="text-xs font-medium tracking-wide text-stone-600 uppercase">
+                  {tituloCatalogo}
                 </h2>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-3">
                   {dados.disponiveis.map((p) => (
@@ -198,7 +196,6 @@ function CartaoPlano({
 }) {
   const { canon } = useDependencias();
   const { inscricao, plano } = seguido;
-  const id = useId();
   const progresso = inscricao.progresso();
   const diaHoje = inscricao.diaDe(hoje);
   const atrasados = inscricao.diasAtrasados(hoje);
@@ -231,16 +228,16 @@ function CartaoPlano({
       ? `começa em ${inscricao.inicio.formatar()}`
       : `hoje é o dia ${diaHoje}`;
 
+  // aria-label (e não aria-labelledby apontando para o h2 de dentro): com aria-labelledby,
+  // o axe derruba a página no Firefox do Playwright ("Page crashed") ao calcular o nome.
   return (
     <section
-      aria-labelledby={`${id}-nome`}
+      aria-label={plano.nome}
       className="rounded-xl border border-stone-300 bg-white p-4 sm:p-5"
     >
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <h2 id={`${id}-nome`} className="text-lg font-semibold">
-            {plano.nome}
-          </h2>
+          <h2 className="text-lg font-semibold">{plano.nome}</h2>
           <p className="text-xs text-stone-500">
             {diaHoje === null ? 'início em' : 'iniciado em'} {inscricao.inicio.formatar()}
           </p>
