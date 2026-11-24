@@ -7,3 +7,5 @@ export type { PreferenciasRepository } from './PreferenciasRepository';
 export type { Relogio } from './Relogio';
 export type { LivroImportado, TextoBiblicoRepository } from './TextoBiblicoRepository';
 export type { ServicoBusca } from './ServicoBusca';
+export type { CatalogoPlanos } from './CatalogoPlanos';
+export type { InscricaoRepository } from './InscricaoRepository';
