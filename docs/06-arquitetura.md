@@ -397,7 +397,7 @@ sequenceDiagram
 - **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
 - **Schema v3** (fase 7.3): `destaques` (`id, [versaoId+livro+capitulo], criadoEm`); `inicio`/`fim` gravados como `[versículo, offset]`. Só cria a tabela; testado com migração a partir de um banco v2.
 - **Schema v4** (fase 7.4): `anotacoes` (`id, [livro+capitulo], atualizadoEm, destaqueId`); o índice `destaqueId` serve para religar notas na fusão de destaques. Só cria a tabela; testado com migração a partir de um banco v3.
-- **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local) e `diasConcluidos` como lista de números. O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
+- **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local), `diasConcluidos` como lista de números e `diaInicial` (UC07 A5; ausente = 1, sem índice). O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
 
 ## 7. Importação e normalização dos dados

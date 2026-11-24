@@ -51,6 +51,17 @@ export class DataLocal {
     return `${dia}/${mes}/${ano}`;
   }
 
+  /**
+   * Dia do ano num calendário de 365 dias (1º/jan = 1, 31/dez = 365): 29/fev conta como
+   * 28/fev, para planos anuais seguirem o calendário também em ano bissexto.
+   */
+  diaDoAnoComum(): number {
+    const d = new Date(this.utc);
+    const mes = d.getUTCMonth();
+    const dia = Math.min(d.getUTCDate(), mes === 1 ? 28 : 31);
+    return Math.round((Date.UTC(2001, mes, dia) - Date.UTC(2001, 0, 1)) / DIA_MS) + 1;
+  }
+
   equals(outra: DataLocal): boolean {
     return this.utc === outra.utc;
   }

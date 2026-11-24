@@ -29,12 +29,35 @@ describe('DexieInscricaoRepository', () => {
         totalDias: 90,
         inicio: '2026-11-01',
         diasConcluidos: [1, 2, 3],
+        diaInicial: 1,
       },
     ]);
     const lida = await repo.porId(id(1));
     expect(lida?.inicio.paraIso()).toBe('2026-11-01');
     expect([...(lida?.diasConcluidos ?? [])]).toEqual([1, 2, 3]);
     expect(lida?.totalDias).toBe(90);
+  });
+
+  it('guarda o dia inicial; registro antigo, sem ele, começa no dia 1', async () => {
+    await repo.salvar(
+      InscricaoPlano.criar(
+        id(1),
+        PlanoId.de('nt-90-dias'),
+        90,
+        DataLocal.iso('2026-11-01'),
+        [],
+        40,
+      ),
+    );
+    expect((await repo.porId(id(1)))?.diaDoPlano(1)).toBe(40);
+    await db.inscricoes.put({
+      id: id(2),
+      planoId: 'salmos-proverbios-31-dias',
+      totalDias: 31,
+      inicio: '2026-11-01',
+      diasConcluidos: [],
+    });
+    expect((await repo.porId(id(2)))?.diaInicial).toBe(1);
   });
 
   it('busca por plano, lista todas e remove', async () => {

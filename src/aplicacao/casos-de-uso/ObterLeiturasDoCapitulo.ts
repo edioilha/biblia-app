@@ -23,8 +23,9 @@ export class ObterLeiturasDoCapitulo {
       const diaHoje = inscricao.diaDe(hoje);
       if (diaHoje === null) return [];
       const candidatos = [diaHoje, ...inscricao.diasAtrasados(hoje)];
-      const numero = candidatos.find((n) => plano.dia(n).contem(capitulo));
-      return numero === undefined ? [] : [{ inscricao, plano, dia: plano.dia(numero), hoje }];
+      const leitura = (n: number) => plano.dia(inscricao.diaDoPlano(n));
+      const numero = candidatos.find((n) => leitura(n).contem(capitulo));
+      return numero === undefined ? [] : [{ inscricao, plano, numero, dia: leitura(numero), hoje }];
     });
   }
 }

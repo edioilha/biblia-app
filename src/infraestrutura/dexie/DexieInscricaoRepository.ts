@@ -27,6 +27,7 @@ export class DexieInscricaoRepository implements InscricaoRepository {
       totalDias: i.totalDias,
       inicio: i.inicio.paraIso(),
       diasConcluidos: [...i.diasConcluidos].sort((a, b) => a - b),
+      diaInicial: i.diaInicial,
     });
   }
 
@@ -43,6 +44,7 @@ export class DexieInscricaoRepository implements InscricaoRepository {
         r.totalDias,
         DataLocal.iso(r.inicio),
         r.diasConcluidos,
+        r.diaInicial ?? 1,
       );
     } catch {
       return null;

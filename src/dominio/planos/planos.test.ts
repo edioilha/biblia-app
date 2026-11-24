@@ -33,6 +33,17 @@ describe('DataLocal', () => {
   });
 });
 
+describe('DataLocal — dia do ano comum (planos pelo calendário)', () => {
+  it('1º/jan = 1, 31/dez = 365; 29/fev conta como 28/fev', () => {
+    expect(data('2026-01-01').diaDoAnoComum()).toBe(1);
+    expect(data('2026-11-24').diaDoAnoComum()).toBe(328);
+    expect(data('2026-12-31').diaDoAnoComum()).toBe(365);
+    expect(data('2028-02-29').diaDoAnoComum()).toBe(59);
+    expect(data('2028-03-01').diaDoAnoComum()).toBe(60);
+    expect(data('2028-12-31').diaDoAnoComum()).toBe(365);
+  });
+});
+
 describe('PlanoLeitura', () => {
   const plano = PlanoLeitura.criar(PLANO, 'Teste', 'desc', [
     [cap('Sl 1'), cap('Sl 2'), cap('Sl 3'), cap('Pv 1')],
@@ -137,5 +148,47 @@ describe('InscricaoPlano (UC07/UC08)', () => {
     expect(() => inscricao('2026-11-01', [], 0)).toThrow(InscricaoInvalidaError);
     expect(() => inscricao('2026-11-01', [0])).toThrow(InscricaoInvalidaError);
     expect(() => InscricaoId.de('x')).toThrow(InscricaoInvalidaError);
+  });
+});
+
+describe('Começar por outra leitura (UC07 A5)', () => {
+  // 3 dias: Gn 1 · Gn 2 · Êx 1.
+  const plano = PlanoLeitura.criar(PlanoId.de('mini'), 'Mini', '', [
+    [cap('Gn 1')],
+    [cap('Gn 2')],
+    [cap('Êx 1')],
+  ]);
+
+  it('livros na ordem do plano e o primeiro dia de cada um', () => {
+    expect(plano.livros().map((l) => l.valor)).toEqual(['GEN', 'EXO']);
+    expect(plano.primeiroDiaCom(cap('Êx 1').livro)).toBe(3);
+    expect(plano.primeiroDiaCom(cap('Ap 1').livro)).toBeNull();
+  });
+
+  it('só planos de 365 dias seguem o calendário', () => {
+    expect(plano.segueCalendario).toBe(false);
+    expect(() => plano.diaDoCalendario(data('2026-01-01'))).toThrow(PlanoInvalidoError);
+    const anual = PlanoLeitura.criar(
+      PlanoId.de('anual'),
+      'Anual',
+      '',
+      Array.from({ length: 365 }, () => [cap('Gn 1')]),
+    );
+    expect(anual.segueCalendario).toBe(true);
+    expect(anual.diaDoCalendario(data('2026-11-24'))).toBe(328);
+  });
+
+  it('o dia do leitor avança a partir do dia inicial e dá a volta no fim', () => {
+    const i = InscricaoPlano.criar(ID, PLANO, 3, data('2026-11-01'), [], 2);
+    expect(i.diaInicial).toBe(2);
+    expect([1, 2, 3].map((n) => i.diaDoPlano(n))).toEqual([2, 3, 1]);
+    // Progresso, atrasos e reagendar seguem contados nos dias do leitor.
+    const r = i.concluirDia(1).reagendar(data('2026-11-05'));
+    expect(r.diaInicial).toBe(2);
+    expect(r.diaDoPlano(2)).toBe(3);
+    expect(inscricao().diaInicial).toBe(1);
+    expect(() => InscricaoPlano.criar(ID, PLANO, 3, data('2026-11-01'), [], 4)).toThrow(
+      InscricaoInvalidaError,
+    );
   });
 });

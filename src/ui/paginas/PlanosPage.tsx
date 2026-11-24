@@ -17,7 +17,7 @@ const ATRASADOS_VISIVEIS = 7;
 const DIAS_NA_LINHA = 14;
 
 type Dialogo =
-  | { tipo: 'iniciar'; plano: PlanoLeitura }
+  | { tipo: 'iniciar'; plano: PlanoLeitura; recomecar?: boolean }
   | { tipo: 'reagendar' | 'encerrar'; seguido: PlanoSeguido };
 
 const classeBotao =
@@ -129,10 +129,10 @@ export function PlanosPage() {
           hoje={dados.hoje}
           ocupado={editar.isPending}
           erro={erro}
-          onIniciar={(inicio) =>
+          onIniciar={(inicio, diaInicial) =>
             executar(
-              { tipo: 'iniciar', plano: dialogo.plano.id, inicio },
-              `Plano “${dialogo.plano.nome}” iniciado.`,
+              { tipo: 'iniciar', plano: dialogo.plano.id, inicio, diaInicial },
+              `Plano “${dialogo.plano.nome}” ${dialogo.recomecar ? 'recomeçado' : 'iniciado'}.`,
             )
           }
           onFechar={fecharDialogo}
@@ -271,12 +271,7 @@ function CartaoPlano({
           <button
             type="button"
             disabled={ocupado}
-            onClick={() =>
-              onAcao(
-                { tipo: 'iniciar', plano: plano.id, inicio: hoje },
-                `Plano “${plano.nome}” recomeçado.`,
-              )
-            }
+            onClick={() => onDialogo({ tipo: 'iniciar', plano, recomecar: true })}
             className={`${classeBotao} mt-3`}
           >
             Começar de novo
@@ -291,7 +286,8 @@ function CartaoPlano({
                   ? `Primeira leitura · dia 1 · ${inscricao.inicio.formatar()}`
                   : `Leitura de hoje · dia ${diaHoje}`
               }
-              dia={plano.dia(diaHoje ?? 1)}
+              numero={diaHoje ?? 1}
+              dia={plano.dia(inscricao.diaDoPlano(diaHoje ?? 1))}
               feito={inscricao.concluido(diaHoje ?? 1)}
               podeConcluir={diaHoje !== null}
               ocupado={ocupado}
@@ -314,7 +310,7 @@ function CartaoPlano({
                           onChange={() => marcar(n, true)}
                         />
                         <span>
-                          Dia {n} · {descreverLeitura(plano.dia(n), canon)}
+                          Dia {n} · {descreverLeitura(plano.dia(inscricao.diaDoPlano(n)), canon)}
                         </span>
                       </label>
                     </li>
@@ -346,6 +342,7 @@ function CartaoPlano({
 
 function LeituraDoDia({
   titulo,
+  numero,
   dia,
   feito,
   podeConcluir,
@@ -353,6 +350,8 @@ function LeituraDoDia({
   onMarcar,
 }: {
   titulo: string;
+  /** Dia do leitor; `dia` é a leitura do plano que cai nele. */
+  numero: number;
   dia: DiaPlano;
   feito: boolean;
   podeConcluir: boolean;
@@ -378,7 +377,7 @@ function LeituraDoDia({
               <button
                 type="button"
                 disabled={ocupado}
-                onClick={() => onMarcar(dia.numero, false)}
+                onClick={() => onMarcar(numero, false)}
                 className="text-primaria rounded-sm text-sm hover:underline disabled:opacity-50"
               >
                 Desfazer
@@ -388,7 +387,7 @@ function LeituraDoDia({
             <button
               type="button"
               disabled={ocupado}
-              onClick={() => onMarcar(dia.numero, true)}
+              onClick={() => onMarcar(numero, true)}
               className={classeBotao}
             >
               ✓ Concluir

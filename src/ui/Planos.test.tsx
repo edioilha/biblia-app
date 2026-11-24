@@ -47,6 +47,42 @@ describe('Planos de leitura (UC07/UC08)', () => {
     expect([...inscricoes.itens.values()].map((i) => i.inicio.paraIso())).toEqual(['2026-11-10']);
   });
 
+  it('Bíblia em 1 ano pela leitura do calendário: começa em 10/11 com Atos (A5)', async () => {
+    const user = userEvent.setup();
+    const { inscricoes } = renderizarApp({ rota: '/planos', relogio: relogio() });
+    await user.click(await screen.findByRole('button', { name: 'Iniciar Bíblia em 1 ano' }));
+
+    const dialogo = screen.getByRole('dialog');
+    const partida = within(dialogo).getByRole('group', { name: 'Começar por' });
+    expect(within(partida).getByRole('radio', { name: 'Início do plano' })).toBeChecked();
+    expect(partida).toHaveTextContent('Gênesis 1–3');
+    expect(partida).toHaveTextContent('10/11: Atos 2–4');
+    await user.click(within(partida).getByRole('radio', { name: 'Leitura do calendário' }));
+    await user.click(within(dialogo).getByRole('button', { name: 'Iniciar plano' }));
+
+    const plano = await screen.findByRole('region', { name: 'Bíblia em 1 ano' });
+    expect(within(plano).getByText('Leitura de hoje · dia 1')).toBeInTheDocument();
+    expect(within(plano).getByText('Atos 2–4')).toBeInTheDocument();
+    expect([...inscricoes.itens.values()].map((i) => i.diaInicial)).toEqual([314]);
+  });
+
+  it('começa por um livro escolhido; planos curtos não têm a opção do calendário', async () => {
+    const user = userEvent.setup();
+    renderizarApp({ rota: '/planos', relogio: relogio() });
+    await user.click(
+      await screen.findByRole('button', { name: 'Iniciar Novo Testamento em 90 dias' }),
+    );
+    const dialogo = screen.getByRole('dialog');
+    expect(within(dialogo).queryByRole('radio', { name: 'Leitura do calendário' })).toBeNull();
+    await user.click(within(dialogo).getByRole('radio', { name: 'Um livro' }));
+    await user.selectOptions(within(dialogo).getByRole('combobox', { name: 'Livro' }), 'Romanos');
+    await user.click(within(dialogo).getByRole('button', { name: 'Iniciar plano' }));
+
+    const nt = await screen.findByRole('region', { name: 'Novo Testamento em 90 dias' });
+    expect(within(nt).getByText('Leitura de hoje · dia 1')).toHaveTextContent('dia 1');
+    expect(within(nt).getByText('Atos 27–28; Romanos 1')).toBeInTheDocument();
+  });
+
   it('mostra progresso, leitura de hoje e atrasos; conclui hoje e um dia atrasado (A1)', async () => {
     const user = userEvent.setup();
     const inscricoes = await comPlano('salmos-proverbios-31-dias', '2026-11-07', [1]);
@@ -151,6 +187,9 @@ describe('Planos de leitura (UC07/UC08)', () => {
     const plano = await screen.findByRole('region', { name: 'Salmos e Provérbios em 31 dias' });
     expect(within(plano).getByText(/Plano concluído/)).toBeInTheDocument();
     await user.click(within(plano).getByRole('button', { name: 'Começar de novo' }));
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Iniciar plano' }),
+    );
     await waitFor(() =>
       expect(
         within(cartao('Salmos e Provérbios em 31 dias')).getByText(/0 de 31 dias concluídos/),

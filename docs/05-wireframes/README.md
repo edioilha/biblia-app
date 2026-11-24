@@ -50,7 +50,7 @@ UC07 · UC08 — progresso, leitura do dia, atrasos, reagendamento, catálogo.
 
 ![Planos](img/wf-planos.png)
 
-> **Implementado na fase 7.7 (UC07 · UC08):** como no wireframe, com estas diferenças: o catálogo tem Bíblia em 1 ano, NT em 90 dias e **Salmos e Provérbios em 31 dias** (5 salmos e 1 provérbio por dia); "Iniciar" abre um diálogo com a data de início (padrão hoje) e mostra quando o plano termina; o menu ⋯ do plano tem Reagendar (com atraso) e Encerrar (com confirmação); o dia de hoje concluído mostra **Desfazer**; plano concluído oferece **Começar de novo**; a linha do tempo não aparece no primeiro dia. A **faixa do plano** na leitura (tela 1, nota 7) mostra o plano, o dia (ou "atrasado") e **Concluir dia N**.
+> **Implementado na fase 7.7 (UC07 · UC08):** como no wireframe, com estas diferenças: o catálogo tem Bíblia em 1 ano, NT em 90 dias e **Salmos e Provérbios em 31 dias** (5 salmos e 1 provérbio por dia); "Iniciar" abre um diálogo com a data de início (padrão hoje), quando o plano termina e **Começar por** (início do plano, leitura do calendário na Bíblia em 1 ano ou um livro); o menu ⋯ do plano tem Reagendar (com atraso) e Encerrar (com confirmação); o dia de hoje concluído mostra **Desfazer**; plano concluído oferece **Começar de novo** (mesmo diálogo); a linha do tempo não aparece no primeiro dia. A **faixa do plano** na leitura (tela 1, nota 7) mostra o plano, o dia (ou "atrasado") e **Concluir dia N**.
 
 ## 5. Versões
 UC09 · UC10 — instaladas, disponíveis, progresso de instalação.

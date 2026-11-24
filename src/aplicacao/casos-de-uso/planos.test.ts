@@ -47,9 +47,13 @@ describe('Planos de leitura (UC07/UC08)', () => {
     const i = await iniciar.executar(NT, data('2026-11-08'));
     expect(i.totalDias).toBe(90);
     expect(i.inicio.paraIso()).toBe('2026-11-08');
+    expect(i.diaInicial).toBe(1);
+    // Bíblia em 1 ano pela leitura do calendário (A5): 10/11 = dia 314 do plano.
+    const anual = await iniciar.executar(PlanoId.de('biblia-1-ano'), data('2026-11-10'), 314);
+    expect(anual.diaDoPlano(1)).toBe(314);
 
     const p = await painel.executar();
-    expect(p.seguidos.map((s) => s.plano.id)).toEqual([NT]);
+    expect(p.seguidos.map((s) => s.plano.id)).toEqual([PlanoId.de('biblia-1-ano'), NT]);
     expect(p.disponiveis.map((x) => x.id)).not.toContain(NT);
   });
 
@@ -97,6 +101,7 @@ describe('Planos de leitura (UC07/UC08)', () => {
     it('acha o dia de hoje que inclui o capítulo', async () => {
       await iniciar.executar(SALMOS, data('2026-11-10')); // hoje = dia 1
       const [l] = await leituras().executar(cap('Sl 31'));
+      expect(l?.numero).toBe(1);
       expect(l?.dia.numero).toBe(1);
       expect(l?.plano.id).toBe(SALMOS);
       expect(await leituras().executar(cap('Sl 2'))).toEqual([]);
@@ -108,6 +113,15 @@ describe('Planos de leitura (UC07/UC08)', () => {
       expect(l?.dia.numero).toBe(2);
       // Dia futuro não aparece.
       expect(await leituras().executar(cap('Pv 5'))).toEqual([]);
+    });
+
+    it('com dia inicial, procura na leitura do plano que cai no dia do leitor', async () => {
+      // Começa pelo dia 10 do plano: o dia 1 do leitor lê Salmos 10, 40… e Provérbios 10.
+      await iniciar.executar(SALMOS, data('2026-11-10'), 10);
+      const [l] = await leituras().executar(cap('Pv 10'));
+      expect(l?.numero).toBe(1);
+      expect(l?.dia.numero).toBe(10);
+      expect(await leituras().executar(cap('Pv 1'))).toEqual([]);
     });
 
     it('ignora plano que ainda não começou ou já foi concluído', async () => {

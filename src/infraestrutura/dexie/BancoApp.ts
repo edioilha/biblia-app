@@ -76,6 +76,8 @@ export interface InscricaoRegistro {
   totalDias: number;
   inicio: string;
   diasConcluidos: number[];
+  /** Leitura do plano pela qual começou (UC07 A5). Ausente em registros antigos: dia 1. */
+  diaInicial?: number;
 }
 
 /**

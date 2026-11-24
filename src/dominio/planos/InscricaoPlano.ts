@@ -32,8 +32,10 @@ export interface Progresso {
  * concluídos e o total de dias do plano (cópia, para não depender do catálogo). Imutável:
  * as alterações devolvem uma nova inscrição com o mesmo `id`.
  *
- * O dia N do plano cai na data `inicio + (N − 1)`. Dias concluídos podem estar em qualquer
- * ordem (UC08 A1).
+ * O dia N do leitor cai na data `inicio + (N − 1)`. Dias concluídos podem estar em qualquer
+ * ordem (UC08 A1). Os números de dia (progresso, atrasos, "dia 5") são sempre os do leitor;
+ * `diaInicial` diz por qual leitura do plano ele começou (UC07 A5: pelo calendário ou por
+ * um livro). O dia N do leitor lê o dia `diaDoPlano(N)` do plano, dando a volta no fim.
  */
 export class InscricaoPlano {
   private constructor(
@@ -42,6 +44,7 @@ export class InscricaoPlano {
     readonly totalDias: number,
     readonly inicio: DataLocal,
     readonly diasConcluidos: ReadonlySet<number>,
+    readonly diaInicial: number,
   ) {}
 
   /** Inicia (UC07) ou reconstitui uma inscrição persistida. */
@@ -51,13 +54,15 @@ export class InscricaoPlano {
     totalDias: number,
     inicio: DataLocal,
     diasConcluidos: Iterable<number> = [],
+    diaInicial = 1,
   ): InscricaoPlano {
     if (!Number.isInteger(totalDias) || totalDias < 1) {
       throw new InscricaoInvalidaError(`Total de dias inválido: ${totalDias}.`);
     }
     const dias = new Set(diasConcluidos);
     for (const n of dias) InscricaoPlano.exigirDia(n, totalDias);
-    return new InscricaoPlano(id, planoId, totalDias, inicio, dias);
+    InscricaoPlano.exigirDia(diaInicial, totalDias);
+    return new InscricaoPlano(id, planoId, totalDias, inicio, dias, diaInicial);
   }
 
   private static exigirDia(numero: number, total: number): void {
@@ -78,6 +83,12 @@ export class InscricaoPlano {
     const n = this.inicio.diasAte(hoje) + 1;
     if (n < 1) return null;
     return Math.min(n, this.totalDias);
+  }
+
+  /** Dia do plano (leitura do catálogo) que o leitor lê no seu dia `numero`. */
+  diaDoPlano(numero: number): number {
+    InscricaoPlano.exigirDia(numero, this.totalDias);
+    return ((this.diaInicial - 1 + numero - 1) % this.totalDias) + 1;
   }
 
   /** Data em que cai o dia `numero`. */
@@ -150,6 +161,7 @@ export class InscricaoPlano {
       this.totalDias,
       m.inicio ?? this.inicio,
       m.dias ?? this.diasConcluidos,
+      this.diaInicial,
     );
   }
 }

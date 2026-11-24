@@ -16,19 +16,19 @@ export function FaixaPlano({ leituras }: { leituras: readonly LeituraDoCapitulo[
   return (
     <aside aria-label="Planos de leitura" className="border-b border-stone-300 bg-stone-50">
       <ul className="mx-auto flex max-w-5xl flex-col gap-1.5 px-4 py-2 font-sans text-sm">
-        {leituras.map(({ inscricao, plano, dia, hoje }) => {
-          const feito = inscricao.concluido(dia.numero);
-          const atrasado = dia.numero !== inscricao.diaDe(hoje);
+        {leituras.map(({ inscricao, plano, numero, dia, hoje }) => {
+          const feito = inscricao.concluido(numero);
+          const atrasado = numero !== inscricao.diaDe(hoje);
           const { percentual } = inscricao.progresso();
           const marcar = () =>
-            editar.mutate({ tipo: 'marcar', inscricao, dia: dia.numero, concluido: !feito });
+            editar.mutate({ tipo: 'marcar', inscricao, dia: numero, concluido: !feito });
           return (
             <li key={inscricao.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="min-w-0 flex-1">
                 <span className="font-semibold">{plano.nome}</span>
                 <span className="text-stone-600">
                   {' '}
-                  · Dia {dia.numero}
+                  · Dia {numero}
                   {atrasado ? ' (atrasado)' : ''} · {descreverLeitura(dia, canon)}
                 </span>
               </span>
@@ -45,7 +45,7 @@ export function FaixaPlano({ leituras }: { leituras: readonly LeituraDoCapitulo[
                 onClick={marcar}
                 className={`focus-visible:outline-primaria rounded-md border px-3 py-1 focus-visible:outline-2 disabled:opacity-50 ${feito ? 'border-green-700 bg-green-50 text-green-900' : 'border-stone-300 bg-white hover:bg-stone-100'}`}
               >
-                {feito ? `✓ Dia ${dia.numero} concluído` : `Concluir dia ${dia.numero}`}
+                {feito ? `✓ Dia ${numero} concluído` : `Concluir dia ${numero}`}
               </button>
             </li>
           );

@@ -43,6 +43,8 @@ export interface PainelPlanos {
 
 /** Leitura de um plano que inclui o capítulo aberto (faixa da leitura, wireframe tela 1). */
 export interface LeituraDoCapitulo extends PlanoSeguido {
+  /** Dia do leitor (o que ele conclui) e a leitura do plano desse dia. */
+  readonly numero: number;
   readonly dia: DiaPlano;
   readonly hoje: DataLocal;
 }

@@ -1,5 +1,6 @@
 import type { CodigoLivro, Referencia } from '../biblia';
 import { ErroDominio } from '../compartilhado/ErroDominio';
+import type { DataLocal } from './DataLocal';
 
 export class PlanoInvalidoError extends ErroDominio {}
 
@@ -97,6 +98,31 @@ export class PlanoLeitura {
   /** Média arredondada, para o catálogo ("~3 capítulos por dia"). */
   get capitulosPorDia(): number {
     return Math.round(this.totalCapitulos / this.duracaoDias);
+  }
+
+  /** Planos de 365 dias podem começar pela leitura do calendário (1º/jan = dia 1). */
+  get segueCalendario(): boolean {
+    return this.duracaoDias === 365;
+  }
+
+  /** Dia do plano que corresponde a `data` no calendário (só em `segueCalendario`). */
+  diaDoCalendario(data: DataLocal): number {
+    if (!this.segueCalendario) {
+      throw new PlanoInvalidoError(`O plano "${this.nome}" não segue o calendário.`);
+    }
+    return data.diaDoAnoComum();
+  }
+
+  /** Livros lidos no plano, na ordem em que aparecem. */
+  livros(): CodigoLivro[] {
+    const vistos = new Map<string, CodigoLivro>();
+    for (const d of this.dias) for (const c of d.capitulos) vistos.set(c.livro.valor, c.livro);
+    return [...vistos.values()];
+  }
+
+  /** Primeiro dia que lê o livro, ou `null` se o plano não passa por ele. */
+  primeiroDiaCom(livro: CodigoLivro): number | null {
+    return this.dias.find((d) => d.capitulos.some((c) => c.livro.equals(livro)))?.numero ?? null;
   }
 
   dia(numero: number): DiaPlano {

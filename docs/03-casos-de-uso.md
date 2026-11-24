@@ -218,14 +218,20 @@ flowchart LR
 1. Leitor abre **Planos**.
 2. Sistema lista os planos pré-definidos ainda não iniciados (RF06.1), cada um com nome, descrição e média de capítulos por dia.
 3. Leitor escolhe **Iniciar** num plano.
-4. Sistema pede a **data de início**, com hoje como padrão, e mostra quando o plano termina.
+4. Sistema pede a **data de início**, com hoje como padrão, mostra quando o plano termina e pergunta por onde **começar** (A5); o padrão é o início do plano.
 5. Leitor confirma; sistema cria a inscrição e passa a mostrar o plano em andamento (UC08).
 
 **Fluxos alternativos**
 - **A1 — Outra data:** o leitor escolhe uma data passada (para alinhar com uma leitura já começada) ou futura; antes do início, o plano mostra a primeira leitura e a data em que começa.
 - **A2 — Vários planos:** o leitor pode seguir vários planos ao mesmo tempo, mas cada plano uma vez só; um plano em andamento sai da lista de disponíveis.
-- **A3 — Recomeçar:** num plano concluído, **Começar de novo** cria uma inscrição nova a partir de hoje (o progresso anterior é substituído).
+- **A3 — Recomeçar:** num plano concluído, **Começar de novo** abre o mesmo diálogo e cria uma inscrição nova (o progresso anterior é substituído).
 - **A4 — Cancelar:** Cancelar ou Esc fecham sem iniciar.
+- **A5 — Começar por outra leitura:** o leitor escolhe por onde começar, vendo a primeira leitura de cada opção:
+  - **Início do plano** (padrão): dia 1 (Gênesis 1–3 na Bíblia em 1 ano).
+  - **Leitura do calendário** (só planos de 365 dias): a leitura que corresponde à data de início no ano (1º/jan = dia 1; 29/fev usa a leitura de 28/fev). Ex.: começando em 24/11, lê 1 Coríntios 4–6, chega a Apocalipse em 31/dez e segue em Gênesis em 1º/jan.
+  - **Um livro**: o primeiro dia do plano que lê esse livro (pode trazer o fim do livro anterior, como "Atos 27–28; Romanos 1").
+
+  Em qualquer caso o plano tem a mesma duração e cobre todas as leituras; depois do último dia do plano, volta ao primeiro. O leitor sempre vê "dia 1, 2, 3…" contados a partir da sua data de início.
 
 **Planos pré-definidos (decisão da fase 7.7):** Bíblia em 1 ano (365 dias), Novo Testamento em 90 dias e Salmos e Provérbios em 31 dias (dia n: Salmos n, n+30, n+60, n+90, n+120 e Provérbios n; dia 31: Provérbios 31). Os dois primeiros dividem os capítulos, em ordem, em partes quase iguais. Plano personalizado (RF06.6) fica no backlog (BL-13).
 

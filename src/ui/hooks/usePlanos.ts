@@ -35,7 +35,7 @@ export function useLeiturasDoCapitulo(capitulo: Referencia | null) {
 
 /** Ações sobre planos (UC07/UC08). */
 export type AcaoPlano =
-  | { tipo: 'iniciar'; plano: PlanoId; inicio: DataLocal }
+  | { tipo: 'iniciar'; plano: PlanoId; inicio: DataLocal; diaInicial: number }
   | { tipo: 'marcar'; inscricao: InscricaoPlano; dia: number; concluido: boolean }
   | { tipo: 'reagendar'; inscricao: InscricaoPlano }
   | { tipo: 'encerrar'; inscricao: InscricaoPlano };
@@ -48,7 +48,7 @@ export function useEditarPlanos() {
     mutationFn: async (acao: AcaoPlano): Promise<void> => {
       switch (acao.tipo) {
         case 'iniciar':
-          await iniciarPlano.executar(acao.plano, acao.inicio);
+          await iniciarPlano.executar(acao.plano, acao.inicio, acao.diaInicial);
           return;
         case 'marcar':
           await marcarDiaPlano.executar(acao.inscricao.id, acao.dia, acao.concluido);
