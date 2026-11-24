@@ -73,3 +73,57 @@ describe('BackupJson (UC11)', () => {
     );
   });
 });
+
+describe('BackupJson — arquivo hostil (BL-16)', () => {
+  const base = () => JSON.parse(formato.serializar(dados, exportadoEm));
+
+  it('HTML e script nas notas continuam texto (quem exibe é o React, sem HTML cru)', () => {
+    const json = base();
+    json.anotacoes[0].conteudo = '<img src=x onerror="alert(1)"> [link](javascript:alert(1))';
+    const [nota] = formato.ler(JSON.stringify(json)).dados.anotacoes;
+    expect(nota?.conteudo).toBe('<img src=x onerror="alert(1)"> [link](javascript:alert(1))');
+  });
+
+  it('__proto__ e campos extras não contaminam objetos', () => {
+    const texto = formato
+      .serializar(dados, exportadoEm)
+      .replace('"app": "biblia-app",', '"app": "biblia-app", "__proto__": { "poluido": true },')
+      .replace(
+        '"chave": "JHN.3.16",',
+        '"chave": "JHN.3.16", "__proto__": { "poluido": true }, "extra": 1,',
+      );
+    const lido = formato.ler(texto);
+    expect(lido.dados.favoritos).toHaveLength(1);
+    expect(({} as Record<string, unknown>)['poluido']).toBeUndefined();
+    expect(Object.prototype).not.toHaveProperty('poluido');
+  });
+
+  it.each([
+    ['favoritos', 'chave', 123],
+    ['favoritos', 'chave', 'JHN.999.1'],
+    ['anotacoes', 'conteudo', { texto: 'x' }],
+    ['anotacoes', 'conteudo', '   '],
+    ['anotacoes', 'conteudo', 'x'.repeat(10_001)],
+    ['anotacoes', 'exibicao', 'POPUP'],
+    ['destaques', 'cor', 'PRETO'],
+    ['destaques', 'inicio', [16, -1]],
+    ['destaques', 'inicio', 'abc'],
+    ['destaques', 'versaoId', '../../etc'],
+    ['inscricoes', 'totalDias', 1e9 + 0.5],
+    ['inscricoes', 'diasConcluidos', [0]],
+    ['inscricoes', 'inicio', '2026-02-30'],
+  ])('recusa %s com %s = %j', (lista, campo, valor) => {
+    const json = base();
+    json[lista][0][campo] = valor;
+    expect(() => formato.ler(JSON.stringify(json))).toThrow(BackupInvalidoError);
+  });
+
+  it.each([
+    ['lista que não é lista', { favoritos: 'tudo' }],
+    ['item que não é objeto', { favoritos: [42] }],
+    ['item nulo', { anotacoes: [null] }],
+  ])('recusa %s', (_, extra) => {
+    const json = { ...base(), ...extra };
+    expect(() => formato.ler(JSON.stringify(json))).toThrow(BackupInvalidoError);
+  });
+});

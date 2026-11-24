@@ -119,6 +119,7 @@ install → audit → lint → typecheck → test (unit + integração, com cobe
 - Cobertura mínima do domínio: **80%** (falha abaixo disso).
 - Deploy no GitHub Pages após merge na `main` ([ADR 0008](adr/0008-hospedagem-github-pages.md)).
 - **Segurança (BL-16):** `npm audit --audit-level=high` no CI; **CodeQL** (código e workflows) em todo PR, na `main` e semanalmente; **Dependabot** abre PRs semanais de atualização (npm agrupado em menores/correções; Actions). Vulnerabilidades são relatadas em privado ([SECURITY.md](../SECURITY.md)).
+- **Actions fixadas por SHA** (com a versão em comentário, que o Dependabot atualiza), `permissions` mínimas **por job** (no deploy, só a publicação escreve no Pages) e `actions/checkout` com `persist-credentials: false`.
 
 ## 7. Definition of Ready (DoR)
 

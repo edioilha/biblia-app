@@ -28,7 +28,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-13 | Plano de leitura personalizado | RF06.6, UC07 | ideia |
 | BL-14 | Trocar de versão pela tela de leitura | RF07.4, UC10 | ideia |
 | BL-15 | Importar tradução de um arquivo do usuário | RF07, ADR 0007 | ideia |
-| BL-16 | Verificação de segurança em camadas | RNF, docs/07 §6 | em andamento |
+| BL-16 | Verificação de segurança em camadas | RNF, docs/07 §6 | feito |
 | BL-17 | Migrar para TypeScript 7 e ESLint 10 | docs/07 (ferramentas) | ideia |
 
 ## Itens
@@ -141,8 +141,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
   5. **Endurecer as Actions** — fixar por SHA e manter `permissions` mínimas.
   6. **Testes de entrada hostil** — arquivos importados com conteúdo malicioso ou grandes demais.
   7. **`SECURITY.md`** — canal privado para relatar vulnerabilidades.
-- **Feito:** camadas 1, 2, 3 e 7 (só configuração), com o relato privado de vulnerabilidades e os alertas do Dependabot ligados no repositório.
-- **Pendente:** camadas 4, 5 e 6 (mexem no app e no CI; cada uma com teste).
+- **Feito:** camadas 1, 2, 3 e 7 (#18), com o relato privado de vulnerabilidades e os alertas do Dependabot ligados no repositório; camadas 4, 5 e 6 (#24): CSP, Actions fixadas por SHA com permissões mínimas, limite de 20 MB no backup e testes de entrada hostil. Detalhes em docs/06 (Segurança) e docs/07 §6.
 - **Regra:** uma vulnerabilidade concreta nunca é descrita em issue, PR ou neste backlog antes de corrigida; é tratada por *security advisory* privado (ver `SECURITY.md`).
 
 ### BL-17 — Migrar para TypeScript 7 e ESLint 10

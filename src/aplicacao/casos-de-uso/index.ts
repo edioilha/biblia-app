@@ -45,6 +45,8 @@ export { ReagendarPlano } from './ReagendarPlano';
 export {
   BackupInvalidoError,
   ExportarDados,
+  MENSAGEM_BACKUP_GRANDE,
+  TAMANHO_MAXIMO_BACKUP,
   ImportarDados,
   type BackupExportado,
   type PreviaImportacao,

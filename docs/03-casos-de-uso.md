@@ -332,7 +332,7 @@ flowchart LR
 4. Leitor confirma **Importar**; sistema junta os dados numa única transação e mostra o resumo. Listas e marcações na leitura são relidas.
 
 **Fluxos alternativos**
-- **A1 — Arquivo inválido:** não é JSON, não é do Bíblia App, não tem data ou tem um item inválido → sistema explica e não grava nada.
+- **A1 — Arquivo inválido:** não é JSON, não é do Bíblia App, não tem data, tem um item inválido ou passa de 20 MB → sistema explica e não grava nada.
 - **A2 — Formato mais novo:** backup feito por uma versão mais nova do app → sistema pede para atualizar o app.
 - **A3 — Cancelar:** na prévia, **Cancelar** fecha sem gravar.
 
