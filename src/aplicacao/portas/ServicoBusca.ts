@@ -7,4 +7,6 @@ export interface ServicoBusca {
   preparar(versao: VersaoId): Promise<void>;
   /** Prepara o índice se preciso e devolve a página pedida. */
   buscar(versao: VersaoId, consulta: ConsultaBusca): Promise<Pagina<ResultadoBusca>>;
+  /** Descarta o índice da versão (removida, ou a instalação falhou). */
+  descartar(versao: VersaoId): Promise<void>;
 }

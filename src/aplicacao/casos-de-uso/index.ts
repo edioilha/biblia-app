@@ -9,11 +9,21 @@ export { MarcarTexto, TrechoSemTextoError } from './MarcarTexto';
 export { RemoverDestaque } from './RemoverDestaque';
 export { ObterMarcacoesDoCapitulo } from './ObterMarcacoesDoCapitulo';
 export { ObterPosicaoInicial } from './ObterPosicaoInicial';
+export { PrepararVersaoPadrao, type ProgressoPreparacao } from './PrepararVersaoPadrao';
+export { VersaoCorrompidaError } from './carregarVersao';
 export {
-  PrepararVersaoPadrao,
-  VersaoCorrompidaError,
-  type ProgressoPreparacao,
-} from './PrepararVersaoPadrao';
+  InstalarVersao,
+  ListarVersoes,
+  ObterVersaoAtiva,
+  RemoverVersao,
+  TrocarVersao,
+  VersaoForaDoCatalogoError,
+  VersaoNaoInstaladaError,
+  VersaoNaoRemovivelError,
+  type EtapaInstalacao,
+  type ItemVersao,
+  type ProgressoInstalacao,
+} from './versoes';
 export { BuscarTexto } from './BuscarTexto';
 export { PrepararBusca } from './PrepararBusca';
 export { ListarEstudos, type ResultadoEstudos } from './ListarEstudos';

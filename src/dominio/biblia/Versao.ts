@@ -19,8 +19,9 @@ export const VersaoId = {
 };
 
 /**
- * Tradução da Bíblia. Nesta fase só a versão embarcada existe;
- * o ciclo de instalação (StatusInstalacao) entra com UC09.
+ * Tradução da Bíblia (ADR 0007: só domínio público). Metadados do catálogo; se está
+ * instalada é dado do armazenamento, e o andamento de uma instalação (UC09) só existe
+ * enquanto ela roda.
  */
 export class Versao {
   constructor(
@@ -29,10 +30,23 @@ export class Versao {
     readonly ano: number,
     readonly licenca: string,
     readonly urlOrigem: string,
+    /** A versão embarcada (RF07.1): vem com o app e é a ativa na primeira execução. */
     readonly padrao: boolean,
+    /** Nota curta para o leitor (ex.: "ortografia antiga"). */
+    readonly observacao = '',
+    /** Tamanho aproximado do texto, em MB, para o leitor decidir se instala. */
+    readonly tamanhoMb = 0,
   ) {}
 
   get sigla(): string {
     return this.id;
+  }
+
+  /**
+   * RF07.5 — a versão padrão não pode ser removida: vem com o app (seria importada de novo
+   * na próxima abertura) e garante que sempre resta uma versão instalada.
+   */
+  get removivel(): boolean {
+    return !this.padrao;
   }
 }

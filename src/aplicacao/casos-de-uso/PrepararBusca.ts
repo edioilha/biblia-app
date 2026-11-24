@@ -6,12 +6,9 @@ import type { ServicoBusca } from '../portas';
  * que a versão está disponível, para a primeira busca ser rápida (RNF02).
  */
 export class PrepararBusca {
-  constructor(
-    private readonly servico: ServicoBusca,
-    private readonly versao: VersaoId,
-  ) {}
+  constructor(private readonly servico: ServicoBusca) {}
 
-  executar(): Promise<void> {
-    return this.servico.preparar(this.versao);
+  executar(versao: VersaoId): Promise<void> {
+    return this.servico.preparar(versao);
   }
 }

@@ -44,7 +44,8 @@ describe('ListarEstudos (UC13)', () => {
   let destaques: DestaquesEmMemoria;
   let anotacoes: AnotacoesEmMemoria;
   let uc: ListarEstudos;
-  const listar = (opcoes: OpcoesConsultaEstudos = {}) => uc.executar(ConsultaEstudos.criar(opcoes));
+  const listar = (opcoes: OpcoesConsultaEstudos = {}) =>
+    uc.executar(BLIVRE, ConsultaEstudos.criar(opcoes));
 
   beforeEach(async () => {
     texto = new TextoBiblicoEmMemoria(canon);
@@ -57,7 +58,7 @@ describe('ListarEstudos (UC13)', () => {
     favoritos = new FavoritosEmMemoria();
     anotacoes = new AnotacoesEmMemoria();
     destaques = new DestaquesEmMemoria(anotacoes);
-    uc = new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, BLIVRE);
+    uc = new ListarEstudos(canon, texto, favoritos, destaques, anotacoes);
   });
 
   it('lista a aba em ordem bíblica com o texto do versículo e o total de cada aba', async () => {

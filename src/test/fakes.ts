@@ -3,7 +3,7 @@ import type {
   AnotacaoRepository,
   DestaqueRepository,
   FavoritoRepository,
-  FonteVersaoEmbarcada,
+  FonteVersao,
   GeradorId,
   InscricaoRepository,
   LivroImportado,
@@ -38,8 +38,16 @@ export class TextoBiblicoEmMemoria implements TextoBiblicoRepository {
     return this.versoes.has(versao);
   }
 
+  async versoesInstaladas(): Promise<VersaoId[]> {
+    return [...this.versoes.keys()];
+  }
+
   async importar(versao: VersaoId, livros: readonly LivroImportado[]): Promise<void> {
     this.versoes.set(versao, new Map(livros.map((l) => [l.livro.valor, l])));
+  }
+
+  async removerVersao(versao: VersaoId): Promise<void> {
+    this.versoes.delete(versao);
   }
 }
 
@@ -68,13 +76,47 @@ export function livroSintetico(canon: Canon, codigo: string, versiculos = 3): Li
   };
 }
 
-export class FonteSintetica implements FonteVersaoEmbarcada {
+/**
+ * Fonte com livros sintéticos. Com `prefixo`, o texto começa pela sigla da versão
+ * ("TB JHN 3:16"), para distinguir versões nos testes. `segurar` deixa a carga pendente até
+ * `liberar()` (para ver o progresso e cancelar); `falharEm` rejeita aquele livro.
+ */
+export class FonteSintetica implements FonteVersao {
   carregados = 0;
-  constructor(private readonly canon = new Canon()) {}
+  private soltar: (() => void) | null = null;
+  private bloqueio: Promise<void> = Promise.resolve();
 
-  async carregarLivro(_versao: VersaoId, livro: CodigoLivro): Promise<LivroImportado> {
+  constructor(
+    private readonly canon = new Canon(),
+    private readonly opcoes: { prefixo?: boolean; falharEm?: string } = {},
+  ) {}
+
+  segurar(): void {
+    this.bloqueio = new Promise((r) => {
+      this.soltar = r;
+    });
+  }
+
+  liberar(): void {
+    this.soltar?.();
+    this.bloqueio = Promise.resolve();
+  }
+
+  async carregarLivro(
+    versao: VersaoId,
+    livro: CodigoLivro,
+    sinal?: AbortSignal,
+  ): Promise<LivroImportado> {
+    await this.bloqueio;
+    sinal?.throwIfAborted();
+    if (this.opcoes.falharEm === livro.valor) throw new Error(`Falha de rede em ${livro.valor}.`);
     this.carregados++;
-    return livroSintetico(this.canon, livro.valor);
+    const l = livroSintetico(this.canon, livro.valor);
+    if (!this.opcoes.prefixo) return l;
+    return {
+      ...l,
+      capitulos: l.capitulos.map((c) => c.map(([n, t]) => [n, `${versao} ${t}`] as const)),
+    };
   }
 }
 

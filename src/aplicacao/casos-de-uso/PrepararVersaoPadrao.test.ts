@@ -1,12 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { Canon, VersaoId, type CodigoLivro } from '../../dominio/biblia';
-import type { FonteVersaoEmbarcada, LivroImportado } from '../portas';
+import type { FonteVersao, LivroImportado } from '../portas';
 import { FonteSintetica, livroSintetico, TextoBiblicoEmMemoria } from '../../test/fakes';
-import {
-  PrepararVersaoPadrao,
-  VersaoCorrompidaError,
-  type ProgressoPreparacao,
-} from './PrepararVersaoPadrao';
+import { PrepararVersaoPadrao, type ProgressoPreparacao } from './PrepararVersaoPadrao';
+import { VersaoCorrompidaError } from './carregarVersao';
 
 const canon = new Canon();
 const blivre = VersaoId.de('BLIVRE');
@@ -44,7 +41,7 @@ describe('PrepararVersaoPadrao', () => {
   });
 
   it('rejeita livro corrompido sem importar nada', async () => {
-    const corrompida: FonteVersaoEmbarcada = {
+    const corrompida: FonteVersao = {
       async carregarLivro(_v: VersaoId, livro: CodigoLivro): Promise<LivroImportado> {
         const l = livroSintetico(canon, livro.valor);
         return livro.valor === 'JHN' ? { ...l, capitulos: l.capitulos.slice(1) } : l;
