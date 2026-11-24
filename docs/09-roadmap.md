@@ -39,7 +39,7 @@ Sugestão de encaixe, ainda **não planejados** (a decisão acontece na discuss�
 |---|---|
 | 7.9 | BL-01 largura da leitura · BL-02 fonte · BL-03 tipo de folha · BL-05 `storage.persist()` · BL-07 modo foco |
 | Após 7.6 | BL-04 painel lateral no desktop (depende de favoritos e anotações) |
-| Qualquer fase | BL-06 teste E2E offline |
+| Qualquer fase | BL-06 teste E2E offline · BL-10 abas de Meus Estudos no celular · BL-11 wiki do projeto · BL-12 monitorar acessos ao site |
 
 ## Depois da v1.0
 
