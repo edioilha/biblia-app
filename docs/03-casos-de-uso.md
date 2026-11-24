@@ -312,6 +312,61 @@ flowchart LR
 
 ---
 
+### UC11 — Exportar / importar backup
+
+| Campo | Descrição |
+|---|---|
+| Ator | Leitor |
+| Pré-condição | — |
+| Pós-condição | Exportar: arquivo JSON salvo pelo leitor. Importar: dados do arquivo juntados aos do aparelho |
+
+**Fluxo principal (exportar — RF08.1)**
+1. Leitor abre **Meus Estudos** e escolhe **Exportar backup**.
+2. Sistema reúne favoritos, destaques (de todas as versões), anotações e planos seguidos e gera `biblia-app-backup-AAAA-MM-DD.json`.
+3. O navegador baixa o arquivo; sistema anuncia quantos itens foram exportados.
+
+**Fluxo principal (importar — RF08.2)**
+1. Leitor escolhe **Importar backup** e seleciona um arquivo.
+2. Sistema lê e valida o arquivo inteiro (cada item passa pelas regras do domínio).
+3. Sistema mostra a prévia: data do backup e, por tipo, quantos itens são novos, atualizados ou já existiam — "nada do que você já tem é apagado".
+4. Leitor confirma **Importar**; sistema junta os dados numa única transação e mostra o resumo. Listas e marcações na leitura são relidas.
+
+**Fluxos alternativos**
+- **A1 — Arquivo inválido:** não é JSON, não é do Bíblia App, não tem data ou tem um item inválido → sistema explica e não grava nada.
+- **A2 — Formato mais novo:** backup feito por uma versão mais nova do app → sistema pede para atualizar o app.
+- **A3 — Cancelar:** na prévia, **Cancelar** fecha sem gravar.
+
+**Regras (decisões da fase 7.9) — importar junta, não substitui:**
+- **Favorito:** um por versículo; se o versículo já é favorito (ou o id já existe), fica o atual.
+- **Anotação:** mesmo id → fica a editada por último (`atualizadoEm`); senão entra.
+- **Destaque:** mesmo id → fica o atual; um destaque novo que se sobrepõe a outro da mesma versão e capítulo **não entra** (destaques nunca se sobrepõem) e é contado como ignorado.
+- **Plano:** um por plano; se o leitor já segue o plano, fica a inscrição com mais dias concluídos (empate: a atual).
+- Importar o mesmo arquivo de novo não duplica nada.
+- As preferências (versão ativa, posição, tema, fonte) **não** entram no backup: são do aparelho. As versões instaladas também não (texto público, baixa-se de novo).
+- O formato do arquivo está em [docs/06 §6.1](06-arquitetura.md).
+
+---
+
+### UC12 — Configurar leitura
+
+| Campo | Descrição |
+|---|---|
+| Ator | Leitor |
+| Pré-condição | — |
+| Pós-condição | Tema e tamanho da fonte salvos nas preferências |
+
+**Fluxo principal**
+1. Na leitura, leitor toca no botão **Aa** da barra.
+2. Sistema abre o painel com **Tamanho do texto** (A− / A+, 7 níveis, o 3º é o padrão) e **Tema** (Claro, Sépia, Escuro).
+3. Cada mudança vale na hora e é salva; Esc ou tocar fora fecha o painel.
+
+**Regras (decisões da fase 7.9):**
+- O tema vale para o **app inteiro** (todas as telas); o tamanho, para o texto bíblico.
+- O tema salvo é aplicado antes de a página aparecer (cópia no `localStorage`), para não piscar o claro ao abrir.
+- Os três temas passam na verificação de contraste WCAG AA (axe) em todas as telas.
+
+---
+
 ### UC13 — Consultar Meus Estudos
 
 | Campo | Descrição |

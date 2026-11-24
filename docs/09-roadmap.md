@@ -28,7 +28,7 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | 7.6 | Meus Estudos: abas com total, filtro de texto e livro, ordem, paginação, menu de ações (+ busca nas anotações, RF02.9) | UC13 | F10 | ✅ | #11 | 2026-11-23 |
 | 7.7 | Planos de leitura: catálogo, início com data (pelo calendário ou por livro), leitura do dia, atrasos, reagendar, faixa na leitura (+ tab bar no celular) | UC07, UC08 | F07 | ✅ | #13 | 2026-11-24 |
 | 7.8 | Versões: tela Versões, instalar TB e ALM1911 (progresso, cancelar, tentar de novo), trocar a ativa mantendo o capítulo, remover (a padrão fica) | UC09, UC10 | F08 | ✅ | #15 | 2026-11-24 |
-| 7.9 | Backup e configurações de leitura | UC11, UC12 | — | ⏭️ | — | — |
+| 7.9 | Backup (exportar; importar juntando, com prévia) e configurações de leitura (botão Aa: tamanho e tema claro/sépia/escuro no app inteiro); armazenamento persistente (BL-05) | UC11, UC12 | — | ✅ | #16 | 2026-11-24 |
 | — | **Release v1.0.0 — MVP entregue** | | | ⏳ | — | — |
 
 ### Candidatos do backlog por fase
@@ -37,7 +37,7 @@ Sugestão de encaixe, ainda **não planejados** (a decisão acontece na discuss�
 
 | Fase | Itens do backlog |
 |---|---|
-| 7.9 | inscrições de planos no backup · BL-01 largura da leitura · BL-02 fonte · BL-03 tipo de folha · BL-05 `storage.persist()` · BL-07 modo foco |
+| 7.9 | ✅ inscrições de planos no backup · ✅ BL-05 `storage.persist()` · BL-01, BL-02 (família), BL-03 e BL-07 ficaram para depois da v1.0 |
 | Após 7.6 | BL-04 painel lateral no desktop (depende de favoritos e anotações) |
 | Qualquer fase | BL-06 teste E2E offline · BL-10 abas de Meus Estudos no celular · BL-11 wiki do projeto · BL-13 plano personalizado · BL-14 trocar versão pela leitura |
 
