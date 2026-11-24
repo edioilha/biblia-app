@@ -25,6 +25,19 @@ test.describe('Planos de leitura (UC07/UC08)', () => {
     await page.getByRole('link', { name: 'Planos' }).click();
     await expect(plano).toContainText('1 de 31 dias concluídos');
     await expect(plano.getByText('✓ Concluído')).toBeVisible();
+  });
+
+  // Acessibilidade numa página nova (sem recarregar nem passar pela leitura): no Firefox da
+  // CI, o axe logo depois de recarregar a leitura derrubou a página ("Page crashed").
+  test('tela de Planos sem violações de acessibilidade (axe)', async ({ page }) => {
+    await page.goto('./#/planos');
+    await page
+      .getByRole('button', { name: 'Iniciar Salmos e Provérbios em 31 dias' })
+      .click({ timeout: 30_000 });
+    await page.getByRole('dialog').getByRole('button', { name: 'Iniciar plano' }).click();
+    const plano = cartao(page, 'Salmos e Provérbios em 31 dias');
+    await plano.getByRole('button', { name: '✓ Concluir' }).click();
+    await expect(plano.getByText('✓ Concluído')).toBeVisible();
 
     const resultado = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(resultado.violations).toEqual([]);
