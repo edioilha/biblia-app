@@ -112,12 +112,13 @@ Validação automática: **commitlint** + **Husky** (hook `commit-msg`).
 Executado em todo PR e push na `main`:
 
 ```
-install → lint → typecheck → test (unit + integração, com cobertura) → build → e2e (Playwright)
+install → audit → lint → typecheck → test (unit + integração, com cobertura) → build → e2e (Playwright)
 ```
 
 - PR só pode ser mergeado com CI verde (**branch protection** na `main`).
 - Cobertura mínima do domínio: **80%** (falha abaixo disso).
 - Deploy no GitHub Pages após merge na `main` ([ADR 0008](adr/0008-hospedagem-github-pages.md)).
+- **Segurança (BL-16):** `npm audit --audit-level=high` no CI; **CodeQL** (código e workflows) em todo PR, na `main` e semanalmente; **Dependabot** abre PRs semanais de atualização (npm agrupado em menores/correções; Actions). Vulnerabilidades são relatadas em privado ([SECURITY.md](../SECURITY.md)).
 
 ## 7. Definition of Ready (DoR)
 

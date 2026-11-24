@@ -1,0 +1,29 @@
+# BL-16 — atualizações automáticas de dependências (docs/08).
+# Alertas de vulnerabilidade ficam visíveis só para os mantenedores.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      # Menores e correções num PR só; versões major vêm separadas (podem quebrar).
+      dependencias:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ['*']

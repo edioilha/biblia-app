@@ -27,6 +27,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Dependências sem vulnerabilidade alta ou crítica (BL-16)
+        run: npm audit --audit-level=high
+
       - name: Formatação
         run: npm run format:check
 
