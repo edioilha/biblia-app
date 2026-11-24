@@ -762,6 +762,14 @@ classDiagram
 - `ItemEstudo` = marcação + texto exibido (versículo; nos destaques, só o trecho via `TextoDoCapitulo.trecho()`). A data da ordem "mais recentes" é `criadoEm` (favorito, destaque) ou `atualizadoEm` (anotação).
 - Casos de uso `ListarEstudos` (filtra, ordena e pagina em memória; devolve `Pagina<ItemEstudo>` e o total de cada aba com os mesmos filtros; `Pagina` vem do módulo `busca`) e `RemoverFavorito` (por id; `AlternarFavorito` continua na leitura).
 
+**Notas de implementação (fase 7.7)**
+- **`DataLocal`** (value object): dia do calendário local, sem hora nem fuso; conta dias com UTC por dentro (horário de verão não desloca o "dia 2"). `de(instante)` usa o dia local; `iso()`/`paraIso()` no formato `AAAA-MM-DD`.
+- **`PlanoLeitura`/`DiaPlano`**: cada dia guarda **capítulos inteiros** (`Referencia` de capítulo) no lugar de `IntervaloReferencia[]`; `sequencias()` agrupa capítulos seguidos de um livro para exibir ("Juízes 4–6"). `PlanoId` é um identificador legível e estável ("biblia-1-ano").
+- **`InscricaoPlano` imutável**, com `totalDias` copiado do plano (a inscrição não depende do catálogo) e `inicio: DataLocal`. **`status` é derivado** (`CONCLUIDO` quando todos os dias estão concluídos); `ABANDONADO` saiu: encerrar um plano apaga a inscrição (`EncerrarPlano`). `diaDe(hoje)` devolve `null` antes do início; `diasAtrasados(hoje)`, `primeiroPendente()`, `progresso()` (percentual arredondado para baixo), `concluirDia`/`desfazerDia` e `reagendar(hoje)` (o primeiro pendente vira hoje).
+- Portas: **`CatalogoPlanos`** (`todos`, `porId`) no lugar de `PlanoRepository`, implementada por **`PlanosPreDefinidos`**, que gera os planos a partir do cânon, de forma determinística (por isso a inscrição guarda só os números dos dias). **`InscricaoRepository`**: `todas`, `porId`, `porPlano`, `salvar`, `remover`; no máximo uma inscrição por plano.
+- Casos de uso: `ObterPainelPlanos` (planos seguidos, disponíveis e hoje), `IniciarPlano` (recusa plano em andamento; recomeça um concluído), `MarcarDiaPlano` (conclui ou desfaz), `ReagendarPlano`, `EncerrarPlano` e `ObterLeiturasDoCapitulo` (faixa da leitura).
+- As inscrições entram no backup da fase 7.9 (UC11).
+
 ### Adapters (infraestrutura) previstos
 
 | Porta | Implementação |
@@ -770,7 +778,7 @@ classDiagram
 | `FonteVersaoEmbarcada` | `FonteEstatica` (`public/dados/<SIGLA>/<LIVRO>.json`, em precache) |
 | `ServicoBusca` | `ServicoBuscaWorker` → `busca.worker.ts` → `MotorBusca` (MiniSearch em Web Worker; índice em memória, ver ADR 0005) |
 | `FonteVersoes` | `GitHubBibliaDataFonte` (baixa `data/canonical/<SIGLA>/<LIVRO>.json`) |
-| `PlanoRepository` | `PlanosEstaticosRepository` (JSON empacotado no build) |
+| `CatalogoPlanos` (antes `PlanoRepository`) | `PlanosPreDefinidos` (gerados a partir do cânon, no código) |
 | `Relogio` | `RelogioSistema` (testes usam `RelogioFixo`) |
 | `GeradorId` | `GeradorUuidV7` (biblioteca `uuid`; testes usam `GeradorIdSequencial`) |
 

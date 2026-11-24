@@ -25,6 +25,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-10 | Abas de Meus Estudos cabendo no celular | RNF03, UC13 | ideia |
 | BL-11 | Wiki do projeto no GitHub | documentação | ideia |
 | BL-12 | Monitorar acessos ao site publicado | RNF05, ADR 0008 | descartado |
+| BL-13 | Plano de leitura personalizado | RF06.6, UC07 | ideia |
 
 ## Itens
 
@@ -88,6 +89,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Origem:** revisão da fase 7.6. A linha das abas precisa de 375 px; numa tela de 393 px (iPhone 15) sobram só 361 px depois das margens, e a aba "Anotações" fica cortada uns 14 px. No iPhone a barra de rolagem lateral fica escondida até rolar, então o contador parece cortado sem aviso de que dá para rolar.
 - **Medição (fase 7.6):** cabe no desktop (1280 px); rola para o lado em 393, 375, 360 e 320 px. Nunca há rolagem vertical (corrigido na 7.6).
 - **Ideia:** no celular, diminuir o espaço interno das abas e entre elas (≈ 30 px a menos) para caber a partir de 375 px; abaixo disso, manter a rolagem lateral, talvez com um esmaecido na borda indicando que há mais.
+- **Fase 7.7:** a navegação foi para a *tab bar* inferior no celular (a barra superior da leitura estourava a largura desde a 7.6), e o E2E `layout.spec.ts` confere que nenhuma tela fica mais larga que a janela. As abas de Meus Estudos continuam rolando para o lado dentro da própria linha.
 - **Relação:** RNF03 (responsivo, mobile-first). Vale definir a **largura mínima suportada** (ex.: 360 px) e um teste E2E que confira que as abas e a navegação cabem nela.
 
 ### BL-11 — Wiki do projeto no GitHub
@@ -102,3 +104,10 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Origem:** pedido do mantenedor após a fase 7.6.
 - **Status:** **descartado** (2026-11-24).
 - **Motivo:** o GitHub Pages (ADR 0008) não oferece estatísticas de acesso ao site; o *Insights → Traffic* conta só visitas ao repositório. Medir exigiria um serviço de terceiros carregado no navegador do leitor, o que contraria o RNF05 ("sem rastreamento"). Decisão do mantenedor: não implementar.
+
+### BL-13 — Plano de leitura personalizado
+
+- **Origem:** RF06.6 (prioridade *Could*), adiado na fase 7.7.
+- **Ideia:** o leitor escolhe livros (ou um intervalo) e a duração em dias; o app divide os capítulos como nos planos pré-definidos (`dividir`).
+- **A decidir:** onde guardar o plano criado (hoje os planos são gerados no código e a inscrição guarda só os números dos dias); edição depois de iniciado; se entra no backup.
+

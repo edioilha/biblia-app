@@ -206,6 +206,31 @@ flowchart LR
 
 ---
 
+### UC07 — Iniciar plano de leitura
+
+| Campo | Descrição |
+|---|---|
+| Atores | Leitor, Relógio |
+| Pré-condição | — |
+| Pós-condição | Inscrição criada; o plano aparece em andamento na tela Planos |
+
+**Fluxo principal**
+1. Leitor abre **Planos**.
+2. Sistema lista os planos pré-definidos ainda não iniciados (RF06.1), cada um com nome, descrição e média de capítulos por dia.
+3. Leitor escolhe **Iniciar** num plano.
+4. Sistema pede a **data de início**, com hoje como padrão, e mostra quando o plano termina.
+5. Leitor confirma; sistema cria a inscrição e passa a mostrar o plano em andamento (UC08).
+
+**Fluxos alternativos**
+- **A1 — Outra data:** o leitor escolhe uma data passada (para alinhar com uma leitura já começada) ou futura; antes do início, o plano mostra a primeira leitura e a data em que começa.
+- **A2 — Vários planos:** o leitor pode seguir vários planos ao mesmo tempo, mas cada plano uma vez só; um plano em andamento sai da lista de disponíveis.
+- **A3 — Recomeçar:** num plano concluído, **Começar de novo** cria uma inscrição nova a partir de hoje (o progresso anterior é substituído).
+- **A4 — Cancelar:** Cancelar ou Esc fecham sem iniciar.
+
+**Planos pré-definidos (decisão da fase 7.7):** Bíblia em 1 ano (365 dias), Novo Testamento em 90 dias e Salmos e Provérbios em 31 dias (dia n: Salmos n, n+30, n+60, n+90, n+120 e Provérbios n; dia 31: Provérbios 31). Os dois primeiros dividem os capítulos, em ordem, em partes quase iguais. Plano personalizado (RF06.6) fica no backlog (BL-13).
+
+---
+
 ### UC08 — Acompanhar plano
 
 | Campo | Descrição |
@@ -216,15 +241,19 @@ flowchart LR
 
 **Fluxo principal**
 1. Leitor abre "Planos".
-2. Sistema calcula o **dia atual** do plano (`hoje − dataInício + 1`) e exibe as leituras do dia, progresso (%) e dias em atraso.
-3. Leitor abre a leitura (UC01).
-4. Ao final do último capítulo da leitura, sistema oferece **Concluir dia**.
-5. Leitor confirma; sistema registra o dia como concluído.
+2. Sistema calcula o **dia atual** do plano (`hoje − dataInício + 1`, em dias do calendário local, limitado ao último dia) e exibe a leitura do dia, o progresso (%), os dias em atraso e a linha do tempo dos últimos 14 dias.
+3. Leitor escolhe **Ler agora** e o sistema abre o primeiro capítulo da leitura (UC01).
+4. Na leitura, uma **faixa do plano** aparece abaixo da barra superior sempre que o capítulo aberto faz parte da leitura de hoje (ou de um dia atrasado), com **Concluir dia N**.
+5. Leitor conclui o dia (na faixa ou na tela Planos); sistema registra o dia como concluído.
 
 **Fluxos alternativos**
-- **A1 — Atrasado:** sistema lista dias pendentes; leitor pode concluí-los em qualquer ordem.
-- **A2 — Reagendar:** leitor escolhe reagendar → nova data de início = hoje − (dias concluídos consecutivos).
-- **A3 — Plano concluído:** todos os dias concluídos → status `CONCLUIDO`.
+- **A1 — Atrasado:** sistema lista os dias pendentes anteriores a hoje; o leitor pode concluí-los em qualquer ordem. A faixa da leitura usa o dia de hoje e, se o capítulo não for dele, o dia atrasado mais antigo que o contém.
+- **A2 — Reagendar (RF06.5):** com dias em atraso, o leitor escolhe **Reagendar plano** e confirma → o **primeiro dia pendente passa a ser hoje** (nova data de início = hoje − (primeiro pendente − 1)). Os dias concluídos continuam concluídos.
+- **A3 — Plano concluído:** todos os dias concluídos → o plano mostra "Plano concluído" e oferece **Começar de novo** (UC07 A3).
+- **A4 — Desfazer:** o leitor desmarca um dia concluído por engano (**Desfazer** ou de novo na faixa).
+- **A5 — Encerrar:** pelo menu do plano, **Encerrar plano** com confirmação apaga a inscrição e o progresso; o plano volta ao catálogo.
+
+**Regras (decisões da fase 7.7):** o "dia" é o do calendário local do leitor, não 24 h corridas; a leitura do dia e os atrasos são recalculados ao voltar ao app; a regra de reagendar substitui a anterior ("hoje − dias concluídos consecutivos"), mais fácil de explicar na tela e igual a ela quando os dias concluídos são seguidos.
 
 ---
 
