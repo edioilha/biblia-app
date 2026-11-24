@@ -29,6 +29,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-14 | Trocar de versão pela tela de leitura | RF07.4, UC10 | ideia |
 | BL-15 | Importar tradução de um arquivo do usuário | RF07, ADR 0007 | ideia |
 | BL-16 | Verificação de segurança em camadas | RNF, docs/07 §6 | em andamento |
+| BL-17 | Migrar para TypeScript 7 e ESLint 10 | docs/07 (ferramentas) | ideia |
 
 ## Itens
 
@@ -143,4 +144,11 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Feito:** camadas 1, 2, 3 e 7 (só configuração), com o relato privado de vulnerabilidades e os alertas do Dependabot ligados no repositório.
 - **Pendente:** camadas 4, 5 e 6 (mexem no app e no CI; cada uma com teste).
 - **Regra:** uma vulnerabilidade concreta nunca é descrita em issue, PR ou neste backlog antes de corrigida; é tratada por *security advisory* privado (ver `SECURITY.md`).
+
+### BL-17 — Migrar para TypeScript 7 e ESLint 10
+
+- **Origem:** primeiros PRs do Dependabot (BL-16), em 2026-11-24: #20 (`@eslint/js` 10), #21 (`typescript` 7) e #22 (`eslint` 10).
+- **Situação:** as versões major falharam no `npm ci` (`ERESOLVE`): o `typescript-eslint` ainda não aceita o TypeScript 7, e o `eslint-plugin-jsx-a11y` ainda não aceita o ESLint 10. Os três PRs foram fechados com `@dependabot ignore this major version`; as atualizações menores continuam chegando normalmente.
+- **Ideia:** quando os plugins suportarem as novas versões, migrar numa tarefa planejada: TypeScript 7 sozinho; depois ESLint 10 junto com `@eslint/js` 10 e os plugins (`typescript-eslint`, `jsx-a11y`, `react-hooks`, `react-refresh`, `boundaries`), conferindo regras que mudaram.
+- **Como acompanhar:** o Dependabot não reabre essas majors; checar de tempos em tempos os changelogs dos plugins ou rodar `npm outdated`.
 
