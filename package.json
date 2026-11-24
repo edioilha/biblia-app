@@ -1,7 +1,7 @@
 {
   "name": "biblia-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Aplicação web offline-first (PWA) para leitura e estudo da Bíblia",
   "license": "MIT",
   "type": "module",

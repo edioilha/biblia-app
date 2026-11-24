@@ -29,7 +29,7 @@ Ordem das fases até o MVP (**v1.0.0**) e o status de cada uma. Cada fase é ent
 | 7.7 | Planos de leitura: catálogo, início com data (pelo calendário ou por livro), leitura do dia, atrasos, reagendar, faixa na leitura (+ tab bar no celular) | UC07, UC08 | F07 | ✅ | #13 | 2026-11-24 |
 | 7.8 | Versões: tela Versões, instalar TB e ALM1911 (progresso, cancelar, tentar de novo), trocar a ativa mantendo o capítulo, remover (a padrão fica) | UC09, UC10 | F08 | ✅ | #15 | 2026-11-24 |
 | 7.9 | Backup (exportar; importar juntando, com prévia) e configurações de leitura (botão Aa: tamanho e tema claro/sépia/escuro no app inteiro); armazenamento persistente (BL-05) | UC11, UC12 | — | ✅ | #16 | 2026-11-24 |
-| — | **Release v1.0.0 — MVP entregue** | | | ⏳ | — | — |
+| — | **Release v1.0.0 — MVP entregue** ([CHANGELOG](../CHANGELOG.md)) | | | ✅ | #17 | 2026-11-24 |
 
 ### Candidatos do backlog por fase
 
