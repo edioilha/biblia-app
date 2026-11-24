@@ -1,0 +1,100 @@
+import AxeBuilder from '@axe-core/playwright';
+import { expect, test, type Page } from '@playwright/test';
+
+const tituloCapitulo = (page: Page) => page.getByRole('heading', { level: 1 });
+const numero = (page: Page, n: number, favorito = false) =>
+  page.getByRole('button', { name: `Versículo ${n}${favorito ? ', favorito' : ''}`, exact: true });
+const acoes = (page: Page) => page.getByRole('region', { name: /^Ações do versículo/ });
+
+async function abrirJo3(page: Page) {
+  await page.goto('./#/ler/JHN/3');
+  await expect(tituloCapitulo(page)).toContainText('João', { timeout: 30_000 });
+}
+
+async function semViolacoes(page: Page) {
+  const resultado = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  expect(resultado.violations).toEqual([]);
+}
+
+test.describe('Backup (UC11)', () => {
+  test('exporta, perde um favorito e o recupera importando o arquivo', async ({ page }) => {
+    await abrirJo3(page);
+    await numero(page, 16).click();
+    await acoes(page)
+      .getByRole('button', { name: /Favoritar/ })
+      .click();
+    await expect(numero(page, 16, true)).toBeVisible();
+
+    await page.getByRole('link', { name: 'Meus Estudos' }).click();
+    const download = page.waitForEvent('download');
+    await page.getByRole('button', { name: 'Exportar backup' }).click();
+    const arquivo = await (await download).path();
+    expect((await download).suggestedFilename()).toMatch(
+      /^biblia-app-backup-\d{4}-\d{2}-\d{2}\.json$/,
+    );
+
+    // Remove o favorito e importa o backup: ele volta.
+    await page.getByRole('button', { name: /Ações de João 3:16/ }).click();
+    await page.getByRole('menuitem', { name: 'Remover dos favoritos' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Remover favorito' }).click();
+    await expect(page.getByRole('link', { name: /João 3:16/ })).toHaveCount(0);
+
+    await page.getByLabel('Arquivo de backup').setInputFiles(arquivo);
+    const previa = page.getByRole('dialog', { name: 'Importar backup?' });
+    await expect(previa).toContainText('1 novo');
+    await semViolacoes(page);
+    await previa.getByRole('button', { name: 'Importar' }).click();
+    await page
+      .getByRole('dialog', { name: 'Backup importado' })
+      .getByRole('button', { name: 'Fechar' })
+      .click();
+    await expect(page.getByRole('link', { name: /João 3:16/ })).toBeVisible();
+  });
+});
+
+test.describe('Configurar leitura (UC12)', () => {
+  test('A+ aumenta o texto e a escolha fica salva', async ({ page }) => {
+    await abrirJo3(page);
+    const texto = page.locator('.texto-biblico');
+    const antes = await texto.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+
+    await page.getByRole('button', { name: 'Aparência da leitura' }).click();
+    await page.getByRole('button', { name: 'Aumentar o texto' }).click();
+    await page.getByRole('button', { name: 'Aumentar o texto' }).click();
+    await expect(page.getByText('5 de 7')).toBeVisible();
+    await semViolacoes(page);
+
+    await page.reload();
+    await expect(tituloCapitulo(page)).toBeVisible({ timeout: 30_000 });
+    const depois = await texto.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(depois).toBeCloseTo(antes * 1.25, 0);
+  });
+
+  for (const tema of ['Sépia', 'Escuro'] as const) {
+    test(`tema ${tema}: vale para o app inteiro, sem violações de contraste`, async ({ page }) => {
+      await abrirJo3(page);
+      await page.getByRole('button', { name: 'Aparência da leitura' }).click();
+      // O rádio é visualmente oculto: clica-se na amostra (o rótulo), como o leitor.
+      await page.getByRole('group', { name: 'Tema' }).getByText(tema, { exact: true }).click();
+      await expect(page.getByRole('radio', { name: tema })).toBeChecked();
+      await page.keyboard.press('Escape');
+      const valor = tema === 'Sépia' ? 'SEPIA' : 'ESCURO';
+      await expect(page.locator('html')).toHaveAttribute('data-tema', valor);
+      await semViolacoes(page);
+
+      // Aplicado antes do React ao reabrir (sem piscar o claro).
+      await page.reload();
+      await expect(page.locator('html')).toHaveAttribute('data-tema', valor);
+
+      for (const secao of ['Buscar', 'Planos', 'Meus Estudos', 'Versões']) {
+        await page.getByRole('link', { name: secao }).click();
+        await expect(page.locator('main')).toBeVisible();
+        await expect(page.getByRole('link', { name: secao })).toHaveAttribute(
+          'aria-current',
+          'page',
+        );
+        await semViolacoes(page);
+      }
+    });
+  }
+});

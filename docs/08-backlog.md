@@ -17,7 +17,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-02 | Tamanho e família da fonte | RF01.7, UC12 | ideia |
 | BL-03 | Tipo de folha (tema da página) | RF01.6, RF01.7, UC12 | ideia |
 | BL-04 | Aproveitar o espaço lateral no desktop | UC01, UC04, UC06 | ideia |
-| BL-05 | Persistência garantida do armazenamento (`navigator.storage.persist()`) | backup | ideia |
+| BL-05 | Persistência garantida do armazenamento (`navigator.storage.persist()`) | backup | feito (fase 7.9) |
 | BL-06 | Teste E2E de uso offline | RNF (PWA) | ideia |
 | BL-07 | Modo foco de leitura | UC01, UC12 | ideia |
 | BL-08 | Histórico das últimas buscas | RF02.10, UC03 | ideia |
@@ -43,6 +43,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Origem:** mesmo feedback; tamanho já previsto em RF01.7.
 - **Ideia:** ajuste de tamanho (A− / A+, com limites) e escolha de família (ex.: serifada clássica, serifada moderna, sem serifa, fonte para dislexia).
 - **A decidir:** quais fontes empacotar (impacto no tamanho do PWA/cache offline e licenças).
+- **Fase 7.9:** o tamanho (A− / A+, 7 níveis) foi entregue com o UC12 (RF01.7); a escolha de família continua aqui.
 
 ### BL-03 — Tipo de folha (tema da página)
 
@@ -63,6 +64,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Origem:** adiado da fase 7.1.
 - **Ideia:** chamar `navigator.storage.persist()` para reduzir o risco de o navegador apagar o IndexedDB.
 - **Relação:** fase de backup/configurações.
+- **Feito na fase 7.9:** ao abrir, se ainda não é persistente, o app chama `persist()` (ver docs/06 §6).
 
 ### BL-06 — Teste E2E de uso offline
 

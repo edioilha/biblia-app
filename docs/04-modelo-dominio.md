@@ -658,11 +658,12 @@ classDiagram
     }
     class ExportarDados {
         <<UseCase>>
-        +executar() Promise~Backup~
+        +executar() Promise~BackupExportado~
     }
     class ImportarDados {
         <<UseCase>>
-        +executar(b: Backup) Promise~void~
+        +analisar(conteudo: string) Promise~PreviaImportacao~
+        +executar(conteudo: string) Promise~ResumoImportacao~
     }
 
     AbrirCapitulo ..> TextoBiblicoRepository
@@ -699,21 +700,17 @@ classDiagram
     ConsultarMeusEstudos ..> DestaqueRepository
     ConsultarMeusEstudos ..> AnotacaoRepository
     ConsultarMeusEstudos ..> TextoBiblicoRepository
-    ExportarDados ..> FavoritoRepository
-    ExportarDados ..> DestaqueRepository
-    ExportarDados ..> AnotacaoRepository
-    ExportarDados ..> InscricaoRepository
-    ImportarDados ..> FavoritoRepository
-    ImportarDados ..> DestaqueRepository
-    ImportarDados ..> AnotacaoRepository
-    ImportarDados ..> InscricaoRepository
+    ExportarDados ..> ArmazenamentoDadosLeitor
+    ExportarDados ..> FormatoBackup
+    ImportarDados ..> ArmazenamentoDadosLeitor
+    ImportarDados ..> FormatoBackup
 ```
 
 **Notas de implementação (fase 7.1)**
 - `AbrirCapitulo` retorna, por ora, `CapituloAberto` (capítulo, livro, `anterior`/`proximo` e `versiculoEmFoco`); favoritos, destaques e anotações ficam em um caso de uso separado (revisto na fase 7.2, abaixo).
 - `TextoBiblicoRepository` ganhou `possuiVersao()`; `importar()` é atômico.
 - Porta adicional `FonteVersaoEmbarcada` (lê a BLIVRE de `public/dados`) e caso de uso `PrepararVersaoPadrao` (importação na primeira execução) e `ObterPosicaoInicial`.
-- `Versao` ainda sem `StatusInstalacao` (revisto na 7.8: não virou enum, ver notas da fase); `Preferencias` só com `versaoAtiva` e `ultimaPosicao` (tema/fonte com UC12).
+- `Versao` ainda sem `StatusInstalacao` (revisto na 7.8: não virou enum, ver notas da fase); `Preferencias` só com `versaoAtiva` e `ultimaPosicao` (tema e fonte entraram na 7.9, como `ConfiguracaoLeitura`).
 - `Referencia.deChave()` é o inverso de `chave()`; `Referencia.doCapitulo()` descarta o versículo.
 
 **Notas de implementação (fase 7.2)**
@@ -769,6 +766,12 @@ classDiagram
 - `Preferencias.comVersao(versao)` troca a ativa mantendo a posição.
 - Casos de uso: `ObterVersaoAtiva` (preferências; sem elas, ou com sigla fora do catálogo, a padrão), `ListarVersoes` (`ItemVersao`: versão, instalada, ativa), `InstalarVersao` (progresso por etapa `BAIXANDO` → `IMPORTANDO` → `INDEXANDO`; desfaz em falha ou cancelamento), `TrocarVersao` e `RemoverVersao` (a padrão não sai; removendo a ativa, a padrão volta).
 - `BuscarTexto`, `PrepararBusca` e `ListarEstudos` recebem a versão em `executar()` (antes, fixa no construtor); a interface passa a versão ativa.
+
+**Notas de implementação (fase 7.9)**
+- **`ConfiguracaoLeitura`** (value object, UC12): `tema` (`CLARO` | `SEPIA` | `ESCURO`) e `tamanhoFonte` (nível 1–7, padrão 3), com `aumentar()`/`diminuir()` limitados e `comTema()`. `Preferencias.leitura` guarda a configuração (no lugar dos campos soltos `tema` e `tamanhoFonte` do diagrama); `comLeitura()` troca mantendo versão e posição. `exibicaoPadraoNotas` não entrou: cada nota guarda a sua exibição (UC06).
+- **Módulo `backup`** (domínio): `DadosDoLeitor` (favoritos, destaques, anotações, inscrições) e `mesclarDados(atuais, arquivo)`, que aplica as regras de **juntar** do UC11 e devolve as `AlteracoesImportacao` (o que gravar e as inscrições trocadas) e o `ResumoImportacao` (novos, atualizados, mantidos e destaques ignorados por sobreposição, por tipo). É uma função pura: a prévia e a importação usam a mesma regra.
+- Portas novas: **`ArmazenamentoDadosLeitor`** (`ler()` tudo e `aplicar()` numa transação, no lugar de chamar os quatro repositórios um a um) e **`FormatoBackup`** (`serializar`/`ler`; `ler` lança `BackupInvalidoError`).
+- Casos de uso: `ExportarDados` (nome do arquivo com a data local), `ImportarDados` (`analisar` para a prévia, sem gravar; `executar` junta de novo com os dados do momento e grava) e `ConfigurarLeitura` (`obter` e `executar`; sem preferências, cria com a versão padrão e Gênesis 1).
 
 ### Adapters (infraestrutura) previstos
 

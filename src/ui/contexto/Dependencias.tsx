@@ -4,10 +4,13 @@ import type {
   AlterarCorDestaque,
   AlternarFavorito,
   BuscarTexto,
+  ConfigurarLeitura,
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
   EncerrarPlano,
+  ExportarDados,
+  ImportarDados,
   IniciarPlano,
   MarcarDiaPlano,
   ObterLeiturasDoCapitulo,
@@ -60,6 +63,9 @@ export interface Dependencias {
   readonly instalarVersao: InstalarVersao;
   readonly trocarVersao: TrocarVersao;
   readonly removerVersao: RemoverVersao;
+  readonly exportarDados: ExportarDados;
+  readonly importarDados: ImportarDados;
+  readonly configurarLeitura: ConfigurarLeitura;
 }
 
 const DependenciasContext = createContext<Dependencias | null>(null);

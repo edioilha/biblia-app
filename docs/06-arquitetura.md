@@ -378,6 +378,39 @@ sequenceDiagram
 
 O andamento fica no `InstalacoesProvider`, acima das rotas: sair da tela Versões não interrompe a instalação. Trocar a versão ativa (UC10) grava as preferências e relê todo o cache do TanStack Query, porque texto, busca, destaques e Meus Estudos dependem da versão.
 
+### 5.8 Importar backup (UC11)
+
+```mermaid
+sequenceDiagram
+    actor L as Leitor
+    participant P as BackupEstudos (Meus Estudos)
+    participant UC as ImportarDados
+    participant F as BackupJson
+    participant M as mesclarDados (domínio)
+    participant A as DexieDadosLeitor
+
+    L->>P: Importar backup → escolhe arquivo
+    P->>UC: analisar(conteúdo)
+    UC->>F: ler(conteúdo)
+    F-->>UC: dados (validados) ou BackupInvalidoError
+    UC->>A: ler()
+    UC->>M: mesclarDados(atuais, arquivo)
+    M-->>UC: resumo (novos, atualizados, mantidos, ignorados)
+    UC-->>P: prévia
+    L->>P: Importar
+    P->>UC: executar(conteúdo)
+    UC->>A: ler() + mesclarDados → aplicar(alterações)
+    Note over A: uma transação nas 4 tabelas
+    UC-->>P: resumo
+    P->>P: invalida todo o cache
+```
+
+### 5.9 Tema e tamanho da fonte (UC12)
+
+O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color-white`, `--color-red-*`… e os tokens `papel`, `tinta`, `primaria`) em `:root[data-tema='SEPIA' | 'ESCURO']` (`index.css`); as telas não mudam de classe. Texto sobre fundo sólido usa o token `sobre-tinta` (branco; escuro no tema escuro). No escuro, o marca-texto troca `multiply` por cores mais fechadas. O tamanho é a variável `--escala-leitura` (níveis 1–7 → 0,8 a 1,6) sobre o tamanho base do `.texto-biblico`.
+
+`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto no `index.html` aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro na abertura. A fonte da verdade continua sendo o IndexedDB.
+
 ## 6. Persistência (IndexedDB / Dexie)
 
 | Store | Chave primária | Índices | Conteúdo |
@@ -392,14 +425,35 @@ O andamento fica no `InstalacoesProvider`, acima das rotas: sair da tela Versõe
 
 - **Granularidade por capítulo**: abrir um capítulo = 1 leitura (atende RNF02 < 300 ms).
 - **Migrações** versionadas com `db.version(n).stores(...).upgrade(...)`.
-- **Persistência durável**: `navigator.storage.persist()` na primeira execução (previsto para a fase de backup).
+- **Persistência durável** (BL-05, fase 7.9): ao abrir, se o armazenamento ainda não é persistente, o app chama `navigator.storage.persist()` (em `main.tsx`). O navegador decide: o Chrome concede pelo uso do site, o Firefox pode perguntar uma vez, o Safari ignora. Sem a API, nada muda. O backup (UC11) continua sendo a garantia de verdade.
 - **Schema v1** (fase 7.1): `capitulos`, `versoes` (presença = versão importada por completo) e `preferencias`. Os demais stores entram em novas versões do schema.
 - **Schema v2** (fase 7.2): `favoritos` (`id, &chave, [livro+capitulo], criadoEm`). Só cria a tabela; testado com migração a partir de um banco v1.
 - **Schema v3** (fase 7.3): `destaques` (`id, [versaoId+livro+capitulo], criadoEm`); `inicio`/`fim` gravados como `[versículo, offset]`. Só cria a tabela; testado com migração a partir de um banco v2.
 - **Schema v4** (fase 7.4): `anotacoes` (`id, [livro+capitulo], atualizadoEm, destaqueId`); o índice `destaqueId` serve para religar notas na fusão de destaques. Só cria a tabela; testado com migração a partir de um banco v3.
 - **Fase 7.8:** sem mudança de schema. Uma versão instalada é a presença do registro em `versoes` (gravado na mesma transação dos capítulos); remover apaga os capítulos e o registro juntos. Destaques de uma versão removida ficam no banco.
 - **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local), `diasConcluidos` como lista de números e `diaInicial` (UC07 A5; ausente = 1, sem índice). O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
-- Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento).
+- **Fase 7.9:** sem mudança de schema. O registro de `preferencias` ganhou `tema` e `tamanhoFonte` opcionais (ausentes ou inválidos = configuração padrão, sem perder versão e posição).
+- Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento): `infraestrutura/dexie/mapeadores.ts` (fase 7.9), usados pelos repositórios, por `DexieDadosLeitor` e pelo arquivo de backup.
+
+### 6.1 Arquivo de backup (UC11)
+
+JSON gerado por `BackupJson` (formato 1), com os **mesmos registros do banco** e as datas em ISO 8601:
+
+```json
+{
+  "app": "biblia-app",
+  "formato": 1,
+  "exportadoEm": "2026-11-24T12:00:00.000Z",
+  "favoritos":  [{ "id": "…", "chave": "JHN.3.16", "livro": "JHN", "capitulo": 3, "criadoEm": "…" }],
+  "destaques":  [{ "id": "…", "versaoId": "BLIVRE", "livro": "JHN", "capitulo": 3, "inicio": [16, 0], "fim": [16, 40], "cor": "AMARELO", "criadoEm": "…" }],
+  "anotacoes":  [{ "id": "…", "chave": "JHN.3.16", "livro": "JHN", "capitulo": 3, "destaqueId": null, "conteudo": "…", "exibicao": "RODAPE", "criadoEm": "…", "atualizadoEm": "…" }],
+  "inscricoes": [{ "id": "…", "planoId": "nt-90-dias", "totalDias": 90, "inicio": "2026-11-01", "diasConcluidos": [1, 2], "diaInicial": 1 }]
+}
+```
+
+- `app` identifica o arquivo; `formato` muda só se o formato mudar de forma incompatível. Um formato maior que o conhecido é recusado ("atualize o app"); listas ausentes contam como vazias.
+- Na leitura, cada item passa pelas regras do domínio; **um item inválido recusa o arquivo inteiro**, para não importar pela metade.
+- A gravação (`DexieDadosLeitor.aplicar`) é uma transação nas quatro tabelas: tudo ou nada. Preferências e texto das versões não vão no arquivo.
 
 ## 7. Importação e normalização dos dados
 
@@ -468,7 +522,9 @@ biblia-app/
 │   │   ├── portas/               # *Repository, ServicoBusca, FonteVersao, CatalogoVersoes, Relogio
 │   │   └── casos-de-uso/         # AbrirCapitulo, BuscarTexto, ListarEstudos, …
 │   ├── infraestrutura/
-│   │   ├── dexie/                # BancoApp, Dexie*Repository
+│   │   ├── armazenamento/        # pedirArmazenamentoPersistente (BL-05)
+│   │   ├── backup/               # BackupJson (UC11)
+│   │   ├── dexie/                # BancoApp, Dexie*Repository, DexieDadosLeitor, mapeadores
 │   │   ├── busca/                # MotorBusca, ServicoBuscaWorker, busca.worker.ts
 │   │   ├── fontes/               # FonteEstatica (embarcada), FonteBibliaData, normalizar.ts
 │   │   ├── versoes/              # VersoesDisponiveis (catálogo)

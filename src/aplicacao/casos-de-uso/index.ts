@@ -42,3 +42,12 @@ export {
   type PlanoSeguido,
 } from './planosSeguidos';
 export { ReagendarPlano } from './ReagendarPlano';
+export {
+  BackupInvalidoError,
+  ExportarDados,
+  ImportarDados,
+  type BackupExportado,
+  type PreviaImportacao,
+  type Totais,
+} from './backup';
+export { ConfigurarLeitura } from './ConfigurarLeitura';

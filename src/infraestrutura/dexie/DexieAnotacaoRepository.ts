@@ -1,7 +1,8 @@
 import type { AnotacaoRepository } from '../../aplicacao/portas';
-import { Referencia, type Canon } from '../../dominio/biblia';
-import { Anotacao, AnotacaoId, DestaqueId, ModoExibicao } from '../../dominio/estudo';
+import type { Canon, Referencia } from '../../dominio/biblia';
+import type { Anotacao, AnotacaoId } from '../../dominio/estudo';
 import type { AnotacaoRegistro, BancoApp } from './BancoApp';
+import { anotacaoDeRegistro, anotacaoParaRegistro, ouNulo } from './mapeadores';
 
 export class DexieAnotacaoRepository implements AnotacaoRepository {
   constructor(
@@ -28,37 +29,14 @@ export class DexieAnotacaoRepository implements AnotacaoRepository {
   }
 
   async salvar(a: Anotacao): Promise<void> {
-    await this.db.anotacoes.put({
-      id: a.id,
-      chave: a.referencia.chave(),
-      livro: a.referencia.livro.valor,
-      capitulo: a.referencia.capitulo,
-      destaqueId: a.destaqueId,
-      conteudo: a.conteudo,
-      exibicao: a.exibicao,
-      criadoEm: a.criadoEm,
-      atualizadoEm: a.atualizadoEm,
-    });
+    await this.db.anotacoes.put(anotacaoParaRegistro(a));
   }
 
   async remover(id: AnotacaoId): Promise<void> {
     await this.db.anotacoes.delete(id);
   }
 
-  /** `null` para registro inválido (ex.: gravado por versão antiga ou importado corrompido). */
   private paraDominio(r: AnotacaoRegistro): Anotacao | null {
-    try {
-      return Anotacao.reconstituir(
-        AnotacaoId.de(r.id),
-        Referencia.deChave(r.chave, this.canon),
-        r.destaqueId === null ? null : DestaqueId.de(r.destaqueId),
-        r.conteudo,
-        ModoExibicao.de(r.exibicao),
-        r.criadoEm,
-        r.atualizadoEm,
-      );
-    } catch {
-      return null;
-    }
+    return ouNulo(() => anotacaoDeRegistro(r, this.canon));
   }
 }

@@ -43,7 +43,7 @@ UC13 — abas Favoritos / Destaques / Anotações, filtro, ordenação, paginaç
 
 ![Meus Estudos](img/wf-estudos.png)
 
-> **Implementado na fase 7.6 (UC13):** como no wireframe, com estas diferenças: os totais das abas seguem os filtros (mostram onde há resultados); o filtro de texto ignora acentos e exige todas as palavras; destaques listam os da versão exibida, com o nome da cor. O menu ⋮ tem: favoritos → remover; destaques → as quatro cores e remover; anotações → editar (no mesmo editor da leitura, que também muda a exibição e exclui) e excluir. Remover pede confirmação num diálogo. "Exportar backup" fica para a fase 7.9. A navegação ganhou "Meus Estudos"; o estado da tela fica na URL (#/estudos?aba=…).
+> **Implementado na fase 7.6 (UC13):** como no wireframe, com estas diferenças: os totais das abas seguem os filtros (mostram onde há resultados); o filtro de texto ignora acentos e exige todas as palavras; destaques listam os da versão exibida, com o nome da cor. O menu ⋮ tem: favoritos → remover; destaques → as quatro cores e remover; anotações → editar (no mesmo editor da leitura, que também muda a exibição e exclui) e excluir. Remover pede confirmação num diálogo. "Exportar backup" entrou na fase 7.9 (ver abaixo). A navegação ganhou "Meus Estudos"; o estado da tela fica na URL (#/estudos?aba=…).
 
 ## 4. Planos de leitura
 UC07 · UC08 — progresso, leitura do dia, atrasos, reagendamento, catálogo.
@@ -63,3 +63,5 @@ UC09 · UC10 — instaladas, disponíveis, progresso de instalação.
 UC01 (A1) · UC02 — desktop (popover) e celular (tela cheia com acordeão).
 
 ![Navegação](img/wf-navegacao.png)
+
+> **Implementado na fase 7.9 (UC11 · UC12):** **Exportar backup** e **Importar backup** ficam na barra de Meus Estudos, como no wireframe (no celular, só "Exportar"/"Importar"). Importar mostra uma prévia (data do backup e, por tipo, quantos são novos, atualizados ou já existiam) e pede confirmação; no fim, mostra o resumo. Na leitura, o botão **Aa** ao lado da sigla abre o painel com A− / A+ (7 níveis) e os temas Claro, Sépia e Escuro, com amostras; o tema vale para todas as telas.

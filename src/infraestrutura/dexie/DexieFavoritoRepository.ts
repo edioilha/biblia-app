@@ -1,7 +1,8 @@
 import type { FavoritoRepository } from '../../aplicacao/portas';
-import { Referencia, type Canon } from '../../dominio/biblia';
-import { Favorito, FavoritoId } from '../../dominio/estudo';
+import type { Canon, Referencia } from '../../dominio/biblia';
+import type { Favorito, FavoritoId } from '../../dominio/estudo';
 import type { BancoApp, FavoritoRegistro } from './BancoApp';
+import { favoritoDeRegistro, favoritoParaRegistro, ouNulo } from './mapeadores';
 
 export class DexieFavoritoRepository implements FavoritoRepository {
   constructor(
@@ -28,29 +29,14 @@ export class DexieFavoritoRepository implements FavoritoRepository {
   }
 
   async salvar(f: Favorito): Promise<void> {
-    await this.db.favoritos.put({
-      id: f.id,
-      chave: f.referencia.chave(),
-      livro: f.referencia.livro.valor,
-      capitulo: f.referencia.capitulo,
-      criadoEm: f.criadoEm,
-    });
+    await this.db.favoritos.put(favoritoParaRegistro(f));
   }
 
   async remover(id: FavoritoId): Promise<void> {
     await this.db.favoritos.delete(id);
   }
 
-  /** `null` para registro inválido (ex.: gravado por versão antiga ou importado corrompido). */
   private paraDominio(r: FavoritoRegistro): Favorito | null {
-    try {
-      return Favorito.criar(
-        FavoritoId.de(r.id),
-        Referencia.deChave(r.chave, this.canon),
-        r.criadoEm,
-      );
-    } catch {
-      return null;
-    }
+    return ouNulo(() => favoritoDeRegistro(r, this.canon));
   }
 }

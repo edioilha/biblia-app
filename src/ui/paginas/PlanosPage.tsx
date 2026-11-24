@@ -23,7 +23,7 @@ type Dialogo =
 const classeBotao =
   'focus-visible:outline-primaria rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm hover:bg-stone-50 focus-visible:outline-2 disabled:opacity-50';
 const classeBotaoPrimario =
-  'bg-tinta rounded-md px-3 py-1.5 text-sm font-medium text-white hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria';
+  'bg-tinta rounded-md px-3 py-1.5 text-sm font-medium text-sobre-tinta hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria';
 
 /** UC07/UC08 — Planos de leitura: planos seguidos, leitura do dia, atrasos e catálogo. */
 export function PlanosPage() {
@@ -415,7 +415,7 @@ function LinhaDoTempo({ seguido, hoje }: { seguido: PlanoSeguido; hoje: number }
               title={`Dia ${n}: ${estado}`}
               className={[
                 'flex h-8 min-w-10 items-center justify-center rounded-full border px-2 text-sm tabular-nums',
-                feito ? 'bg-tinta border-tinta text-white' : 'border-stone-300 bg-white',
+                feito ? 'bg-tinta border-tinta text-sobre-tinta' : 'border-stone-300 bg-white',
                 n === hoje ? 'border-tinta border-2' : '',
               ].join(' ')}
             >

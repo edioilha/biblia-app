@@ -10,3 +10,5 @@ export type { LivroImportado, TextoBiblicoRepository } from './TextoBiblicoRepos
 export type { ServicoBusca } from './ServicoBusca';
 export type { CatalogoPlanos } from './CatalogoPlanos';
 export type { InscricaoRepository } from './InscricaoRepository';
+export type { ArmazenamentoDadosLeitor } from './ArmazenamentoDadosLeitor';
+export type { ArquivoBackup, FormatoBackup } from './FormatoBackup';
