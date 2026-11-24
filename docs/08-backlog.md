@@ -28,6 +28,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-13 | Plano de leitura personalizado | RF06.6, UC07 | ideia |
 | BL-14 | Trocar de versão pela tela de leitura | RF07.4, UC10 | ideia |
 | BL-15 | Importar tradução de um arquivo do usuário | RF07, ADR 0007 | ideia |
+| BL-16 | Verificação de segurança em camadas | RNF, docs/07 §6 | em andamento |
 
 ## Itens
 
@@ -127,3 +128,19 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Ideia:** o leitor carrega um arquivo (ou pasta/ZIP) no formato canônico do `biblia.data` com uma tradução que ele tenha direito de usar; o app valida e importa como as versões instaláveis.
 - **A decidir:** nova ADR sobre licença e responsabilidade (o app não distribui o texto, só lê o arquivo do leitor); formato aceito (66 JSON, ZIP ou arquivo único); validação e mensagens de erro de arquivos de terceiros; se a tradução importada entra no backup.
 - **Candidato para:** depois da v1.0.
+
+### BL-16 — Verificação de segurança em camadas
+
+- **Origem:** discussão após a v1.0.0.
+- **Ideia:** proteger o projeto em camadas, da mais barata para a mais trabalhosa:
+  1. **Dependabot** — alertas e PRs de atualização (npm e GitHub Actions).
+  2. **CodeQL** — análise estática do código e dos workflows a cada PR e semanalmente.
+  3. **`npm audit`** no CI — falha com vulnerabilidade alta ou crítica.
+  4. **Content-Security-Policy** — limitar de onde o app carrega scripts e para onde se conecta.
+  5. **Endurecer as Actions** — fixar por SHA e manter `permissions` mínimas.
+  6. **Testes de entrada hostil** — arquivos importados com conteúdo malicioso ou grandes demais.
+  7. **`SECURITY.md`** — canal privado para relatar vulnerabilidades.
+- **Feito:** camadas 1, 2, 3 e 7 (só configuração), com o relato privado de vulnerabilidades e os alertas do Dependabot ligados no repositório.
+- **Pendente:** camadas 4, 5 e 6 (mexem no app e no CI; cada uma com teste).
+- **Regra:** uma vulnerabilidade concreta nunca é descrita em issue, PR ou neste backlog antes de corrigida; é tratada por *security advisory* privado (ver `SECURITY.md`).
+
