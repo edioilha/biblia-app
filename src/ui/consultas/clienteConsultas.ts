@@ -38,6 +38,11 @@ export const chaves = {
   /** UC13 — uma página de Meus Estudos; `parametros` = estado da tela na URL. */
   listaEstudos: (versao: VersaoId, parametros: string) =>
     [...chaves.estudos(), versao, parametros] as const,
+  /** UC07/UC08 — prefixo: invalida o painel e as faixas da leitura. */
+  planos: () => ['planos'] as const,
+  painelPlanos: () => [...chaves.planos(), 'painel'] as const,
+  leiturasDoCapitulo: (ref: Referencia) =>
+    [...chaves.planos(), 'capitulo', ref.doCapitulo().chave()] as const,
 };
 
 /**

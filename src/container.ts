@@ -12,6 +12,12 @@ import {
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
+  EncerrarPlano,
+  IniciarPlano,
+  MarcarDiaPlano,
+  ObterLeiturasDoCapitulo,
+  ObterPainelPlanos,
+  ReagendarPlano,
   ExcluirAnotacao,
   ListarEstudos,
   MarcarTexto,
@@ -28,11 +34,13 @@ import {
   DexieAnotacaoRepository,
   DexieDestaqueRepository,
   DexieFavoritoRepository,
+  DexieInscricaoRepository,
   DexiePreferenciasRepository,
   DexieTextoBiblicoRepository,
 } from './infraestrutura/dexie';
 import { ServicoBuscaWorker } from './infraestrutura/busca';
 import { FonteEstatica } from './infraestrutura/fontes';
+import { PlanosPreDefinidos } from './infraestrutura/planos';
 import { GeradorUuidV7, RelogioSistema } from './infraestrutura/sistema';
 import type { Dependencias } from './ui/contexto/Dependencias';
 
@@ -53,6 +61,8 @@ const preferencias = new DexiePreferenciasRepository(db, canon);
 const favoritos = new DexieFavoritoRepository(db, canon);
 const destaques = new DexieDestaqueRepository(db, canon);
 const anotacoes = new DexieAnotacaoRepository(db, canon);
+const inscricoes = new DexieInscricaoRepository(db);
+const planos = new PlanosPreDefinidos(canon);
 const relogio = new RelogioSistema();
 const gerador = new GeradorUuidV7();
 const fonte = new FonteEstatica(import.meta.env.BASE_URL);
@@ -85,4 +95,10 @@ export const dependencias: Dependencias = {
   buscarTexto: new BuscarTexto(busca, BLIVRE.id),
   prepararBusca: new PrepararBusca(busca, BLIVRE.id),
   listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, BLIVRE.id),
+  obterPainelPlanos: new ObterPainelPlanos(planos, inscricoes, relogio),
+  iniciarPlano: new IniciarPlano(planos, inscricoes, gerador),
+  marcarDiaPlano: new MarcarDiaPlano(inscricoes),
+  reagendarPlano: new ReagendarPlano(inscricoes, relogio),
+  encerrarPlano: new EncerrarPlano(inscricoes),
+  obterLeiturasDoCapitulo: new ObterLeiturasDoCapitulo(planos, inscricoes, relogio),
 };

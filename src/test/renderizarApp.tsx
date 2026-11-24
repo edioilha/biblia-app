@@ -9,6 +9,12 @@ import {
   CriarAnotacao,
   DesmarcarTexto,
   EditarAnotacao,
+  EncerrarPlano,
+  IniciarPlano,
+  MarcarDiaPlano,
+  ObterLeiturasDoCapitulo,
+  ObterPainelPlanos,
+  ReagendarPlano,
   ExcluirAnotacao,
   ListarEstudos,
   MarcarTexto,
@@ -31,11 +37,13 @@ import {
   FavoritosEmMemoria,
   FonteSintetica,
   GeradorIdSequencial,
+  InscricoesEmMemoria,
   PreferenciasEmMemoria,
   RelogioFixo,
   TextoBiblicoEmMemoria,
 } from './fakes';
 import { BuscaEmMemoria } from './busca';
+import { PlanosPreDefinidos } from '../infraestrutura/planos';
 
 interface Opcoes {
   rota?: string;
@@ -45,6 +53,8 @@ interface Opcoes {
   destaques?: DestaquesEmMemoria;
   anotacoes?: AnotacoesEmMemoria;
   busca?: BuscaEmMemoria;
+  inscricoes?: InscricoesEmMemoria;
+  relogio?: RelogioFixo;
 }
 
 /** Monta o app completo com as portas em memória e um MemoryRouter. */
@@ -56,6 +66,8 @@ export function renderizarApp({
   anotacoes = new AnotacoesEmMemoria(),
   destaques = new DestaquesEmMemoria(anotacoes),
   busca = new BuscaEmMemoria(),
+  inscricoes = new InscricoesEmMemoria(),
+  relogio = new RelogioFixo(),
 }: Opcoes = {}) {
   const canon = new Canon();
   const versao = new Versao(
@@ -68,7 +80,7 @@ export function renderizarApp({
   );
   const texto = new TextoBiblicoEmMemoria(canon);
   const prefs = new PreferenciasEmMemoria(preferencias);
-  const relogio = new RelogioFixo();
+  const planos = new PlanosPreDefinidos(canon);
   const gerador = new GeradorIdSequencial();
   const deps: Dependencias = {
     canon,
@@ -94,6 +106,12 @@ export function renderizarApp({
     buscarTexto: new BuscarTexto(busca, versao.id),
     prepararBusca: new PrepararBusca(busca, versao.id),
     listarEstudos: new ListarEstudos(canon, texto, favoritos, destaques, anotacoes, versao.id),
+    obterPainelPlanos: new ObterPainelPlanos(planos, inscricoes, relogio),
+    iniciarPlano: new IniciarPlano(planos, inscricoes, gerador),
+    marcarDiaPlano: new MarcarDiaPlano(inscricoes),
+    reagendarPlano: new ReagendarPlano(inscricoes, relogio),
+    encerrarPlano: new EncerrarPlano(inscricoes),
+    obterLeiturasDoCapitulo: new ObterLeiturasDoCapitulo(planos, inscricoes, relogio),
   };
 
   const resultado = render(
@@ -105,5 +123,16 @@ export function renderizarApp({
       </QueryClientProvider>
     </DependenciasProvider>,
   );
-  return { ...resultado, canon, prefs, texto, favoritos, destaques, anotacoes, busca };
+  return {
+    ...resultado,
+    canon,
+    prefs,
+    texto,
+    favoritos,
+    destaques,
+    anotacoes,
+    busca,
+    inscricoes,
+    relogio,
+  };
 }
