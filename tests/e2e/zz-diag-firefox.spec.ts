@@ -7,13 +7,19 @@ test.skip(({ browserName }) => browserName !== 'firefox');
 test.describe.configure({ retries: 0 });
 test.setTimeout(600_000);
 
+let iniciado = false;
 async function comPlano(page: Page) {
   await page.goto('./#/planos');
+  if (!iniciado) {
+    await page
+      .getByRole('button', { name: 'Iniciar Salmos e Provérbios em 31 dias' })
+      .click({ timeout: 30_000 });
+    await page.getByRole('dialog').getByRole('button', { name: 'Iniciar plano' }).click();
+    iniciado = true;
+  }
   await page
-    .getByRole('button', { name: 'Iniciar Salmos e Provérbios em 31 dias' })
-    .click({ timeout: 30_000 });
-  await page.getByRole('dialog').getByRole('button', { name: 'Iniciar plano' }).click();
-  await page.getByRole('region', { name: 'Salmos e Provérbios em 31 dias' }).waitFor();
+    .getByRole('region', { name: 'Salmos e Provérbios em 31 dias' })
+    .waitFor({ timeout: 30_000 });
 }
 
 test('DIAG regras no cartão', async ({ context }) => {
