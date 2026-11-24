@@ -80,7 +80,11 @@ Validação automática: **commitlint** + **Husky** (hook `commit-msg`).
 ## 4. Pull Requests
 
 - Título no formato Conventional Commits (vira a mensagem no squash).
-- Template (`.github/pull_request_template.md`): resumo, requisitos/UC relacionados, como testar, checklist.
+- Template (`.github/pull_request_template.md`): mudanças fora do escopo (quando houver), resumo, requisitos/UC relacionados, como testar, checklist.
+- **Mudanças fora do escopo** — tudo o que o PR muda além do que a fase/issue previa, principalmente o que se nota no uso (interface, navegação, comportamento):
+  - **pergunte antes** de incluir: proponha a mudança e só implemente com o ok do responsável pelo projeto;
+  - destaque no **topo** da descrição do PR, num alerta `> [!IMPORTANT]`, antes do Resumo (uma linha por mudança: o que era → o que ficou);
+  - aplique a label **`fora-do-escopo`** ao PR.
 - PR pequeno (idealmente < 400 linhas alteradas).
 - Estratégia de merge: **squash** para `feat`/`fix`; **merge commit** quando os commits contam a história (ex.: documentação por etapas).
 
@@ -134,4 +138,5 @@ Uma história está pronta quando:
 - [ ] Funciona offline (quando aplicável).
 - [ ] Documentação atualizada (requisitos, diagramas, ADR se houve decisão nova).
 - [ ] Roadmap ([09](09-roadmap.md)) e progresso do README atualizados, se o PR entrega uma fase.
+- [ ] Mudanças fora do escopo combinadas antes, destacadas no topo do PR e com a label `fora-do-escopo` (§4).
 - [ ] PR revisado e mergeado; CHANGELOG atualizado pela release.
