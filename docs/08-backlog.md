@@ -24,7 +24,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-09 | Filtro por intervalo de livros na busca | RF02.5, UC03 | ideia |
 | BL-10 | Abas de Meus Estudos cabendo no celular | RNF03, UC13 | ideia |
 | BL-11 | Wiki do projeto no GitHub | documentação | ideia |
-| BL-12 | Monitorar acessos ao site publicado | **RNF05** (conflito), ADR 0003, 0008, 0009 | ideia |
+| BL-12 | Monitorar acessos ao site publicado | RNF05, ADR 0008 | descartado |
 
 ## Itens
 
@@ -93,19 +93,12 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 ### BL-11 — Wiki do projeto no GitHub
 
 - **Origem:** pedido do mantenedor após a fase 7.6.
-- **Ideia:** usar a wiki do repositório (já habilitada) para o que é do **leitor e de quem chega ao projeto**, deixando em `docs/` o que é de engenharia: guia de uso (ler, buscar, marcar, anotar, Meus Estudos, instalar como app, uso offline), perguntas frequentes, versões e licenças das traduções, e como contribuir.
+- **Situação:** a wiki está habilitada no repositório, mas ainda **sem nenhuma página** (2026-11-24).
+- **Ideia:** usar a wiki para o que é do **leitor e de quem chega ao projeto**, deixando em `docs/` o que é de engenharia: guia de uso (ler, buscar, marcar, anotar, Meus Estudos, instalar como app, uso offline), perguntas frequentes, versões e licenças das traduções, e como contribuir.
 - **A decidir:** o que fica só na wiki e o que fica em `docs/` (evitar conteúdo duplicado que desatualiza); se as páginas apontam para os docs ou os resumem; quem atualiza a wiki a cada fase (entrar no DoD, docs/07 §8?). A wiki é um repositório git à parte (`biblia-app.wiki.git`), sem PR nem CI.
 
 ### BL-12 — Monitorar acessos ao site publicado
 
 - **Origem:** pedido do mantenedor após a fase 7.6.
-- **Contexto:** o app é publicado em `https://edioilha.github.io/biblia-app/` (ADR 0008). O GitHub Pages **não oferece estatísticas de acesso**; o *Insights → Traffic* do repositório conta só visitas ao repositório, não ao site.
-- **Ideia:** avaliar um serviço de métricas simples, **sem cookies e sem dados pessoais** (ex.: GoatCounter, Plausible, Umami, Cloudflare Web Analytics), que conte páginas vistas, origem e dispositivo.
-- **⚠️ Conflito com o RNF05** ("nenhum dado do usuário sai do dispositivo; sem rastreamento"): qualquer contagem de acessos envia algo para fora do aparelho. Antes de implementar, é preciso **revisar o RNF05** (ex.: "sem rastreamento individual; permitida contagem agregada e anônima de acessos, sem cookies") ou escolher uma forma que não toque o navegador do leitor. Os dados de estudo (favoritos, destaques, notas) continuam nunca saindo do dispositivo.
-- **A decidir:**
-  - privacidade e LGPD: sem cookies, IP não guardado, aviso no app; respeitar *Do Not Track*?
-  - offline-first (ADR 0003): acessos sem rede não são contados, e o script de métricas não pode atrasar nem quebrar o app offline (carregar de forma assíncrona, fora do precache);
-  - rotas no hash (`#/ler/…`, ADR 0009): o serviço precisa contar a troca de rota, não só o carregamento da página;
-  - custo e conta: serviço gratuito/hospedado × auto-hospedado;
-  - registrar a escolha num ADR.
-
+- **Status:** **descartado** (2026-11-24).
+- **Motivo:** o GitHub Pages (ADR 0008) não oferece estatísticas de acesso ao site; o *Insights → Traffic* conta só visitas ao repositório. Medir exigiria um serviço de terceiros carregado no navegador do leitor, o que contraria o RNF05 ("sem rastreamento"). Decisão do mantenedor: não implementar.
