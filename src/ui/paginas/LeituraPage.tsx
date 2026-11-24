@@ -18,6 +18,7 @@ import { FaixaPlano } from '../componentes/FaixaPlano';
 import { idBotaoVersiculo } from '../componentes/idsVersiculo';
 import { NOME_COR } from '../componentes/nomesCores';
 import { PaginaPapel } from '../componentes/PaginaPapel';
+import { PainelLeitura } from '../componentes/PainelLeitura';
 import { SeletorReferencia } from '../componentes/SeletorReferencia';
 import { useDependencias } from '../contexto/Dependencias';
 import { useCapitulo } from '../hooks/useCapitulo';
@@ -332,6 +333,7 @@ function Leitura({
         >
           {sigla}
         </span>
+        <PainelLeitura />
       </BarraSuperior>
       <FaixaPlano leituras={leiturasDoPlano} />
 

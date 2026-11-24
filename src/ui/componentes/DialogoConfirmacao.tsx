@@ -77,7 +77,7 @@ export function DialogoConfirmacao({
             type="button"
             disabled={ocupado}
             onClick={onConfirmar}
-            className={`rounded-md px-3 py-2 text-sm font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 ${perigosa ? 'bg-red-700 hover:bg-red-800 focus-visible:outline-red-700' : 'bg-primaria focus-visible:outline-primaria hover:opacity-90'}`}
+            className={`text-sobre-tinta rounded-md px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 ${perigosa ? 'bg-red-700 hover:bg-red-800 focus-visible:outline-red-700' : 'bg-primaria focus-visible:outline-primaria hover:opacity-90'}`}
           >
             {confirmar}
           </button>

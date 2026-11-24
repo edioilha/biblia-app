@@ -192,7 +192,7 @@ export function PaginaPapel({
         </span>
       </h1>
 
-      <div ref={refTexto} className="texto-biblico mt-8 text-lg leading-[1.85] sm:text-[1.2rem]">
+      <div ref={refTexto} className="texto-biblico mt-8 leading-[1.85]">
         {paragrafos.map((p) => (
           <Fragment key={p.versiculos[0]?.numero}>
             <p>

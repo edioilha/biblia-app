@@ -162,7 +162,7 @@ export function DialogoIniciarPlano({ plano, hoje, ocupado, erro, onIniciar, onF
           <button
             type="submit"
             disabled={!data || ocupado}
-            className="bg-primaria rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="bg-primaria text-sobre-tinta rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
           >
             Iniciar plano
           </button>

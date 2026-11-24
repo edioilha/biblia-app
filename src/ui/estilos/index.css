@@ -8,6 +8,8 @@
   --color-tinta-suave: #6b6256;
   --color-primaria: #2c5282;
   --color-marca-texto: rgb(255 214 0 / 0.45);
+  /* Texto sobre fundo sólido (bg-tinta, bg-primaria, bg-red-700): branco, exceto no escuro. */
+  --color-sobre-tinta: #fff;
   --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
 }
 
@@ -23,6 +25,70 @@
 @media (width >= 40rem) {
   :root {
     --base-inferior: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/*
+ * UC12 — temas do app inteiro (`data-tema` em <html>, posto por AplicarTema e, antes do
+ * React, pelo script do index.html). As telas usam as cores do Tailwind (stone, white,
+ * red…) e os tokens acima; cada tema redefine essas variáveis. O claro é o padrão.
+ */
+:root[data-tema='SEPIA'] {
+  --color-papel: #f4ead3;
+  --color-papel-borda: #e0d1af;
+  --color-tinta: #3b2f22;
+  --color-tinta-suave: #6a5841;
+  --color-white: #fbf5e7;
+  --color-stone-50: #f6eedc;
+  --color-stone-100: #efe4cb;
+  --color-stone-200: #e7dabd;
+  --color-stone-300: #d5c4a0;
+  --color-stone-400: #a8977a;
+  --color-stone-500: #6c6052;
+  --color-stone-600: #54493d;
+}
+
+:root[data-tema='ESCURO'] {
+  color-scheme: dark;
+  --color-papel: #1f1c19;
+  --color-papel-borda: #3a342d;
+  --color-tinta: #e8e2d8;
+  --color-tinta-suave: #ada393;
+  --color-primaria: #93b4e0;
+  --color-marca-texto: rgb(255 214 0 / 0.25);
+  --color-sobre-tinta: #181512;
+  --color-white: #24211e;
+  --color-black: #000;
+  --color-stone-50: #2b2825;
+  --color-stone-100: #322e2a;
+  --color-stone-200: #151311;
+  --color-stone-300: #45403a;
+  --color-stone-400: #6e675f;
+  --color-stone-500: #a8a097;
+  --color-stone-600: #c2bbb3;
+  --color-stone-700: #d4cec7;
+  --color-stone-800: #e3ded8;
+  --color-stone-900: #f1ede8;
+  --color-red-50: #3a1717;
+  --color-red-100: #4a1d1d;
+  --color-red-300: #8a3a3a;
+  --color-red-700: #f28b8b;
+  --color-red-800: #fbb4b4;
+  --color-red-900: #fdd0d0;
+  --color-green-50: #13301c;
+  --color-green-700: #5fd48a;
+  --color-green-800: #93e6b0;
+  --color-green-900: #c3f3d3;
+  --color-amber-700: #f5c04e;
+}
+
+/* RF01.7 — tamanho da fonte da leitura (A−/A+): --escala-leitura vem de AplicarTema. */
+.texto-biblico {
+  font-size: calc(1.125rem * var(--escala-leitura, 1));
+}
+@media (width >= 40rem) {
+  .texto-biblico {
+    font-size: calc(1.2rem * var(--escala-leitura, 1));
   }
 }
 
@@ -113,6 +179,23 @@ body {
   -webkit-box-decoration-break: clone;
   mix-blend-mode: multiply;
   cursor: pointer;
+}
+
+/* No escuro, `multiply` apagaria a cor: tons mais fechados, sobre o papel escuro. */
+[data-tema='ESCURO'] .marca-texto {
+  mix-blend-mode: normal;
+}
+[data-tema='ESCURO'] [data-cor='AMARELO'] {
+  --marca: 150 120 0;
+}
+[data-tema='ESCURO'] [data-cor='VERDE'] {
+  --marca: 40 120 50;
+}
+[data-tema='ESCURO'] [data-cor='ROSA'] {
+  --marca: 150 50 95;
+}
+[data-tema='ESCURO'] [data-cor='AZUL'] {
+  --marca: 40 90 160;
 }
 
 /* Destaque que continua no versículo vizinho: pontas retas na emenda */

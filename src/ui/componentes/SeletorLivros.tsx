@@ -32,7 +32,7 @@ export function SeletorLivros({
         type="button"
         onClick={() => setAberto(true)}
         aria-haspopup="dialog"
-        className={`focus-visible:outline-primaria rounded-full border px-3 py-1.5 text-sm whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 ${selecionados.length ? 'bg-tinta border-tinta text-white' : 'border-stone-300 bg-white hover:border-stone-400'}`}
+        className={`focus-visible:outline-primaria rounded-full border px-3 py-1.5 text-sm whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 ${selecionados.length ? 'bg-tinta border-tinta text-sobre-tinta' : 'border-stone-300 bg-white hover:border-stone-400'}`}
       >
         Livros: {resumo(selecionados)} <span aria-hidden="true">▾</span>
       </button>
@@ -144,7 +144,7 @@ function DialogoLivros({
           onClick={() =>
             onAplicar(disponiveis.map((l) => l.codigo.valor).filter((c) => marcados.has(c)))
           }
-          className="bg-primaria rounded-md px-4 py-2 text-sm font-medium text-white"
+          className="bg-primaria text-sobre-tinta rounded-md px-4 py-2 text-sm font-medium"
         >
           Aplicar
         </button>

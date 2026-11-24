@@ -150,7 +150,7 @@ export function EditorAnotacao({
               ref={confirmar}
               disabled={ocupado}
               onClick={onExcluir}
-              className="rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white hover:bg-red-800 disabled:opacity-50"
+              className="text-sobre-tinta rounded-md bg-red-700 px-3 py-2 text-sm font-medium hover:bg-red-800 disabled:opacity-50"
             >
               Excluir nota
             </button>
@@ -176,7 +176,7 @@ export function EditorAnotacao({
             <button
               type="submit"
               disabled={vazia || ocupado}
-              className="bg-primaria rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="bg-primaria text-sobre-tinta rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
               Salvar
             </button>

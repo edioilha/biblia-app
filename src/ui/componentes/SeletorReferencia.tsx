@@ -147,7 +147,7 @@ export function SeletorReferencia({ atual }: Props) {
                         aria-label={l.nome}
                         aria-pressed={l === livroEscolhido}
                         onClick={() => setLivroEscolhido(l)}
-                        className="w-full rounded border border-stone-300 py-1.5 text-sm hover:bg-stone-100 aria-pressed:border-stone-900 aria-pressed:bg-stone-900 aria-pressed:text-white"
+                        className="aria-pressed:text-sobre-tinta w-full rounded border border-stone-300 py-1.5 text-sm hover:bg-stone-100 aria-pressed:border-stone-900 aria-pressed:bg-stone-900"
                       >
                         {l.abreviacao}
                       </button>
@@ -173,7 +173,7 @@ export function SeletorReferencia({ atual }: Props) {
                       aria-label={`${livroEscolhido.nome} ${n}`}
                       aria-current={ehAtual ? 'page' : undefined}
                       onClick={() => ir(Referencia.capitulo(livroEscolhido, n))}
-                      className="w-full rounded border border-stone-300 py-1.5 text-sm hover:bg-stone-100 aria-[current=page]:border-stone-900 aria-[current=page]:bg-stone-900 aria-[current=page]:text-white"
+                      className="aria-[current=page]:text-sobre-tinta w-full rounded border border-stone-300 py-1.5 text-sm hover:bg-stone-100 aria-[current=page]:border-stone-900 aria-[current=page]:bg-stone-900"
                     >
                       {n}
                     </button>

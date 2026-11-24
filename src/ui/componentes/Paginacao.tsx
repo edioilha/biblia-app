@@ -39,7 +39,7 @@ export function Paginacao({
             <li key={n}>
               <button
                 type="button"
-                className={`${classeBotao} ${n === atual ? 'bg-tinta! border-tinta text-white' : ''}`}
+                className={`${classeBotao} ${n === atual ? 'bg-tinta! border-tinta text-sobre-tinta' : ''}`}
                 aria-current={n === atual ? 'page' : undefined}
                 aria-label={`Página ${n}`}
                 onClick={() => onIr(n)}

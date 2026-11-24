@@ -25,7 +25,7 @@ export function TelaPreparacao({ progresso, erro, aoTentarNovamente }: Props) {
             <button
               type="button"
               onClick={aoTentarNovamente}
-              className="bg-primaria mt-6 rounded px-4 py-2 font-sans text-sm text-white"
+              className="bg-primaria text-sobre-tinta mt-6 rounded px-4 py-2 font-sans text-sm"
             >
               Tentar novamente
             </button>

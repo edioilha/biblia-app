@@ -50,6 +50,8 @@ export const chaves = {
   versaoAtiva: () => ['versao-ativa'] as const,
   /** RF07.2 — versões do catálogo com a situação de cada uma. */
   versoes: () => ['versoes'] as const,
+  /** UC12 — tema e tamanho da fonte. */
+  configuracaoLeitura: () => ['configuracao-leitura'] as const,
 };
 
 /**

@@ -9,6 +9,7 @@ import {
   type Anotacao,
   type ItemEstudo,
 } from '../../dominio/estudo';
+import { BackupEstudos } from '../componentes/BackupEstudos';
 import { BarraSuperior } from '../componentes/BarraSuperior';
 import { DialogoConfirmacao } from '../componentes/DialogoConfirmacao';
 import { EditorAnotacao } from '../componentes/EditorAnotacao';
@@ -209,7 +210,9 @@ export function EstudosPage() {
 
   return (
     <>
-      <BarraSuperior />
+      <BarraSuperior>
+        <BackupEstudos onAviso={setAviso} />
+      </BarraSuperior>
       <main className="mx-auto max-w-3xl px-4 py-6 font-sans sm:py-8">
         <h1 className="sr-only">Meus Estudos</h1>
 

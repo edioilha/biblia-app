@@ -9,7 +9,7 @@ import { useEditarVersoes, useListaVersoes } from '../hooks/useVersoes';
 const classeBotao =
   'focus-visible:outline-primaria rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm hover:bg-stone-50 focus-visible:outline-2 disabled:opacity-50';
 const classeBotaoPrimario =
-  'bg-tinta rounded-md px-3 py-1.5 text-sm font-medium text-white hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria disabled:opacity-50';
+  'bg-tinta rounded-md px-3 py-1.5 text-sm font-medium text-sobre-tinta hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primaria disabled:opacity-50';
 
 const formatarMb = (bytes: number) =>
   `${(bytes / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} MB`;
@@ -185,7 +185,7 @@ function VersaoInstalada({
             </span>
           )}
           {ativa && (
-            <span className="bg-tinta rounded-full px-2 py-0.5 text-xs font-normal text-white">
+            <span className="bg-tinta text-sobre-tinta rounded-full px-2 py-0.5 text-xs font-normal">
               Ativa
             </span>
           )}
