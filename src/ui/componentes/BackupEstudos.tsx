@@ -1,5 +1,9 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
-import type { PreviaImportacao } from '../../aplicacao/casos-de-uso';
+import {
+  MENSAGEM_BACKUP_GRANDE,
+  TAMANHO_MAXIMO_BACKUP,
+  type PreviaImportacao,
+} from '../../aplicacao/casos-de-uso';
 import type { ContagemImportacao, ResumoImportacao } from '../../dominio/backup';
 import { useAnalisarBackup, useExportarBackup, useImportarBackup } from '../hooks/useBackup';
 
@@ -94,6 +98,11 @@ export function BackupEstudos({ onAviso }: { onAviso: (mensagem: string) => void
     const escolhido = e.target.files?.[0];
     e.target.value = ''; // escolher o mesmo arquivo de novo dispara outra vez
     if (!escolhido) return;
+    // BL-16: nem lê para a memória um arquivo acima do limite.
+    if (escolhido.size > TAMANHO_MAXIMO_BACKUP) {
+      setEstado({ fase: 'erro', mensagem: MENSAGEM_BACKUP_GRANDE });
+      return;
+    }
     let conteudo: string;
     try {
       conteudo = await escolhido.text();

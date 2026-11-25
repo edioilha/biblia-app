@@ -8,21 +8,7 @@
     <link rel="icon" href="/biblia-app/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/biblia-app/apple-touch-icon.png" />
     <title>Bíblia App</title>
-    <script>
-      // UC12 — aplica o tema salvo antes de desenhar a página (sem piscar o claro).
-      try {
-        const c = JSON.parse(localStorage.getItem('biblia-app:leitura') || 'null');
-        if (c && /^(CLARO|SEPIA|ESCURO)$/.test(c.tema)) {
-          document.documentElement.dataset.tema = c.tema;
-          document.documentElement.style.setProperty(
-            '--escala-leitura',
-            String(Number(c.escala) || 1),
-          );
-        }
-      } catch {
-        // sem localStorage: o React aplica logo em seguida
-      }
-    </script>
+    <script src="%BASE_URL%tema-inicial.js"></script>
   </head>
   <body>
     <div id="root"></div>

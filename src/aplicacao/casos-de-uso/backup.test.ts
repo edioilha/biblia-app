@@ -11,7 +11,7 @@ import {
   InscricoesEmMemoria,
   RelogioFixo,
 } from '../../test/fakes';
-import { BackupInvalidoError, ExportarDados, ImportarDados } from './backup';
+import { BackupInvalidoError, ExportarDados, ImportarDados, TAMANHO_MAXIMO_BACKUP } from './backup';
 
 function aparelho() {
   const repos = {
@@ -76,5 +76,12 @@ describe('ExportarDados / ImportarDados (UC11)', () => {
     const a = aparelho();
     await expect(a.importar.analisar('{}')).rejects.toThrow(BackupInvalidoError);
     await expect(a.importar.executar('{}')).rejects.toThrow(BackupInvalidoError);
+  });
+
+  it('recusa arquivo acima do limite sem interpretar (BL-16)', async () => {
+    const a = aparelho();
+    const enorme = ' '.repeat(TAMANHO_MAXIMO_BACKUP + 1);
+    await expect(a.importar.analisar(enorme)).rejects.toThrow(/grande demais/);
+    await expect(a.importar.executar(enorme)).rejects.toThrow(BackupInvalidoError);
   });
 });

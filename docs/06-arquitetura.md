@@ -409,7 +409,7 @@ sequenceDiagram
 
 O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color-white`, `--color-red-*`… e os tokens `papel`, `tinta`, `primaria`) em `:root[data-tema='SEPIA' | 'ESCURO']` (`index.css`); as telas não mudam de classe. Texto sobre fundo sólido usa o token `sobre-tinta` (branco; escuro no tema escuro). No escuro, o marca-texto troca `multiply` por cores mais fechadas. O tamanho é a variável `--escala-leitura` (níveis 1–7 → 0,8 a 1,6) sobre o tamanho base do `.texto-biblico`.
 
-`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto no `index.html` aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro na abertura. A fonte da verdade continua sendo o IndexedDB.
+`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto (`public/tema-inicial.js`, carregado no `<head>`; fora do HTML por causa da CSP) aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro na abertura. A fonte da verdade continua sendo o IndexedDB.
 
 ## 6. Persistência (IndexedDB / Dexie)
 
@@ -453,6 +453,7 @@ JSON gerado por `BackupJson` (formato 1), com os **mesmos registros do banco** e
 
 - `app` identifica o arquivo; `formato` muda só se o formato mudar de forma incompatível. Um formato maior que o conhecido é recusado ("atualize o app"); listas ausentes contam como vazias.
 - Na leitura, cada item passa pelas regras do domínio; **um item inválido recusa o arquivo inteiro**, para não importar pela metade.
+- **Limite de 20 MB** (BL-16): a tela recusa o arquivo antes de lê-lo, e `ImportarDados` confere de novo o tamanho do conteúdo antes de interpretar o JSON.
 - A gravação (`DexieDadosLeitor.aplicar`) é uma transação nas quatro tabelas: tudo ou nada. Preferências e texto das versões não vão no arquivo.
 
 ## 7. Importação e normalização dos dados
@@ -542,6 +543,23 @@ biblia-app/
 │   └── fixtures/
 └── (testes unitários ficam ao lado do código: *.test.ts)
 ```
+
+### Segurança (BL-16)
+
+O app não tem servidor nem contas; as entradas externas são os **textos das versões** (biblia.data) e os **arquivos de backup**. As defesas:
+
+- **Nada de HTML cru:** todo texto (versículos, notas em Markdown, nomes) vira elementos React; não há `innerHTML`/`dangerouslySetInnerHTML`. O Markdown das notas não tem links. Testes de UI conferem que HTML, `<script>` e `javascript:` vindos de uma versão ou de um backup aparecem como texto.
+- **Validação pelo domínio:** cada item importado passa pelas mesmas regras do domínio (ids, referências, cores, datas, tamanhos); um campo inválido recusa o arquivo. Limite de 20 MB no backup.
+- **Content-Security-Policy** por `<meta>` (o GitHub Pages não define cabeçalhos), injetada só no build por um plugin no `vite.config.ts`:
+
+  ```
+  default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self'; img-src 'self' data:;
+  font-src 'self'; connect-src 'self' https://raw.githubusercontent.com; manifest-src 'self';
+  object-src 'none'; base-uri 'self'; form-action 'self'
+  ```
+
+  Sem `unsafe-inline` nem `unsafe-eval`: o único script que era inline (tema inicial) virou arquivo. Os estilos dinâmicos do React usam o CSSOM, que a CSP permite. Um teste E2E percorre leitura, tema, favorito, busca (worker), instalação de versão e backup sem nenhuma violação, e confere que um script injetado é bloqueado. Por ser `<meta>`, `frame-ancestors` não se aplica.
+- **CI e dependências:** ver docs/07 §6.
 
 ## 9. Estratégia de testes
 
