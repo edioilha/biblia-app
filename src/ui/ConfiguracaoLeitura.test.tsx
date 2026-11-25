@@ -9,6 +9,7 @@ import { renderizarApp } from '../test/renderizarApp';
 const html = document.documentElement;
 afterEach(() => {
   delete html.dataset['tema'];
+  delete html.dataset['largura'];
   html.style.removeProperty('--escala-leitura');
   localStorage.clear();
 });
@@ -46,6 +47,7 @@ describe('Configurar leitura — botão "Aa" (UC12)', () => {
     expect(JSON.parse(localStorage.getItem('biblia-app:leitura') ?? '{}')).toEqual({
       tema: 'ESCURO',
       escala: 1,
+      largura: 'ESTREITA',
     });
 
     // Esc fecha e devolve o foco ao botão.
@@ -54,16 +56,34 @@ describe('Configurar leitura — botão "Aa" (UC12)', () => {
     expect(screen.getByRole('button', { name: 'Aparência da leitura' })).toHaveFocus();
   });
 
+  it('troca a largura da página e guarda junto com o tema (BL-01)', async () => {
+    const user = userEvent.setup();
+    const { prefs } = renderizarApp({ rota: '/ler/JHN/3' });
+
+    await user.click(await screen.findByRole('button', { name: 'Aparência da leitura' }));
+    const largura = screen.getByRole('group', { name: 'Largura da página' });
+    expect(within(largura).getByRole('radio', { name: 'Estreita' })).toBeChecked();
+    await user.click(within(largura).getByRole('radio', { name: 'Larga' }));
+
+    await waitFor(() => expect(html.dataset['largura']).toBe('LARGA'));
+    expect(prefs.atual?.leitura.largura).toBe('LARGA');
+    expect(prefs.atual?.leitura.tema).toBe('CLARO');
+    expect(JSON.parse(localStorage.getItem('biblia-app:leitura') ?? '{}')).toMatchObject({
+      largura: 'LARGA',
+    });
+  });
+
   it('aplica a configuração salva ao abrir o app', async () => {
     renderizarApp({
       rota: '/estudos',
       preferencias: Preferencias.criar(
         VersaoId.de('BLIVRE'),
         Referencia.parse('Jo 3', canon),
-        ConfiguracaoLeitura.criar('SEPIA', 2),
+        ConfiguracaoLeitura.criar('SEPIA', 2, 'MEDIA'),
       ),
     });
     await waitFor(() => expect(html.dataset['tema']).toBe('SEPIA'));
     expect(html.style.getPropertyValue('--escala-leitura')).toBe('0.9');
+    expect(html.dataset['largura']).toBe('MEDIA');
   });
 });

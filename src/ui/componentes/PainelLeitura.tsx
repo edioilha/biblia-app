@@ -1,5 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { ConfiguracaoLeitura, TAMANHO_MAXIMO, Tema } from '../../dominio/preferencias';
+import {
+  ConfiguracaoLeitura,
+  LarguraPagina,
+  TAMANHO_MAXIMO,
+  Tema,
+} from '../../dominio/preferencias';
 import { useConfigurarLeitura, useConfiguracaoLeitura } from '../hooks/useConfiguracaoLeitura';
 
 const NOME_TEMA: Record<Tema, string> = { CLARO: 'Claro', SEPIA: 'Sépia', ESCURO: 'Escuro' };
@@ -11,11 +16,28 @@ const AMOSTRA: Record<Tema, string> = {
   ESCURO: 'bg-[#1f1c19] text-[#e8e2d8]',
 };
 
+const NOME_LARGURA: Record<LarguraPagina, string> = {
+  ESTREITA: 'Estreita',
+  MEDIA: 'Média',
+  LARGA: 'Larga',
+};
+
+/** Largura do ícone de cada opção (a página entre as duas barras). */
+const ICONE_LARGURA: Record<LarguraPagina, string> = {
+  ESTREITA: 'w-3',
+  MEDIA: 'w-5',
+  LARGA: 'w-7',
+};
+
+const opcao =
+  'peer-checked:outline-primaria peer-focus-visible:ring-primaria flex h-10 w-full items-center justify-center rounded-md border border-stone-300 peer-checked:outline-2 peer-checked:outline-offset-1 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2';
+
 const botaoTamanho =
   'focus-visible:outline-primaria flex h-10 flex-1 items-center justify-center rounded-md border border-stone-300 bg-white font-serif hover:bg-stone-50 focus-visible:outline-2 disabled:opacity-40';
 
 /**
- * UC12 — botão "Aa" da leitura: abre um painel com o tamanho do texto (A− / A+) e o tema.
+ * UC12 — botão "Aa" da leitura: abre um painel com o tamanho do texto (A− / A+), o tema e,
+ * a partir de 768 px, a largura da página (BL-01; no celular a página já ocupa a tela).
  * As mudanças valem na hora e ficam salvas. Esc fecha e devolve o foco ao botão; clicar
  * fora também fecha.
  */
@@ -113,11 +135,32 @@ export function PainelLeitura() {
                   />
                   <span
                     aria-hidden="true"
-                    className={`peer-checked:outline-primaria peer-focus-visible:ring-primaria flex h-10 w-full items-center justify-center rounded-md border border-stone-300 font-serif text-base peer-checked:outline-2 peer-checked:outline-offset-1 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 ${AMOSTRA[tema]}`}
+                    className={`${opcao} font-serif text-base ${AMOSTRA[tema]}`}
                   >
                     Aa
                   </span>
                   <span>{NOME_TEMA[tema]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="hidden flex-col gap-2 md:flex">
+            <legend className="mb-2 font-medium">Largura da página</legend>
+            <div className="grid grid-cols-3 gap-2">
+              {LarguraPagina.todas.map((largura) => (
+                <label key={largura} className="flex cursor-pointer flex-col items-center gap-1">
+                  <input
+                    type="radio"
+                    name={`${id}-largura`}
+                    value={largura}
+                    checked={atual.largura === largura}
+                    onChange={() => configurar.mutate(atual.comLargura(largura))}
+                    className="peer sr-only"
+                  />
+                  <span aria-hidden="true" className={`${opcao} bg-white`}>
+                    <span className={`h-4 border-x-2 border-stone-500 ${ICONE_LARGURA[largura]}`} />
+                  </span>
+                  <span>{NOME_LARGURA[largura]}</span>
                 </label>
               ))}
             </div>

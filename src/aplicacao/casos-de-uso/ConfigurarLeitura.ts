@@ -3,7 +3,10 @@ import { ConfiguracaoLeitura, Preferencias } from '../../dominio/preferencias';
 import type { PreferenciasRepository } from '../portas';
 import { primeiroCapitulo } from './ObterPosicaoInicial';
 
-/** UC12 — Configurar leitura: tema e tamanho da fonte (RF01.7), salvos nas preferências. */
+/**
+ * UC12 — Configurar leitura: tema e tamanho da fonte (RF01.7) e largura da página (BL-01),
+ * salvos nas preferências.
+ */
 export class ConfigurarLeitura {
   constructor(
     private readonly canon: Canon,
@@ -11,7 +14,7 @@ export class ConfigurarLeitura {
     private readonly versaoPadrao: VersaoId,
   ) {}
 
-  /** A configuração atual; a padrão (claro, tamanho 3) na primeira execução. */
+  /** A configuração atual; a padrão (claro, tamanho 3, estreita) na primeira execução. */
   async obter(): Promise<ConfiguracaoLeitura> {
     return (await this.preferencias.obter())?.leitura ?? ConfiguracaoLeitura.padrao;
   }

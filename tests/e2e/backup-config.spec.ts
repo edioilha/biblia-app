@@ -97,4 +97,38 @@ test.describe('Configurar leitura (UC12)', () => {
       }
     });
   }
+
+  test('largura da página: só em telas a partir de 768 px, e fica salva (BL-01)', async ({
+    page,
+  }) => {
+    await abrirJo3(page);
+    const pagina = page.locator('article.pagina-papel');
+    const largura = () => pagina.evaluate((el) => el.getBoundingClientRect().width);
+    const janela = page.viewportSize()?.width ?? 0;
+    await page.getByRole('button', { name: 'Aparência da leitura' }).click();
+    const grupo = page.getByRole('group', { name: 'Largura da página' });
+
+    if (janela < 768) {
+      // No celular a opção some e a página continua ocupando a tela.
+      await expect(grupo).toBeHidden();
+      return;
+    }
+
+    expect(await largura()).toBeCloseTo(672, 0);
+    await grupo.getByText('Larga', { exact: true }).click();
+    await expect(grupo.getByRole('radio', { name: 'Larga' })).toBeChecked();
+    await expect(page.locator('html')).toHaveAttribute('data-largura', 'LARGA');
+    await expect.poll(largura).toBeCloseTo(Math.min(896, janela), 0);
+    await semViolacoes(page);
+
+    // Aplicada antes do React ao reabrir (a página não pula de largura).
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-largura', 'LARGA');
+    await expect(tituloCapitulo(page)).toBeVisible({ timeout: 30_000 });
+    expect(await largura()).toBeCloseTo(896, 0);
+    const rolagem = await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    );
+    expect(rolagem).toBe(true);
+  });
 });

@@ -32,11 +32,12 @@ describe('DexiePreferenciasRepository', () => {
       ultimaPosicao: 'JHN.3',
       tema: 'CLARO',
       tamanhoFonte: 3,
+      largura: 'ESTREITA',
     });
   });
 
-  it('guarda tema e tamanho da fonte (UC12)', async () => {
-    const leitura = ConfiguracaoLeitura.criar('SEPIA', 6);
+  it('guarda tema, tamanho da fonte e largura da página (UC12, BL-01)', async () => {
+    const leitura = ConfiguracaoLeitura.criar('SEPIA', 6, 'LARGA');
     await repo.salvar(
       Preferencias.criar(VersaoId.de('BLIVRE'), Referencia.parse('Jo 3', canon), leitura),
     );
@@ -56,6 +57,14 @@ describe('DexiePreferenciasRepository', () => {
     const p = await repo.obter();
     expect(p?.leitura).toEqual(ConfiguracaoLeitura.padrao);
     expect(p?.ultimaPosicao.chave()).toBe('JHN.3');
+  });
+
+  it('registro sem largura (anterior ao BL-01) mantém tema e tamanho; largura inválida usa o padrão', async () => {
+    const base = { id: 'usuario', versaoAtiva: 'BLIVRE', ultimaPosicao: 'JHN.3' } as const;
+    await db.preferencias.put({ ...base, tema: 'ESCURO', tamanhoFonte: 5 });
+    expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.criar('ESCURO', 5));
+    await db.preferencias.put({ ...base, tema: 'ESCURO', tamanhoFonte: 5, largura: 'GIGANTE' });
+    expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.padrao);
   });
 
   it('trata registro inválido como primeira execução', async () => {

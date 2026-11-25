@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   ConfiguracaoLeitura,
   ConfiguracaoLeituraInvalidaError,
+  LarguraPagina,
   TAMANHO_MAXIMO,
   TAMANHO_MINIMO,
   Tema,
 } from './ConfiguracaoLeitura';
 
 describe('ConfiguracaoLeitura (UC12)', () => {
-  it('padrão: tema claro, tamanho 3', () => {
+  it('padrão: tema claro, tamanho 3, página estreita', () => {
     expect(ConfiguracaoLeitura.padrao.tema).toBe('CLARO');
     expect(ConfiguracaoLeitura.padrao.tamanhoFonte).toBe(3);
+    expect(ConfiguracaoLeitura.padrao.largura).toBe('ESTREITA');
   });
 
   it('A+ e A− respeitam os limites e não alteram a original', () => {
@@ -40,5 +42,27 @@ describe('ConfiguracaoLeitura (UC12)', () => {
   it('valida o tema', () => {
     expect(Tema.de('SEPIA')).toBe('SEPIA');
     expect(() => Tema.de('AZUL')).toThrow(ConfiguracaoLeituraInvalidaError);
+  });
+
+  describe('largura da página (BL-01)', () => {
+    it('troca a largura mantendo tema e tamanho', () => {
+      const c = ConfiguracaoLeitura.criar('SEPIA', 5).comLargura('LARGA');
+      expect([c.tema, c.tamanhoFonte, c.largura]).toEqual(['SEPIA', 5, 'LARGA']);
+      expect(c.comLargura('LARGA')).toBe(c);
+      expect(c.equals(ConfiguracaoLeitura.criar('SEPIA', 5))).toBe(false);
+    });
+
+    it('tema e tamanho não mexem na largura', () => {
+      const c = ConfiguracaoLeitura.criar('CLARO', 3, 'MEDIA');
+      expect(c.aumentar().largura).toBe('MEDIA');
+      expect(c.diminuir().largura).toBe('MEDIA');
+      expect(c.comTema('ESCURO').largura).toBe('MEDIA');
+    });
+
+    it('valida a largura', () => {
+      expect(LarguraPagina.todas).toEqual(['ESTREITA', 'MEDIA', 'LARGA']);
+      expect(LarguraPagina.de('MEDIA')).toBe('MEDIA');
+      expect(() => LarguraPagina.de('GIGANTE')).toThrow(ConfiguracaoLeituraInvalidaError);
+    });
   });
 });
