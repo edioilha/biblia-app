@@ -1,7 +1,7 @@
 import type { PreferenciasRepository } from '../../aplicacao/portas';
 import { Referencia, VersaoId, type Canon } from '../../dominio/biblia';
-import { ConfiguracaoLeitura, Preferencias, Tema } from '../../dominio/preferencias';
-import type { BancoApp } from './BancoApp';
+import { ConfiguracaoLeitura, LarguraPagina, Preferencias, Tema } from '../../dominio/preferencias';
+import type { BancoApp, PreferenciasRegistro } from './BancoApp';
 
 export class DexiePreferenciasRepository implements PreferenciasRepository {
   constructor(
@@ -16,7 +16,7 @@ export class DexiePreferenciasRepository implements PreferenciasRepository {
       return Preferencias.criar(
         VersaoId.de(registro.versaoAtiva),
         Referencia.deChave(registro.ultimaPosicao, this.canon),
-        this.leitura(registro.tema, registro.tamanhoFonte),
+        this.leitura(registro),
       );
     } catch {
       // Registro inválido (ex.: gravado por versão antiga): trata como primeira execução.
@@ -31,16 +31,21 @@ export class DexiePreferenciasRepository implements PreferenciasRepository {
       ultimaPosicao: p.ultimaPosicao.chave(),
       tema: p.leitura.tema,
       tamanhoFonte: p.leitura.tamanhoFonte,
+      largura: p.leitura.largura,
     });
   }
 
-  /** Tema ou tamanho ausente ou inválido: o padrão, sem perder a versão e a posição. */
-  private leitura(tema: string | undefined, tamanho: number | undefined): ConfiguracaoLeitura {
+  /**
+   * Tema, tamanho ou largura ausente (registro antigo) usa o padrão daquele campo; algum
+   * inválido descarta só a configuração de leitura, sem perder a versão e a posição.
+   */
+  private leitura({ tema, tamanhoFonte, largura }: PreferenciasRegistro): ConfiguracaoLeitura {
     const padrao = ConfiguracaoLeitura.padrao;
     try {
       return ConfiguracaoLeitura.criar(
         tema === undefined ? padrao.tema : Tema.de(tema),
-        tamanho ?? padrao.tamanhoFonte,
+        tamanhoFonte ?? padrao.tamanhoFonte,
+        largura === undefined ? padrao.largura : LarguraPagina.de(largura),
       );
     } catch {
       return padrao;

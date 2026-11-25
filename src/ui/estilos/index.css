@@ -111,6 +111,22 @@ body {
     repeating-linear-gradient(0deg, rgb(0 0 0 / 0.012) 0 1px, transparent 1px 3px);
 }
 
+/*
+ * BL-01 — largura da página (UC12), só a partir de 768 px: no celular a página já ocupa a
+ * tela. Alarga a página e as margens internas juntas, para a linha não passar de ~90
+ * caracteres. Fora das camadas do Tailwind, vence `max-w-2xl` e `sm:px-14` do componente.
+ */
+@media (width >= 48rem) {
+  :root[data-largura='MEDIA'] .pagina-papel {
+    max-width: 48rem;
+    padding-inline: 4.5rem;
+  }
+  :root[data-largura='LARGA'] .pagina-papel {
+    max-width: 56rem;
+    padding-inline: 5.5rem;
+  }
+}
+
 .texto-biblico {
   text-align: justify;
   hyphens: auto;

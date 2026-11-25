@@ -1,6 +1,9 @@
 import type { ConfiguracaoLeitura, Tema } from '../dominio/preferencias';
 
-/** Onde o tema fica espelhado para o script do index.html aplicar antes do React (sem piscar). */
+/**
+ * Onde tema, escala e largura ficam espelhados para o `tema-inicial.js` aplicar antes do
+ * React (sem piscar o tema nem pular a largura da página).
+ */
 export const CHAVE_TEMA_LOCAL = 'biblia-app:leitura';
 
 /** Nível 1–7 do tamanho da fonte → multiplicador do tamanho base do texto (nível 3 = 1). */
@@ -14,14 +17,15 @@ const COR_BARRA: Record<Tema, string> = {
   ESCURO: '#1f1c19',
 };
 
-export function aplicarNoDocumento({ tema, tamanhoFonte }: ConfiguracaoLeitura): void {
+export function aplicarNoDocumento({ tema, tamanhoFonte, largura }: ConfiguracaoLeitura): void {
   const html = document.documentElement;
   const escala = escalaDoTamanho(tamanhoFonte);
   html.dataset['tema'] = tema;
+  html.dataset['largura'] = largura; // BL-01 (CSS em estilos/index.css)
   html.style.setProperty('--escala-leitura', String(escala));
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', COR_BARRA[tema]);
   try {
-    localStorage.setItem(CHAVE_TEMA_LOCAL, JSON.stringify({ tema, escala }));
+    localStorage.setItem(CHAVE_TEMA_LOCAL, JSON.stringify({ tema, escala, largura }));
   } catch {
     // Sem armazenamento local (ex.: modo privado): só não evita a piscada na abertura.
   }

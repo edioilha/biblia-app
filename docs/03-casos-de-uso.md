@@ -66,7 +66,7 @@ flowchart LR
 | UC09 | Instalar versão | RF07.3 | M |
 | UC10 | Trocar versão | RF07.4, RF07.5 | M |
 | UC11 | Exportar / importar backup | RF08.x | M |
-| UC12 | Configurar leitura | RF01.7 | S |
+| UC12 | Configurar leitura | RF01.7, BL-01 | S |
 | UC13 | Consultar Meus Estudos | RF09.x, RF03.2, RF04.6, RF05.6 | M |
 
 ## 4. Especificações
@@ -353,17 +353,22 @@ flowchart LR
 |---|---|
 | Ator | Leitor |
 | Pré-condição | — |
-| Pós-condição | Tema e tamanho da fonte salvos nas preferências |
+| Pós-condição | Tema, tamanho da fonte e largura da página salvos nas preferências |
 
 **Fluxo principal**
 1. Na leitura, leitor toca no botão **Aa** da barra.
-2. Sistema abre o painel com **Tamanho do texto** (A− / A+, 7 níveis, o 3º é o padrão) e **Tema** (Claro, Sépia, Escuro).
+2. Sistema abre o painel com **Tamanho do texto** (A− / A+, 7 níveis, o 3º é o padrão), **Tema** (Claro, Sépia, Escuro) e, em telas a partir de 768 px, **Largura da página** (Estreita, Média, Larga).
 3. Cada mudança vale na hora e é salva; Esc ou tocar fora fecha o painel.
 
 **Regras (decisões da fase 7.9):**
 - O tema vale para o **app inteiro** (todas as telas); o tamanho, para o texto bíblico.
 - O tema salvo é aplicado antes de a página aparecer (cópia no `localStorage`), para não piscar o claro ao abrir.
 - Os três temas passam na verificação de contraste WCAG AA (axe) em todas as telas.
+
+**Regras da largura da página (BL-01):**
+- Três larguras fixas, sem controle livre: **Estreita** (672 px, a de sempre e o padrão), **Média** (768 px) e **Larga** (896 px). As margens internas crescem junto, para a linha não ficar longa demais.
+- A opção só aparece a partir de 768 px (iPad em pé, notebook, desktop). No celular a página já ocupa a tela: a escolha feita em outra tela fica salva, mas não muda nada.
+- Salva neste aparelho, como o tema e o tamanho (não entra no backup); aplicada antes de a página aparecer, para não pular de largura ao abrir.
 
 ---
 

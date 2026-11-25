@@ -13,7 +13,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 
 | ID | Item | Relação | Status |
 |---|---|---|---|
-| BL-01 | Largura ajustável da área de leitura | RF01.6, UC12 | ideia |
+| BL-01 | Largura ajustável da área de leitura | RF01.6, UC12 | feito |
 | BL-02 | Tamanho e família da fonte | RF01.7, UC12 | ideia |
 | BL-03 | Tipo de folha (tema da página) | RF01.6, RF01.7, UC12 | ideia |
 | BL-04 | Aproveitar o espaço lateral no desktop | UC01, UC04, UC06 | ideia |
@@ -38,7 +38,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Origem:** feedback após a fase 7.1. No celular está ótima; em telas grandes (notebook/desktop) fica a sensação de sobrar espaço nas laterais.
 - **Situação atual:** a página de papel tem largura máxima fixa de `max-w-2xl` (~672 px) em `src/ui/componentes/PaginaPapel.tsx`. A escolha foi intencional: linhas de ~60–75 caracteres são o ponto ótimo de legibilidade para texto corrido.
 - **Ideia:** opção de largura *estreita / média / larga* (ex.: `2xl` / `3xl` / `4xl`), aumentando junto a fonte e as margens internas em telas grandes para manter o comprimento de linha confortável.
-- **A decidir:** preset fixo ou controle livre; salvar por dispositivo (Preferências locais) ou global.
+- **Decidido e feito:** três larguras fixas no painel **Aa** (Estreita 672 px, Média 768 px, Larga 896 px), com as margens internas crescendo junto; só a partir de 768 px (iPad em pé para cima); salva neste aparelho, com o tema. Regras no UC12.
 
 ### BL-02 — Tamanho e família da fonte
 
@@ -60,6 +60,9 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
   - painel lateral com anotações, favoritos ou referências do capítulo; ou
   - modo **livro aberto** (duas páginas lado a lado).
 - **A decidir:** encaixar depois das fases de favoritos/anotações, quando já houver conteúdo para o painel.
+- **Avaliação (2026-11-25, com prévia):** as duas ideias foram aprovadas para seguir.
+  - **Livro aberto:** duas páginas lado a lado, só em telas largas (a partir de ~1100 px, iPad deitado e desktop); nas menores, a leitura continua em uma página.
+  - **Painel de anotações:** anotações, favoritos e destaques do capítulo ao lado da página em telas largas; nas menores, abrem numa gaveta por baixo.
 
 ### BL-05 — Persistência garantida do armazenamento
 
@@ -77,6 +80,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 
 - **Origem:** feedback após a fase 7.1.
 - **Ideia:** modo de leitura sem distrações: esconde barra superior, botões de navegação e demais controles, deixando só a página de papel. Os controles reaparecem ao tocar/mover o mouse ou com uma tecla (ex.: `F` para entrar, `Esc` para sair). Pode combinar com tela cheia (Fullscreen API) e com BL-01/BL-03 (largura e folha próprias para o foco).
+- **Avaliação (2026-11-25, com prévia):** o modo foco ocupa a **tela inteira**, como um vídeo em tela cheia: some tudo e fica só o texto; o botão de sair reaparece ao mexer o mouse ou tocar, e `Esc` sai.
 - **A decidir:** se o modo foco é um botão próprio ou um preset do UC12; manter navegação por teclado/swipe ativa enquanto os controles estão ocultos; acessibilidade (o controle de sair precisa ser sempre alcançável por teclado e leitor de tela).
 
 ### BL-08 — Histórico das últimas buscas

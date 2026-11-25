@@ -25,6 +25,8 @@ export interface PreferenciasRegistro {
   tema?: string;
   /** UC12: nível 1–7. Ausente em registros antigos: o padrão. */
   tamanhoFonte?: number;
+  /** BL-01: "ESTREITA" | "MEDIA" | "LARGA". Ausente em registros antigos: estreita. */
+  largura?: string;
 }
 
 /** Favorito (docs/06 §6). `chave` = "JHN.3.16" (índice único: um favorito por versículo). */

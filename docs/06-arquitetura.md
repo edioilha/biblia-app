@@ -405,11 +405,11 @@ sequenceDiagram
     P->>P: invalida todo o cache
 ```
 
-### 5.9 Tema e tamanho da fonte (UC12)
+### 5.9 Tema, tamanho da fonte e largura da página (UC12)
 
-O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color-white`, `--color-red-*`… e os tokens `papel`, `tinta`, `primaria`) em `:root[data-tema='SEPIA' | 'ESCURO']` (`index.css`); as telas não mudam de classe. Texto sobre fundo sólido usa o token `sobre-tinta` (branco; escuro no tema escuro). No escuro, o marca-texto troca `multiply` por cores mais fechadas. O tamanho é a variável `--escala-leitura` (níveis 1–7 → 0,8 a 1,6) sobre o tamanho base do `.texto-biblico`.
+O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color-white`, `--color-red-*`… e os tokens `papel`, `tinta`, `primaria`) em `:root[data-tema='SEPIA' | 'ESCURO']` (`index.css`); as telas não mudam de classe. Texto sobre fundo sólido usa o token `sobre-tinta` (branco; escuro no tema escuro). No escuro, o marca-texto troca `multiply` por cores mais fechadas. O tamanho é a variável `--escala-leitura` (níveis 1–7 → 0,8 a 1,6) sobre o tamanho base do `.texto-biblico`. A largura da página (BL-01) é o atributo `data-largura` (`ESTREITA`, `MEDIA`, `LARGA`): regras de `index.css` fora das camadas do Tailwind, só em `width >= 48rem`, trocam o `max-width` e o `padding-inline` da `.pagina-papel` (48rem/4,5rem e 56rem/5,5rem); a Estreita é o `max-w-2xl` do componente.
 
-`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto (`public/tema-inicial.js`, carregado no `<head>`; fora do HTML por causa da CSP) aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro na abertura. A fonte da verdade continua sendo o IndexedDB.
+`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema`, `data-largura` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto (`public/tema-inicial.js`, carregado no `<head>`; fora do HTML por causa da CSP) aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro nem a página pular de largura na abertura. A fonte da verdade continua sendo o IndexedDB.
 
 ## 6. Persistência (IndexedDB / Dexie)
 
@@ -433,6 +433,7 @@ O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color
 - **Fase 7.8:** sem mudança de schema. Uma versão instalada é a presença do registro em `versoes` (gravado na mesma transação dos capítulos); remover apaga os capítulos e o registro juntos. Destaques de uma versão removida ficam no banco.
 - **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local), `diasConcluidos` como lista de números e `diaInicial` (UC07 A5; ausente = 1, sem índice). O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
 - **Fase 7.9:** sem mudança de schema. O registro de `preferencias` ganhou `tema` e `tamanhoFonte` opcionais (ausentes ou inválidos = configuração padrão, sem perder versão e posição).
+- **BL-01:** sem mudança de schema. O registro de `preferencias` ganhou `largura` opcional (ausente = Estreita; inválida = configuração de leitura padrão).
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento): `infraestrutura/dexie/mapeadores.ts` (fase 7.9), usados pelos repositórios, por `DexieDadosLeitor` e pelo arquivo de backup.
 
 ### 6.1 Arquivo de backup (UC11)
