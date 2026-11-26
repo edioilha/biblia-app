@@ -29,7 +29,7 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | BL-14 | Trocar de versão pela tela de leitura | RF07.4, UC10 | ideia |
 | BL-15 | Importar tradução de um arquivo do usuário | RF07, ADR 0007 | ideia |
 | BL-16 | Verificação de segurança em camadas | RNF, docs/07 §6 | feito |
-| BL-17 | Migrar para TypeScript 7 e ESLint 10 | docs/07 (ferramentas) | ideia |
+| BL-17 | Migrar para TypeScript 7 e ESLint 10 | docs/07 (ferramentas) | em análise |
 
 ## Itens
 
@@ -154,4 +154,17 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Situação:** as versões major falharam no `npm ci` (`ERESOLVE`): o `typescript-eslint` ainda não aceita o TypeScript 7, e o `eslint-plugin-jsx-a11y` ainda não aceita o ESLint 10. Os três PRs foram fechados com `@dependabot ignore this major version`; as atualizações menores continuam chegando normalmente.
 - **Ideia:** quando os plugins suportarem as novas versões, migrar numa tarefa planejada: TypeScript 7 sozinho; depois ESLint 10 junto com `@eslint/js` 10 e os plugins (`typescript-eslint`, `jsx-a11y`, `react-hooks`, `react-refresh`, `boundaries`), conferindo regras que mudaram.
 - **Como acompanhar:** o Dependabot não reabre essas majors; checar de tempos em tempos os changelogs dos plugins ou rodar `npm outdated`.
+- **Teste de migração (2026-11-26):** cada major instalada numa cópia isolada, com o resto do projeto como está:
+
+  | Major | Typecheck | Testes | Build | Lint | Bloqueio |
+  |---|---|---|---|---|---|
+  | `typescript` 7.0.2 | ✅ sem erros (0,6 s) | ✅ 476 | ✅ | ❌ | o `typescript-eslint` 8.74 (peer `typescript <6.1`) **recusa rodar** com o TS 7 (`typescript-eslint does not support TS 7.0`) |
+  | `eslint` 10.15 + `@eslint/js` 10 | — | — | — | ✅ sem avisos | só a faixa de peer do `eslint-plugin-jsx-a11y` 6.10.2 (`^9`); o plugin roda e as regras disparam (conferido com um `<img>` sem `alt`) |
+
+  `typescript-eslint`, `react-hooks`, `react-refresh` e `boundaries` já aceitam o ESLint 10.
+- **Preparação feita:** `@testing-library/dom` virou dependência explícita (era só peer do `@testing-library/react`). Sem isso, instalar com `--legacy-peer-deps` remove o pacote e quebra 35 checagens de tipo nos testes de UI, o que parece culpa do TS 7, mas não é.
+- **Receita quando liberar:**
+  1. **ESLint 10:** já possível com um `overrides` no `package.json` para a peer do `jsx-a11y` (`"eslint-plugin-jsx-a11y": { "eslint": "$eslint" }`), removido quando sair a versão compatível. Atualizar `eslint` e `@eslint/js` juntos e tirar o `ignore` do Dependabot para eles.
+  2. **TypeScript 7:** esperar o `typescript-eslint` aceitar TS 7 (acompanhar a issue de suporte no repositório deles). Aí atualizar os dois juntos; o código não precisa de mudança.
+  3. Em cada passo: `npm ci`, `lint`, `typecheck`, `test:coverage`, `build` e e2e no CI.
 
