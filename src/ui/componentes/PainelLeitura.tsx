@@ -1,9 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import {
   ConfiguracaoLeitura,
+  FamiliaFonte,
   LarguraPagina,
   TAMANHO_MAXIMO,
   Tema,
+  TipoFolha,
 } from '../../dominio/preferencias';
 import { useConfigurarLeitura, useConfiguracaoLeitura } from '../hooks/useConfiguracaoLeitura';
 
@@ -29,6 +31,28 @@ const ICONE_LARGURA: Record<LarguraPagina, string> = {
   LARGA: 'w-7',
 };
 
+const NOME_FONTE: Record<FamiliaFonte, string> = {
+  CLASSICA: 'Clássica',
+  MODERNA: 'Moderna',
+  SEM_SERIFA: 'Sem serifa',
+  LEGIVEL: 'Legível',
+};
+
+/** Amostra de cada fonte na própria família (tokens em estilos/index.css). */
+const CLASSE_FONTE: Record<FamiliaFonte, string> = {
+  CLASSICA: 'font-serif',
+  MODERNA: 'font-moderna',
+  SEM_SERIFA: 'font-sans',
+  LEGIVEL: 'font-legivel',
+};
+
+const NOME_FOLHA: Record<TipoFolha, string> = {
+  LISO: 'Lisa',
+  TEXTURA: 'Textura',
+  ENVELHECIDO: 'Envelhecida',
+  PAUTADO: 'Pautada',
+};
+
 const opcao =
   'peer-checked:outline-primaria peer-focus-visible:ring-primaria flex h-10 w-full items-center justify-center rounded-md border border-stone-300 peer-checked:outline-2 peer-checked:outline-offset-1 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2';
 
@@ -36,8 +60,9 @@ const botaoTamanho =
   'focus-visible:outline-primaria flex h-10 flex-1 items-center justify-center rounded-md border border-stone-300 bg-white font-serif hover:bg-stone-50 focus-visible:outline-2 disabled:opacity-40';
 
 /**
- * UC12 — botão "Aa" da leitura: abre um painel com o tamanho do texto (A− / A+), o tema e,
- * a partir de 768 px, a largura da página (BL-01; no celular a página já ocupa a tela).
+ * UC12 — botão "Aa" da leitura: abre um painel com o tamanho do texto (A− / A+), a fonte
+ * (BL-02), o tema, o tipo de folha (BL-03) e, a partir de 768 px, a largura da página
+ * (BL-01; no celular a página já ocupa a tela).
  * As mudanças valem na hora e ficam salvas. Esc fecha e devolve o foco ao botão; clicar
  * fora também fecha.
  */
@@ -90,7 +115,7 @@ export function PainelLeitura() {
           id={`${id}-painel`}
           role="group"
           aria-label="Aparência da leitura"
-          className="absolute top-full right-0 z-30 mt-2 flex w-64 flex-col gap-4 rounded-lg border border-stone-300 bg-white p-4 font-sans text-sm shadow-lg"
+          className="absolute top-full right-0 z-30 mt-2 flex max-h-[calc(100dvh-5rem-var(--base-inferior))] w-64 flex-col gap-4 overflow-y-auto overscroll-contain rounded-lg border border-stone-300 bg-white p-4 font-sans text-sm shadow-lg"
         >
           <div className="flex flex-col gap-2">
             <span id={`${id}-tamanho`} className="font-medium">
@@ -121,6 +146,30 @@ export function PainelLeitura() {
             </div>
           </div>
           <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 font-medium">Fonte</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {FamiliaFonte.todas.map((fonte) => (
+                <label key={fonte} className="flex cursor-pointer flex-col items-center gap-1">
+                  <input
+                    type="radio"
+                    name={`${id}-fonte`}
+                    value={fonte}
+                    checked={atual.fonte === fonte}
+                    onChange={() => configurar.mutate(atual.comFonte(fonte))}
+                    className="peer sr-only"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`${opcao} bg-white text-lg ${CLASSE_FONTE[fonte]}`}
+                  >
+                    Aa
+                  </span>
+                  <span>{NOME_FONTE[fonte]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 font-medium">Tema</legend>
             <div className="grid grid-cols-3 gap-2">
               {Tema.todos.map((tema) => (
@@ -140,6 +189,29 @@ export function PainelLeitura() {
                     Aa
                   </span>
                   <span>{NOME_TEMA[tema]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 font-medium">Folha</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {TipoFolha.todas.map((folha) => (
+                <label key={folha} className="flex cursor-pointer flex-col items-center gap-1">
+                  <input
+                    type="radio"
+                    name={`${id}-folha`}
+                    value={folha}
+                    checked={atual.folha === folha}
+                    onChange={() => configurar.mutate(atual.comFolha(folha))}
+                    className="peer sr-only"
+                  />
+                  <span
+                    aria-hidden="true"
+                    data-folha={folha}
+                    className={`${opcao} amostra-folha`}
+                  />
+                  <span>{NOME_FOLHA[folha]}</span>
                 </label>
               ))}
             </div>

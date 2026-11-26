@@ -2,17 +2,25 @@ import { describe, expect, it } from 'vitest';
 import {
   ConfiguracaoLeitura,
   ConfiguracaoLeituraInvalidaError,
+  FamiliaFonte,
   LarguraPagina,
   TAMANHO_MAXIMO,
   TAMANHO_MINIMO,
   Tema,
+  TipoFolha,
 } from './ConfiguracaoLeitura';
 
 describe('ConfiguracaoLeitura (UC12)', () => {
-  it('padrão: tema claro, tamanho 3, página estreita', () => {
-    expect(ConfiguracaoLeitura.padrao.tema).toBe('CLARO');
-    expect(ConfiguracaoLeitura.padrao.tamanhoFonte).toBe(3);
-    expect(ConfiguracaoLeitura.padrao.largura).toBe('ESTREITA');
+  it('padrão: tema claro, tamanho 3, página estreita, fonte clássica, folha com textura', () => {
+    const { tema, tamanhoFonte, largura, fonte, folha } = ConfiguracaoLeitura.padrao;
+    expect([tema, tamanhoFonte, largura, fonte, folha]).toEqual([
+      'CLARO',
+      3,
+      'ESTREITA',
+      'CLASSICA',
+      'TEXTURA',
+    ]);
+    expect(ConfiguracaoLeitura.criar('CLARO', 3)).toEqual(ConfiguracaoLeitura.padrao);
   });
 
   it('A+ e A− respeitam os limites e não alteram a original', () => {
@@ -63,6 +71,40 @@ describe('ConfiguracaoLeitura (UC12)', () => {
       expect(LarguraPagina.todas).toEqual(['ESTREITA', 'MEDIA', 'LARGA']);
       expect(LarguraPagina.de('MEDIA')).toBe('MEDIA');
       expect(() => LarguraPagina.de('GIGANTE')).toThrow(ConfiguracaoLeituraInvalidaError);
+    });
+  });
+
+  describe('fonte (BL-02) e folha (BL-03)', () => {
+    it('trocam só o próprio campo', () => {
+      const c = ConfiguracaoLeitura.criar('ESCURO', 5, 'MEDIA');
+      const f = c.comFonte('LEGIVEL').comFolha('PAUTADO');
+      expect([f.tema, f.tamanhoFonte, f.largura, f.fonte, f.folha]).toEqual([
+        'ESCURO',
+        5,
+        'MEDIA',
+        'LEGIVEL',
+        'PAUTADO',
+      ]);
+      expect(f.comFonte('LEGIVEL')).toBe(f);
+      expect(f.comFolha('PAUTADO')).toBe(f);
+      expect(f.equals(c)).toBe(false);
+      expect(c.comFonte('MODERNA').equals(c.comFolha('LISO'))).toBe(false);
+    });
+
+    it('tamanho, tema e largura não mexem na fonte nem na folha', () => {
+      const c = ConfiguracaoLeitura.criar('CLARO', 3, 'ESTREITA', 'SEM_SERIFA', 'ENVELHECIDO');
+      for (const outra of [c.aumentar(), c.diminuir(), c.comTema('SEPIA'), c.comLargura('LARGA')]) {
+        expect([outra.fonte, outra.folha]).toEqual(['SEM_SERIFA', 'ENVELHECIDO']);
+      }
+    });
+
+    it('validam o valor', () => {
+      expect(FamiliaFonte.todas).toEqual(['CLASSICA', 'MODERNA', 'SEM_SERIFA', 'LEGIVEL']);
+      expect(FamiliaFonte.de('MODERNA')).toBe('MODERNA');
+      expect(() => FamiliaFonte.de('COMIC')).toThrow(ConfiguracaoLeituraInvalidaError);
+      expect(TipoFolha.todas).toEqual(['LISO', 'TEXTURA', 'ENVELHECIDO', 'PAUTADO']);
+      expect(TipoFolha.de('LISO')).toBe('LISO');
+      expect(() => TipoFolha.de('PAPIRO')).toThrow(ConfiguracaoLeituraInvalidaError);
     });
   });
 });

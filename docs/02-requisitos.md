@@ -14,7 +14,7 @@
 | RF01.4 | Ir direto a uma referência digitada (ex.: `Jo 3:16`, `João 3`, `gn 1.1`) | M |
 | RF01.5 | Lembrar a última posição de leitura e reabrir nela | M |
 | RF01.6 | Página de leitura com aparência de **folha de papel/livro** (textura, margens, tipografia serifada, número do versículo sobrescrito) | M |
-| RF01.7 | Ajustar tamanho da fonte e tema (claro, sépia, escuro) | S |
+| RF01.7 | Ajustar tamanho e família da fonte, tema (claro, sépia, escuro) e tipo de folha (BL-02, BL-03) | S |
 
 ### RF02 — Busca
 

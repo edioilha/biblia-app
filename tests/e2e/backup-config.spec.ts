@@ -131,4 +131,48 @@ test.describe('Configurar leitura (UC12)', () => {
     );
     expect(rolagem).toBe(true);
   });
+
+  test('fonte e folha da página: valem na hora e ficam salvas (BL-02, BL-03)', async ({ page }) => {
+    await abrirJo3(page);
+    const pagina = page.locator('article.pagina-papel');
+    await page.getByRole('button', { name: 'Aparência da leitura' }).click();
+
+    // Legível: a Atkinson Hyperlegible embarcada (servida pelo próprio site, sem rede).
+    await page.getByRole('group', { name: 'Fonte' }).getByText('Legível', { exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-fonte', 'LEGIVEL');
+    await expect(pagina).toHaveCSS('font-family', /^"?Atkinson Hyperlegible/);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          [...document.fonts].some(
+            (f) => f.family.includes('Atkinson Hyperlegible') && f.status === 'loaded',
+          ),
+        ),
+      )
+      .toBe(true);
+
+    // Pautada: uma linha por linha de texto, em cada parágrafo.
+    await page.getByRole('group', { name: 'Folha' }).getByText('Pautada', { exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-folha', 'PAUTADO');
+    const pauta = await page
+      .locator('.texto-biblico > p')
+      .first()
+      .evaluate((el) => {
+        const estilo = getComputedStyle(el);
+        const [largura, altura] = estilo.backgroundSize.split(' ');
+        return { largura, altura: parseFloat(altura ?? ''), linha: parseFloat(estilo.lineHeight) };
+      });
+    // Linha em pixels inteiros: a pauta e o texto têm exatamente o mesmo passo.
+    expect(pauta.largura).toBe('100%');
+    expect(Number.isInteger(pauta.linha)).toBe(true);
+    expect(pauta.altura).toBe(pauta.linha);
+    await page.keyboard.press('Escape');
+    await semViolacoes(page);
+
+    // Aplicadas antes do React ao reabrir.
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-fonte', 'LEGIVEL');
+    await expect(page.locator('html')).toHaveAttribute('data-folha', 'PAUTADO');
+    await expect(tituloCapitulo(page)).toBeVisible({ timeout: 30_000 });
+  });
 });

@@ -8,6 +8,8 @@ import { pedirArmazenamentoPersistente } from './infraestrutura/armazenamento';
 import { App } from './ui/App';
 import { criarClienteConsultas } from './ui/consultas/clienteConsultas';
 import { DependenciasProvider } from './ui/contexto/Dependencias';
+// BL-02 — fonte "Legível" embarcada (só o peso 400, latin: ~17 KB, baixada quando usada).
+import '@fontsource/atkinson-hyperlegible/latin-400.css';
 import './ui/estilos/index.css';
 
 registerSW({ immediate: true });

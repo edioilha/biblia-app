@@ -27,6 +27,10 @@ export interface PreferenciasRegistro {
   tamanhoFonte?: number;
   /** BL-01: "ESTREITA" | "MEDIA" | "LARGA". Ausente em registros antigos: estreita. */
   largura?: string;
+  /** BL-02: "CLASSICA" | "MODERNA" | "SEM_SERIFA" | "LEGIVEL". Ausente: clássica. */
+  fonte?: string;
+  /** BL-03: "LISO" | "TEXTURA" | "ENVELHECIDO" | "PAUTADO". Ausente: textura. */
+  folha?: string;
 }
 
 /** Favorito (docs/06 §6). `chave` = "JHN.3.16" (índice único: um favorito por versículo). */

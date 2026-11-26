@@ -405,11 +405,13 @@ sequenceDiagram
     P->>P: invalida todo o cache
 ```
 
-### 5.9 Tema, tamanho da fonte e largura da página (UC12)
+### 5.9 Tema, fonte, folha e largura da página (UC12)
 
 O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color-white`, `--color-red-*`… e os tokens `papel`, `tinta`, `primaria`) em `:root[data-tema='SEPIA' | 'ESCURO']` (`index.css`); as telas não mudam de classe. Texto sobre fundo sólido usa o token `sobre-tinta` (branco; escuro no tema escuro). No escuro, o marca-texto troca `multiply` por cores mais fechadas. O tamanho é a variável `--escala-leitura` (níveis 1–7 → 0,8 a 1,6) sobre o tamanho base do `.texto-biblico`. A largura da página (BL-01) é o atributo `data-largura` (`ESTREITA`, `MEDIA`, `LARGA`): regras de `index.css` fora das camadas do Tailwind, só em `width >= 48rem`, trocam o `max-width` e o `padding-inline` da `.pagina-papel` (48rem/4,5rem e 56rem/5,5rem); a Estreita é o `max-w-2xl` do componente.
 
-`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema`, `data-largura` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto (`public/tema-inicial.js`, carregado no `<head>`; fora do HTML por causa da CSP) aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro nem a página pular de largura na abertura. A fonte da verdade continua sendo o IndexedDB.
+A **família da fonte** (BL-02) é o atributo `data-fonte` (`CLASSICA`, `MODERNA`, `SEM_SERIFA`, `LEGIVEL`): regras fora das camadas trocam o `font-family` da `.pagina-papel` pelos tokens `--font-serif`, `--font-moderna`, `--font-sans` e `--font-legivel` (os mesmos das amostras do painel). A Atkinson Hyperlegible vem do pacote `@fontsource/atkinson-hyperlegible` (só `latin-400`, importado em `main.tsx`); o woff2 entra no precache do service worker e é servido pelo próprio site (`font-src 'self'` da CSP). O **tipo de folha** (BL-03) é o atributo `data-folha`: cada tipo define a variável `--fundo-folha` (gradientes CSS), usada como `background-image` da `.pagina-papel` e das amostras `.amostra-folha` (que levam o próprio `data-folha`). O tom das manchas (`--cor-idade`) e da pauta (`--cor-pauta`) muda por tema. A Pautada desenha a pauta em cada `<p>` do `.texto-biblico` com ladrilho de `1lh` e arredonda a altura da linha (`round(1.85em, 1px)`), para o passo da pauta e o do texto serem iguais.
+
+`AplicarTema` (no topo do `App`) lê a configuração (`ConfigurarLeitura.obter`) e põe `data-tema`, `data-largura`, `data-fonte`, `data-folha` e `--escala-leitura` no `<html>`, atualiza a `meta theme-color` e guarda uma cópia no `localStorage`. Um script curto (`public/tema-inicial.js`, carregado no `<head>`; fora do HTML por causa da CSP) aplica essa cópia antes de o React carregar, para o tema escuro não piscar claro nem a página pular de largura ou de fonte na abertura. A fonte da verdade continua sendo o IndexedDB.
 
 ## 6. Persistência (IndexedDB / Dexie)
 
@@ -434,6 +436,7 @@ O tema muda as **variáveis de cor** do Tailwind v4 (`--color-stone-*`, `--color
 - **Schema v5** (fase 7.7): `inscricoes` (`id, &planoId`); `inicio` gravado como `AAAA-MM-DD` (dia local), `diasConcluidos` como lista de números e `diaInicial` (UC07 A5; ausente = 1, sem índice). O índice único em `planoId` garante um plano por vez; o status é derivado, sem índice. Só cria a tabela; testado com migração a partir de um banco v4.
 - **Fase 7.9:** sem mudança de schema. O registro de `preferencias` ganhou `tema` e `tamanhoFonte` opcionais (ausentes ou inválidos = configuração padrão, sem perder versão e posição).
 - **BL-01:** sem mudança de schema. O registro de `preferencias` ganhou `largura` opcional (ausente = Estreita; inválida = configuração de leitura padrão).
+- **BL-02/BL-03:** sem mudança de schema. O registro de `preferencias` ganhou `fonte` e `folha` opcionais (ausentes = Clássica e Textura; inválidas = configuração de leitura padrão).
 - Mapeamento entidade ↔ registro feito por **mappers** na infraestrutura (o domínio não conhece o formato de armazenamento): `infraestrutura/dexie/mapeadores.ts` (fase 7.9), usados pelos repositórios, por `DexieDadosLeitor` e pelo arquivo de backup.
 
 ### 6.1 Arquivo de backup (UC11)

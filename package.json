@@ -31,6 +31,7 @@
     "*.{js,cjs,mjs,json,css,html,yml,yaml}": "prettier --write"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
     "@tanstack/react-query": "^5.108.2",
     "comlink": "4.4.2",
     "dexie": "^4.4.7",
