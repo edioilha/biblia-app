@@ -11,10 +11,16 @@
   /* Texto sobre fundo sólido (bg-tinta, bg-primaria, bg-red-700): branco, exceto no escuro. */
   --color-sobre-tinta: #fff;
   --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  /* BL-02 — famílias do texto bíblico (a clássica é a --font-serif). */
+  --font-moderna: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, 'Noto Serif', serif;
+  --font-legivel: 'Atkinson Hyperlegible', ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   color-scheme: light;
+  /* BL-03 — tom das manchas da folha envelhecida e das linhas da pautada (por tema). */
+  --cor-idade: 130 95 40;
+  --cor-pauta: rgb(44 82 130 / 0.16);
   /*
    * Onde começa o espaço livre no pé da tela: no celular, acima da tab bar da navegação
    * (3.5rem + área segura); no desktop, só a área segura. Barras fixas no rodapé usam isto.
@@ -46,6 +52,8 @@
   --color-stone-400: #a8977a;
   --color-stone-500: #6c6052;
   --color-stone-600: #54493d;
+  --cor-idade: 120 85 35;
+  --cor-pauta: rgb(106 88 65 / 0.22);
 }
 
 :root[data-tema='ESCURO'] {
@@ -80,6 +88,8 @@
   --color-green-800: #93e6b0;
   --color-green-900: #c3f3d3;
   --color-amber-700: #f5c04e;
+  --cor-idade: 0 0 0;
+  --cor-pauta: rgb(147 180 224 / 0.14);
 }
 
 /* RF01.7 — tamanho da fonte da leitura (A−/A+): --escala-leitura vem de AplicarTema. */
@@ -103,12 +113,74 @@ body {
   }
 }
 
-/* RF01.6 — folha de papel: fundo creme com textura sutil e vinheta nas bordas */
-.pagina-papel {
-  background-color: var(--color-papel);
-  background-image:
+/*
+ * RF01.6 / BL-03 — folha de papel. O tipo vem de `data-folha` (em <html>, posto por
+ * AplicarTema; nas amostras do painel Aa, no próprio elemento). Textura é a de sempre:
+ * fibra sutil e vinheta nas bordas. As manchas usam --cor-idade, que cada tema ajusta.
+ */
+:root,
+[data-folha='TEXTURA'] {
+  --fundo-folha:
     radial-gradient(ellipse at center, transparent 60%, rgb(120 100 60 / 0.07) 100%),
     repeating-linear-gradient(0deg, rgb(0 0 0 / 0.012) 0 1px, transparent 1px 3px);
+}
+[data-folha='LISO'],
+[data-folha='PAUTADO'] {
+  --fundo-folha: none;
+}
+/*
+ * Envelhecido: vinheta mais forte, manchas e um tom quente. Os alfas são o limite para a
+ * tinta suave (cabeçalho, nos cantos) ficar em ≥ 4,5:1 (WCAG AA) no pior ponto, no claro e
+ * no sépia (vinheta + mancha + tom + fibra = 4,57:1). No escuro, as manchas escurecem.
+ */
+[data-folha='ENVELHECIDO'] {
+  --fundo-folha:
+    radial-gradient(ellipse at center, transparent 45%, rgb(var(--cor-idade) / 0.07) 100%),
+    radial-gradient(circle at 14% 18%, rgb(var(--cor-idade) / 0.04), transparent 12%),
+    radial-gradient(circle at 86% 64%, rgb(var(--cor-idade) / 0.035), transparent 16%),
+    radial-gradient(circle at 58% 9%, rgb(var(--cor-idade) / 0.03), transparent 9%),
+    radial-gradient(circle at 30% 88%, rgb(var(--cor-idade) / 0.035), transparent 13%),
+    linear-gradient(rgb(var(--cor-idade) / 0.03), rgb(var(--cor-idade) / 0.03)),
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.015) 0 1px, transparent 1px 3px);
+}
+
+.pagina-papel,
+.amostra-folha {
+  background-color: var(--color-papel);
+  background-image: var(--fundo-folha);
+}
+
+/*
+ * BL-03 — folha pautada: uma linha a cada linha de texto (1lh acompanha o tamanho da
+ * fonte). Em cada parágrafo, para as notas inline no meio não desalinharem as linhas.
+ */
+:root[data-folha='PAUTADO'] .texto-biblico > p,
+.amostra-folha[data-folha='PAUTADO'] {
+  background-image: linear-gradient(transparent calc(1lh - 1px), var(--cor-pauta) 0);
+  background-size: 100% 1lh;
+}
+.amostra-folha[data-folha='PAUTADO'] {
+  line-height: 0.5rem;
+}
+/* Altura da linha em pixels inteiros: com fração, o navegador arredonda o ladrilho `1lh` de
+   um jeito e as linhas de texto de outro, e a pauta escorrega do texto em capítulos longos
+   (~7 px no Salmo 119). */
+:root[data-folha='PAUTADO'] .texto-biblico {
+  line-height: round(1.85em, 1px);
+}
+
+/*
+ * BL-02 — família da fonte da página (o título e o texto; cabeçalho, números e notas usam
+ * a fonte da interface). Fora das camadas do Tailwind, vence `font-serif` do componente.
+ */
+:root[data-fonte='MODERNA'] .pagina-papel {
+  font-family: var(--font-moderna);
+}
+:root[data-fonte='SEM_SERIFA'] .pagina-papel {
+  font-family: var(--font-sans);
+}
+:root[data-fonte='LEGIVEL'] .pagina-papel {
+  font-family: var(--font-legivel);
 }
 
 /*

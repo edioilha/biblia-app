@@ -66,7 +66,7 @@ flowchart LR
 | UC09 | Instalar versão | RF07.3 | M |
 | UC10 | Trocar versão | RF07.4, RF07.5 | M |
 | UC11 | Exportar / importar backup | RF08.x | M |
-| UC12 | Configurar leitura | RF01.7, BL-01 | S |
+| UC12 | Configurar leitura | RF01.7, BL-01, BL-02, BL-03 | S |
 | UC13 | Consultar Meus Estudos | RF09.x, RF03.2, RF04.6, RF05.6 | M |
 
 ## 4. Especificações
@@ -353,11 +353,11 @@ flowchart LR
 |---|---|
 | Ator | Leitor |
 | Pré-condição | — |
-| Pós-condição | Tema, tamanho da fonte e largura da página salvos nas preferências |
+| Pós-condição | Tema, tamanho e família da fonte, tipo de folha e largura da página salvos nas preferências |
 
 **Fluxo principal**
 1. Na leitura, leitor toca no botão **Aa** da barra.
-2. Sistema abre o painel com **Tamanho do texto** (A− / A+, 7 níveis, o 3º é o padrão), **Tema** (Claro, Sépia, Escuro) e, em telas a partir de 768 px, **Largura da página** (Estreita, Média, Larga).
+2. Sistema abre o painel com **Tamanho do texto** (A− / A+, 7 níveis, o 3º é o padrão), **Fonte** (Clássica, Moderna, Sem serifa, Legível), **Tema** (Claro, Sépia, Escuro), **Folha** (Lisa, Textura, Envelhecida, Pautada) e, em telas a partir de 768 px, **Largura da página** (Estreita, Média, Larga).
 3. Cada mudança vale na hora e é salva; Esc ou tocar fora fecha o painel.
 
 **Regras (decisões da fase 7.9):**
@@ -369,6 +369,18 @@ flowchart LR
 - Três larguras fixas, sem controle livre: **Estreita** (672 px, a de sempre e o padrão), **Média** (768 px) e **Larga** (896 px). As margens internas crescem junto, para a linha não ficar longa demais.
 - A opção só aparece a partir de 768 px (iPad em pé, notebook, desktop). No celular a página já ocupa a tela: a escolha feita em outra tela fica salva, mas não muda nada.
 - Salva neste aparelho, como o tema e o tamanho (não entra no backup); aplicada antes de a página aparecer, para não pular de largura ao abrir.
+
+**Regras da fonte (BL-02):**
+- Quatro famílias para o título e o texto da página (cabeçalho, números dos versículos e notas continuam na fonte da interface): **Clássica** (a serifada de sempre e o padrão), **Moderna** (serifada de leitura em tela: Charter, Sitka ou Cambria, conforme o aparelho), **Sem serifa** (a do sistema) e **Legível** (Atkinson Hyperlegible, feita para baixa visão).
+- Só a Legível é embarcada (licença OFL, peso 400, ~17 KB), para ser igual em todo aparelho e funcionar offline; as outras vêm do sistema e podem variar um pouco de um aparelho para outro.
+- Cada opção do painel mostra uma amostra "Aa" na própria fonte.
+
+**Regras da folha (BL-03):**
+- Quatro tipos, em qualquer tema, só com CSS (sem imagens): **Textura** (a de sempre e o padrão: fibra sutil e vinheta), **Lisa** (sem textura), **Envelhecida** (vinheta mais forte, manchas e um tom quente; no escuro, manchas escuras) e **Pautada** (uma linha por linha de texto).
+- Contraste WCAG AA garantido no pior ponto de cada folha: na Envelhecida, a tinta suave do cabeçalho (nos cantos) fica em ≥ 4,5:1 no claro e no sépia.
+- Na Pautada, a altura da linha é arredondada para pixels inteiros, para a pauta não escorregar do texto em capítulos longos; as linhas recomeçam em cada parágrafo (notas inline não as desalinham).
+- Cada opção do painel mostra uma amostra da folha no tema atual.
+- Fonte e folha ficam salvas neste aparelho com o resto da configuração (não entram no backup) e são aplicadas antes de a página aparecer.
 
 ---
 

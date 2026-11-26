@@ -10,6 +10,8 @@ const html = document.documentElement;
 afterEach(() => {
   delete html.dataset['tema'];
   delete html.dataset['largura'];
+  delete html.dataset['fonte'];
+  delete html.dataset['folha'];
   html.style.removeProperty('--escala-leitura');
   localStorage.clear();
 });
@@ -48,6 +50,8 @@ describe('Configurar leitura — botão "Aa" (UC12)', () => {
       tema: 'ESCURO',
       escala: 1,
       largura: 'ESTREITA',
+      fonte: 'CLASSICA',
+      folha: 'TEXTURA',
     });
 
     // Esc fecha e devolve o foco ao botão.
@@ -73,17 +77,43 @@ describe('Configurar leitura — botão "Aa" (UC12)', () => {
     });
   });
 
+  it('troca a fonte e a folha da página e guarda (BL-02, BL-03)', async () => {
+    const user = userEvent.setup();
+    const { prefs } = renderizarApp({ rota: '/ler/JHN/3' });
+
+    await user.click(await screen.findByRole('button', { name: 'Aparência da leitura' }));
+    const fonte = screen.getByRole('group', { name: 'Fonte' });
+    const folha = screen.getByRole('group', { name: 'Folha' });
+    expect(within(fonte).getByRole('radio', { name: 'Clássica' })).toBeChecked();
+    expect(within(folha).getByRole('radio', { name: 'Textura' })).toBeChecked();
+
+    await user.click(within(fonte).getByRole('radio', { name: 'Legível' }));
+    await waitFor(() => expect(html.dataset['fonte']).toBe('LEGIVEL'));
+    await user.click(within(folha).getByRole('radio', { name: 'Pautada' }));
+    await waitFor(() => expect(html.dataset['folha']).toBe('PAUTADO'));
+
+    expect(prefs.atual?.leitura).toEqual(
+      ConfiguracaoLeitura.criar('CLARO', 3, 'ESTREITA', 'LEGIVEL', 'PAUTADO'),
+    );
+    expect(JSON.parse(localStorage.getItem('biblia-app:leitura') ?? '{}')).toMatchObject({
+      fonte: 'LEGIVEL',
+      folha: 'PAUTADO',
+    });
+  });
+
   it('aplica a configuração salva ao abrir o app', async () => {
     renderizarApp({
       rota: '/estudos',
       preferencias: Preferencias.criar(
         VersaoId.de('BLIVRE'),
         Referencia.parse('Jo 3', canon),
-        ConfiguracaoLeitura.criar('SEPIA', 2, 'MEDIA'),
+        ConfiguracaoLeitura.criar('SEPIA', 2, 'MEDIA', 'MODERNA', 'ENVELHECIDO'),
       ),
     });
     await waitFor(() => expect(html.dataset['tema']).toBe('SEPIA'));
     expect(html.style.getPropertyValue('--escala-leitura')).toBe('0.9');
     expect(html.dataset['largura']).toBe('MEDIA');
+    expect(html.dataset['fonte']).toBe('MODERNA');
+    expect(html.dataset['folha']).toBe('ENVELHECIDO');
   });
 });

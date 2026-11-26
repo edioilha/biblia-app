@@ -33,11 +33,13 @@ describe('DexiePreferenciasRepository', () => {
       tema: 'CLARO',
       tamanhoFonte: 3,
       largura: 'ESTREITA',
+      fonte: 'CLASSICA',
+      folha: 'TEXTURA',
     });
   });
 
-  it('guarda tema, tamanho da fonte e largura da página (UC12, BL-01)', async () => {
-    const leitura = ConfiguracaoLeitura.criar('SEPIA', 6, 'LARGA');
+  it('guarda tema, tamanho, largura, fonte e folha (UC12, BL-01, BL-02, BL-03)', async () => {
+    const leitura = ConfiguracaoLeitura.criar('SEPIA', 6, 'LARGA', 'LEGIVEL', 'PAUTADO');
     await repo.salvar(
       Preferencias.criar(VersaoId.de('BLIVRE'), Referencia.parse('Jo 3', canon), leitura),
     );
@@ -64,6 +66,17 @@ describe('DexiePreferenciasRepository', () => {
     await db.preferencias.put({ ...base, tema: 'ESCURO', tamanhoFonte: 5 });
     expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.criar('ESCURO', 5));
     await db.preferencias.put({ ...base, tema: 'ESCURO', tamanhoFonte: 5, largura: 'GIGANTE' });
+    expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.padrao);
+  });
+
+  it('registro sem fonte e folha (anterior ao BL-02/03) mantém o resto; inválidas usam o padrão', async () => {
+    const base = { id: 'usuario', versaoAtiva: 'BLIVRE', ultimaPosicao: 'JHN.3' } as const;
+    const antigo = { ...base, tema: 'SEPIA', tamanhoFonte: 4, largura: 'MEDIA' };
+    await db.preferencias.put(antigo);
+    expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.criar('SEPIA', 4, 'MEDIA'));
+    await db.preferencias.put({ ...antigo, fonte: 'COMIC' });
+    expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.padrao);
+    await db.preferencias.put({ ...antigo, folha: 'PAPIRO' });
     expect((await repo.obter())?.leitura).toEqual(ConfiguracaoLeitura.padrao);
   });
 

@@ -1,6 +1,13 @@
 import type { PreferenciasRepository } from '../../aplicacao/portas';
 import { Referencia, VersaoId, type Canon } from '../../dominio/biblia';
-import { ConfiguracaoLeitura, LarguraPagina, Preferencias, Tema } from '../../dominio/preferencias';
+import {
+  ConfiguracaoLeitura,
+  FamiliaFonte,
+  LarguraPagina,
+  Preferencias,
+  Tema,
+  TipoFolha,
+} from '../../dominio/preferencias';
 import type { BancoApp, PreferenciasRegistro } from './BancoApp';
 
 export class DexiePreferenciasRepository implements PreferenciasRepository {
@@ -32,20 +39,24 @@ export class DexiePreferenciasRepository implements PreferenciasRepository {
       tema: p.leitura.tema,
       tamanhoFonte: p.leitura.tamanhoFonte,
       largura: p.leitura.largura,
+      fonte: p.leitura.fonte,
+      folha: p.leitura.folha,
     });
   }
 
   /**
-   * Tema, tamanho ou largura ausente (registro antigo) usa o padrão daquele campo; algum
-   * inválido descarta só a configuração de leitura, sem perder a versão e a posição.
+   * Campo ausente (registro antigo) usa o padrão daquele campo; algum inválido descarta só
+   * a configuração de leitura, sem perder a versão e a posição.
    */
-  private leitura({ tema, tamanhoFonte, largura }: PreferenciasRegistro): ConfiguracaoLeitura {
+  private leitura(r: PreferenciasRegistro): ConfiguracaoLeitura {
     const padrao = ConfiguracaoLeitura.padrao;
     try {
       return ConfiguracaoLeitura.criar(
-        tema === undefined ? padrao.tema : Tema.de(tema),
-        tamanhoFonte ?? padrao.tamanhoFonte,
-        largura === undefined ? padrao.largura : LarguraPagina.de(largura),
+        r.tema === undefined ? padrao.tema : Tema.de(r.tema),
+        r.tamanhoFonte ?? padrao.tamanhoFonte,
+        r.largura === undefined ? padrao.largura : LarguraPagina.de(r.largura),
+        r.fonte === undefined ? padrao.fonte : FamiliaFonte.de(r.fonte),
+        r.folha === undefined ? padrao.folha : TipoFolha.de(r.folha),
       );
     } catch {
       return padrao;

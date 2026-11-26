@@ -14,8 +14,8 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 | ID | Item | Relação | Status |
 |---|---|---|---|
 | BL-01 | Largura ajustável da área de leitura | RF01.6, UC12 | feito |
-| BL-02 | Tamanho e família da fonte | RF01.7, UC12 | ideia |
-| BL-03 | Tipo de folha (tema da página) | RF01.6, RF01.7, UC12 | ideia |
+| BL-02 | Tamanho e família da fonte | RF01.7, UC12 | feito |
+| BL-03 | Tipo de folha (tema da página) | RF01.6, RF01.7, UC12 | feito |
 | BL-04 | Aproveitar o espaço lateral no desktop | UC01, UC04, UC06 | ideia |
 | BL-05 | Persistência garantida do armazenamento (`navigator.storage.persist()`) | backup | feito (fase 7.9) |
 | BL-06 | Teste E2E de uso offline | RNF (PWA) | ideia |
@@ -46,12 +46,14 @@ Lista de ideias e melhorias **ainda não planejadas** em nenhuma fase. Um item s
 - **Ideia:** ajuste de tamanho (A− / A+, com limites) e escolha de família (ex.: serifada clássica, serifada moderna, sem serifa, fonte para dislexia).
 - **A decidir:** quais fontes empacotar (impacto no tamanho do PWA/cache offline e licenças).
 - **Fase 7.9:** o tamanho (A− / A+, 7 níveis) foi entregue com o UC12 (RF01.7); a escolha de família continua aqui.
+- **Decidido e feito (2026-11-26):** quatro famílias no painel **Aa**: Clássica (padrão), Moderna e Sem serifa (fontes do sistema, sem peso) e Legível (Atkinson Hyperlegible, OFL, a única embarcada: peso 400, ~17 KB no cache offline). Regras no UC12.
 
 ### BL-03 — Tipo de folha (tema da página)
 
 - **Origem:** mesmo feedback; temas claro/sépia/escuro já previstos em RF01.7.
 - **Ideia:** além dos temas, variar o "papel": liso, com textura, envelhecido, pautado, modo noturno com baixo contraste.
 - **A decidir:** quanto da textura vira imagem (peso) vs. CSS; contraste mínimo WCAG AA em todos os tipos.
+- **Decidido e feito (2026-11-26):** Lisa, Textura (padrão), Envelhecida e Pautada, só com CSS, em qualquer tema, com contraste AA conferido no pior ponto. O "noturno de baixo contraste" ficou de fora: seria um quarto tema, não um tipo de folha, e esbarra no AA. Regras no UC12.
 
 ### BL-04 — Aproveitar o espaço lateral no desktop
 
